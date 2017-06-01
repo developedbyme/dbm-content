@@ -18,6 +18,9 @@
 			$this->set_argument('show_in_nav_menus', false);
 			$this->set_argument('has_archive', false);
 			$this->set_argument('rewrite', false);
+			$this->set_argument('hierarchical', true);
+			
+			$this->set_argument('supports', array( 'title', 'editor', 'thumbnail', 'page-attributes'));
 			
 			$current_taxonomy = $this->create_taxonomy('dbm_type', 'content type', true);
 			$current_taxonomy->set_argument('public', false);
