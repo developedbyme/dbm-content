@@ -107,6 +107,17 @@
 			return $add_ons;
 		}
 		
+		public function encode_term($return_data, $term_id, $term) {
+			//echo("\DbmContent\CustomRangeFilters::encode_term<br />");
+			
+			$page = get_field('dbm_taxonomy_page', $term);
+			if($page) {
+				$return_data["permalink"] = get_permalink($page->ID);
+			}
+			
+			return $return_data;
+		}
+		
 		public static function test_import() {
 			echo("Imported \DbmContent\CustomRangeFilters<br />");
 		}

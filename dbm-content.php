@@ -17,6 +17,8 @@
 	define("DBM_CONTENT_VERSION", '0.1.0');
 	
 	require_once(DBM_CONTENT_DIR."/libs/DbmContent/bootstrap.php");
+	
+	require_once(DBM_CONTENT_DIR."/register-acf-fields.php");
 
 	$DbmContentPlugin = new \DbmContent\Plugin();
 

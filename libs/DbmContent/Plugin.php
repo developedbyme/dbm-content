@@ -68,6 +68,8 @@
 			
 			add_filter('dbm_content/get_taxonomies', array($this, 'filter_get_taxonomies'), 10, 1);
 			add_filter('m_router_data/encode_post_add_ons', array($custom_range_filters, 'encode_post_add_ons'), 10, 2);
+			
+			add_filter('m_router_data/encode_term', array($custom_range_filters, 'encode_term'), 10, 3);
 		}
 		
 		
