@@ -1,3 +1,4 @@
+//import Cookie from "oa/utils/Cookie";
 export default class Cookie {
 	
 	static setRootCookie(aName, aValue, aDays) {
