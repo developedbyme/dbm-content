@@ -76,9 +76,29 @@
 
 		public function hook_admin_enqueue_scripts() {
 			//echo("\DbmContent\Plugin::hook_admin_enqueue_scripts<br />");
-
-			parent::hook_admin_enqueue_scripts();
 			
+			parent::hook_admin_enqueue_scripts();
+		
+			$screen = get_current_screen();
+			
+			$localized_data = array(
+				'screen' => $screen,
+				'restApiBaseUrl' => get_home_url().'/wp-json/'
+			);
+			
+			$postData = null;
+			if($screen && $screen->base === 'post' && function_exists('mrouter_encode_post')) {
+				$postData = mrouter_encode_post(get_post());
+			}
+			
+			$localized_data['postData'] = $postData;
+		
+			wp_enqueue_script( 'dbm-content-admin-main', DBM_CONTENT_URL . '/assets/js/admin.js');
+			wp_localize_script(
+				'dbm-content-admin-main',
+				'oaWpAdminData',
+				$localized_data
+			);
 		}
 
 
