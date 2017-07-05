@@ -1,3 +1,5 @@
+import objectPath from "object-path";
+
 // import WpAdminManager from "dbmcontent/WpAdminManager";
 export default class WpAdminManager {
 	
@@ -9,8 +11,54 @@ export default class WpAdminManager {
 		this._pageTemplate = "default";
 		this._selectedTerms = null;
 		
+		this._dataObject = {};
+		
 		this._callback_pageTemplateChangedBound = this._callback_pageTemplateChanged.bind(this);
 		this._callback_termChangedBound = this._callback_termChanged.bind(this);
+	}
+	
+	_getState() {
+		var dataObject = {
+			"dataObject": this._dataObject,
+			"postData": {
+				"terms": this._selectedTerms
+			}
+		}
+		
+		return dataObject;
+	}
+	
+	subscribe(aSubscribeFunction) {
+		console.log("dbmcontent/WpAdminManager::subscribe");
+		
+		this._subscribeFunctions.push(aSubscribeFunction);
+		aSubscribeFunction(this._getState());
+	}
+	
+	_broadcastChanges() {
+		console.log("dbmcontent/WpAdminManager::_broadcastChanges");
+		
+		var dataObject = this._getState();
+		
+		var currentArray = this._subscribeFunctions;
+		var currentArrayLength = currentArray.length;
+		for(var i = 0; i < currentArrayLength; i++) {
+			var currentFunction = currentArray[i];
+			
+			currentFunction(dataObject);
+		}
+	}
+	
+	setDataObject(aDataObject) {
+		console.log("dbmcontent/WpAdminManager::setDataObject");
+		
+		this._dataObject = aDataObject;
+		this._broadcastChanges();
+	}
+	
+	setData(aPath, aData) {
+		objectPath.set(this._dataObject, aPath, aData);
+		this._broadcastChanges();
 	}
 	
 	setInitialPostData(aPostData) {
@@ -21,6 +69,8 @@ export default class WpAdminManager {
 		if(aPostData.meta["_wp_page_template"]) {
 			this._pageTemplate = aPostData.meta["_wp_page_template"];
 		}
+		
+		this._broadcastChanges();
 	}
 	
 	startPostInteractions() {

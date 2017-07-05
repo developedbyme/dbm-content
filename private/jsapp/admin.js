@@ -6,7 +6,7 @@ import EditorManager from "oa/admin/editor/EditorManager";
 import ShortcodeManager from "oa/admin/editor/shortcodes/ShortcodeManager";
 import WpAdminManager from "dbmcontent/WpAdminManager";
 
-//import CheckSyncNotice from "mrouterdata/admin/sync/CheckSyncNotice";
+import DbmContentController from "dbmcontent/admin/DbmContentController";
 
 if(!window.OA) {
 	window.OA = new Object();
@@ -32,7 +32,7 @@ if(!window.OA.wpAdminManager) {
 	window.OA.wpAdminManager = new WpAdminManager();
 }
 
-//window.OA.reactModuleCreator.registerModule("checkSyncNotice", (new GenericReactClassModuleCreator()).setClass(CheckSyncNotice));
+window.OA.reactModuleCreator.registerModule("dbmContentController", (new GenericReactClassModuleCreator()).setClass(DbmContentController));
 
 document.addEventListener("DOMContentLoaded", function(event) {
 	//console.log("admin-main.js DOMContentLoaded");

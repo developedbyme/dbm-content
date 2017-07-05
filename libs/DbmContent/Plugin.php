@@ -100,6 +100,26 @@
 				$localized_data
 			);
 		}
+		
+		public function hook_save_post($post_id, $post, $update) {
+			//echo("\DbmContent\Plugin::hook_save_post<br />");
+
+			if(wp_is_post_revision($post_id)) {
+				return;
+			}
+
+			remove_action('save_post', array($this, 'hook_save_post'));
+
+			parent::hook_save_post($post_id, $post, $update);
+			
+			if(isset($_POST['dbm_content'])) {
+				
+				$dbm_content_object = json_decode($_POST['dbm_content'], true);
+				
+				do_action('dbm_content/parse_dbm_content', $dbm_content_object);
+			}
+			
+		}
 
 
 
