@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	if(oaWpAdminData.screen["base"] === "post") {
 		window.OA.mceShortcodeMananger.registerViews();
 		
-		window.OA.wpAdminManager.setInitialPostData(oaWpAdminData.postData);
+		window.OA.wpAdminManager.setInitialPostData(oaWpAdminData.postData, oaWpAdminData.taxonomies);
 		window.OA.wpAdminManager.startPostInteractions();
 	}
 	

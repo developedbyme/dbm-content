@@ -24,6 +24,8 @@
 			
 			$current_taxonomy = $this->create_taxonomy('dbm_type', 'content type', true);
 			$current_taxonomy->set_argument('public', false);
+			//$current_taxonomy->set_argument('show_ui', false);
+			//$current_taxonomy->set_argument('show_in_nav_menus', false);
 			
 			$current_taxonomy = $this->create_taxonomy('dbm_relation', 'content relation', true);
 			$current_taxonomy->set_argument('public', false);

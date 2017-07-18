@@ -12,6 +12,7 @@ export default class WpAdminManager {
 		this._selectedTerms = null;
 		
 		this._dataObject = {};
+		this._taxonomies = {};
 		
 		this._callback_pageTemplateChangedBound = this._callback_pageTemplateChanged.bind(this);
 		this._callback_termChangedBound = this._callback_termChanged.bind(this);
@@ -20,6 +21,7 @@ export default class WpAdminManager {
 	_getState() {
 		var dataObject = {
 			"dataObject": this._dataObject,
+			"taxonomies": this._taxonomies,
 			"postData": {
 				"terms": this._selectedTerms
 			}
@@ -61,9 +63,10 @@ export default class WpAdminManager {
 		this._broadcastChanges();
 	}
 	
-	setInitialPostData(aPostData) {
+	setInitialPostData(aPostData, aTaxonomies) {
 		console.log("dbmcontent/WpAdminManager::setInitialPostData");
 		
+		this._taxonomies = aTaxonomies;
 		//METODO
 		this._selectedTerms = aPostData.terms;
 		if(aPostData.meta["_wp_page_template"]) {
@@ -103,6 +106,60 @@ export default class WpAdminManager {
 		console.log("dbmcontent/WpAdminManager::_callback_parentChanged");
 	}
 	
+	termAdded(aId, aTaxonomy) {
+		console.log("dbmcontent/WpAdminManager::termAdded");
+		
+		if(!this._selectedTerms[aTaxonomy]) {
+			this._selectedTerms[aTaxonomy] = new Array();
+		}
+		
+		var currentArray = this._taxonomies[aTaxonomy];
+		if(currentArray) {
+			var isFound = false;
+			var currentArrayLength = currentArray.length;
+			for(var i = 0; i < currentArrayLength; i++) {
+				var currentTerm = currentArray[i];
+				if(currentTerm.id === aId) {
+					this._selectedTerms[aTaxonomy].push(currentTerm);
+					isFound = true;
+					break;
+				}
+			}
+			
+			if(isFound) {
+				this._broadcastChanges();
+			}
+			else {
+				console.warn("Term with id " + aId + " for taxonomy " + aTaxonomy + " doesn't exist. Can't add.");
+			}
+		}
+	}
+	
+	termRemoved(aId, aTaxonomy) {
+		console.log("dbmcontent/WpAdminManager::termRemoved");
+		
+		var currentArray = this._selectedTerms[aTaxonomy];
+		if(currentArray) {
+			var isFound = false;
+			var currentArrayLength = currentArray.length;
+			for(var i = 0; i < currentArrayLength; i++) {
+				var currentTerm = currentArray[i];
+				if(currentTerm.id === aId) {
+					currentArray.splice(i, 1);
+					isFound = true;
+					break;
+				}
+			}
+			
+			if(isFound) {
+				this._broadcastChanges();
+			}
+			else {
+				console.warn("Term with id " + aId + " for taxonomy " + aTaxonomy + " is not active. Can't remove.");
+			}
+		}
+	}
+	
 	_callback_termChanged(aEvent) {
 		console.log("dbmcontent/WpAdminManager::_callback_termChanged");
 		
@@ -110,10 +167,17 @@ export default class WpAdminManager {
 		var name = targetElement.name;
 		var regExp = new RegExp("^tax_input\\[(.*)\\]\\[\\]$");
 		var taxonomy = name.replace(regExp, "$1");
-		var value = targetElement.value;
+		var value = parseInt(targetElement.value, 10);
 		var checked = targetElement.checked;
 		
-		console.log(taxonomy, value, checked);
+		if(checked) {
+			this.termAdded(value, taxonomy);
+		}
+		else {
+			this.termRemoved(value, taxonomy);
+		}
+		
+		//console.log(taxonomy, value, checked);
 		
 	}
 }

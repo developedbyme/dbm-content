@@ -37,7 +37,7 @@ export default class DbmContentController extends OaBaseComponent {
 		
 		return <wrapper>
 			<div>Status display</div>
-			<input type="text" name="dbm_content" value={JSON.stringify(this.state["dataObject"])}/>
+			<input type="hidden" name="dbm_content" value={JSON.stringify(this.state["dataObject"])}/>
 		</wrapper>;
 	}
 }

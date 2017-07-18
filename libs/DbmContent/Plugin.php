@@ -58,6 +58,79 @@
 			
 		}
 		
+		public function register_hooks() {
+			parent::register_hooks();
+			
+			add_action('dbm_content/parse_dbm_content', array($this, 'hook_parse_dbm_content'), 10, 3);
+		}
+		
+		public function get_full_term_slug($term, $taxonomy) {
+			$return_string = $term->slug;
+			if($term->parent !== 0) {
+				$parent_term = get_term_by('id', $term->parent, $taxonomy);
+				$return_string = $this->get_full_term_slug($parent_term, $taxonomy).$return_string;
+			}
+			return $return_string;
+		}
+		
+		public function hook_parse_dbm_content($dbm_content, $post_id, $post) {
+			//echo("\DbmContent\Plugin::hook_parse_dbm_content<br />");
+			
+			if(isset($dbm_content['dbm']) && isset($dbm_content['dbm']['type'])) {
+				$type_ids = $dbm_content['dbm']['type'];
+				
+				$registered_type_ids = get_post_meta($post_id, 'dbm_registered_types', true);
+				
+				if($registered_type_ids && !empty($registered_type_ids)) {
+					$removed_types = array_diff($registered_type_ids, $type_ids);
+				}
+				else {
+					$removed_types = array();
+				}
+					
+				
+				
+				wp_set_post_terms($post_id, $type_ids, 'dbm_type', false);
+				update_post_meta($post_id, 'dbm_registered_types', $type_ids);
+				
+				foreach($removed_types as $term_id) {
+					$term = get_term_by('id', $term_id, 'dbm_type');
+					if($term) {
+						$full_term_slug = $this->get_full_term_slug($term, 'dbm_type');
+						
+						$action_name = 'dbm_content/type_removed/'.$full_term_slug;
+						do_action($action_name, $post_id, $post);
+					}
+				}
+				
+				foreach($type_ids as $term_id) {
+					$term = get_term_by('id', $term_id, 'dbm_type');
+					if($term) {
+						$full_term_slug = $this->get_full_term_slug($term, 'dbm_type');
+						
+						$action_name = 'dbm_content/type_set/'.$full_term_slug;
+						do_action($action_name, $post_id, $post);
+					}
+				}
+			}
+			
+			if(isset($dbm_content['dbm']) && isset($dbm_content['dbm']['relation'])) {
+				foreach($dbm_content['dbm']['relation'] as $parent_slug => $ids) {
+					
+					$parent_term = get_term_by('slug', $parent_slug, 'dbm_relation');
+					
+					$current_terms = wp_get_post_terms($post_id, 'dbm_relation');
+					foreach($current_terms as $current_term) {
+						if(!term_is_ancestor_of($parent_term, $current_term, 'dbm_relation')) {
+							$ids[] = $current_term->term_id;
+						}
+					}
+				
+					wp_set_post_terms($post_id, $ids, 'dbm_relation', false);
+				}
+			}
+		}
+		
 		protected function create_filters() {
 			//echo("\DbmContent\Plugin::create_filters<br />");
 			
@@ -92,6 +165,10 @@
 			}
 			
 			$localized_data['postData'] = $postData;
+			
+			if(function_exists('mrouter_encode_all_taxonomies')) {
+				$localized_data['taxonomies'] = mrouter_encode_all_taxonomies();
+			}
 		
 			wp_enqueue_script( 'dbm-content-admin-main', DBM_CONTENT_URL . '/assets/js/admin.js');
 			wp_localize_script(
@@ -114,9 +191,9 @@
 			
 			if(isset($_POST['dbm_content'])) {
 				
-				$dbm_content_object = json_decode($_POST['dbm_content'], true);
+				$dbm_content_object = json_decode(stripslashes($_POST['dbm_content']), true);
 				
-				do_action('dbm_content/parse_dbm_content', $dbm_content_object);
+				do_action('dbm_content/parse_dbm_content', $dbm_content_object, $post_id, $post);
 			}
 			
 		}

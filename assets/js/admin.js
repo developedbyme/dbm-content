@@ -10083,7 +10083,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 	if (oaWpAdminData.screen["base"] === "post") {
 		window.OA.mceShortcodeMananger.registerViews();
 
-		window.OA.wpAdminManager.setInitialPostData(oaWpAdminData.postData);
+		window.OA.wpAdminManager.setInitialPostData(oaWpAdminData.postData, oaWpAdminData.taxonomies);
 		window.OA.wpAdminManager.startPostInteractions();
 	}
 });
@@ -22759,6 +22759,7 @@ var WpAdminManager = function () {
 		this._selectedTerms = null;
 
 		this._dataObject = {};
+		this._taxonomies = {};
 
 		this._callback_pageTemplateChangedBound = this._callback_pageTemplateChanged.bind(this);
 		this._callback_termChangedBound = this._callback_termChanged.bind(this);
@@ -22769,6 +22770,7 @@ var WpAdminManager = function () {
 		value: function _getState() {
 			var dataObject = {
 				"dataObject": this._dataObject,
+				"taxonomies": this._taxonomies,
 				"postData": {
 					"terms": this._selectedTerms
 				}
@@ -22815,9 +22817,10 @@ var WpAdminManager = function () {
 		}
 	}, {
 		key: "setInitialPostData",
-		value: function setInitialPostData(aPostData) {
+		value: function setInitialPostData(aPostData, aTaxonomies) {
 			console.log("dbmcontent/WpAdminManager::setInitialPostData");
 
+			this._taxonomies = aTaxonomies;
 			//METODO
 			this._selectedTerms = aPostData.terms;
 			if (aPostData.meta["_wp_page_template"]) {
@@ -22861,6 +22864,60 @@ var WpAdminManager = function () {
 			console.log("dbmcontent/WpAdminManager::_callback_parentChanged");
 		}
 	}, {
+		key: "termAdded",
+		value: function termAdded(aId, aTaxonomy) {
+			console.log("dbmcontent/WpAdminManager::termAdded");
+
+			if (!this._selectedTerms[aTaxonomy]) {
+				this._selectedTerms[aTaxonomy] = new Array();
+			}
+
+			var currentArray = this._taxonomies[aTaxonomy];
+			if (currentArray) {
+				var isFound = false;
+				var currentArrayLength = currentArray.length;
+				for (var i = 0; i < currentArrayLength; i++) {
+					var currentTerm = currentArray[i];
+					if (currentTerm.id === aId) {
+						this._selectedTerms[aTaxonomy].push(currentTerm);
+						isFound = true;
+						break;
+					}
+				}
+
+				if (isFound) {
+					this._broadcastChanges();
+				} else {
+					console.warn("Term with id " + aId + " for taxonomy " + aTaxonomy + " doesn't exist. Can't add.");
+				}
+			}
+		}
+	}, {
+		key: "termRemoved",
+		value: function termRemoved(aId, aTaxonomy) {
+			console.log("dbmcontent/WpAdminManager::termRemoved");
+
+			var currentArray = this._selectedTerms[aTaxonomy];
+			if (currentArray) {
+				var isFound = false;
+				var currentArrayLength = currentArray.length;
+				for (var i = 0; i < currentArrayLength; i++) {
+					var currentTerm = currentArray[i];
+					if (currentTerm.id === aId) {
+						currentArray.splice(i, 1);
+						isFound = true;
+						break;
+					}
+				}
+
+				if (isFound) {
+					this._broadcastChanges();
+				} else {
+					console.warn("Term with id " + aId + " for taxonomy " + aTaxonomy + " is not active. Can't remove.");
+				}
+			}
+		}
+	}, {
 		key: "_callback_termChanged",
 		value: function _callback_termChanged(aEvent) {
 			console.log("dbmcontent/WpAdminManager::_callback_termChanged");
@@ -22869,10 +22926,16 @@ var WpAdminManager = function () {
 			var name = targetElement.name;
 			var regExp = new RegExp("^tax_input\\[(.*)\\]\\[\\]$");
 			var taxonomy = name.replace(regExp, "$1");
-			var value = targetElement.value;
+			var value = parseInt(targetElement.value, 10);
 			var checked = targetElement.checked;
 
-			console.log(taxonomy, value, checked);
+			if (checked) {
+				this.termAdded(value, taxonomy);
+			} else {
+				this.termRemoved(value, taxonomy);
+			}
+
+			//console.log(taxonomy, value, checked);
 		}
 	}]);
 
@@ -26439,7 +26502,7 @@ var DbmContentController = function (_OaBaseComponent) {
 					null,
 					"Status display"
 				),
-				_react2.default.createElement("input", { type: "text", name: "dbm_content", value: JSON.stringify(this.state["dataObject"]) })
+				_react2.default.createElement("input", { type: "hidden", name: "dbm_content", value: JSON.stringify(this.state["dataObject"]) })
 			);
 		}
 	}]);
