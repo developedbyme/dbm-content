@@ -137,7 +137,6 @@
 			$custom_range_filters = new \DbmContent\CustomRangeFilters();
 			
 			add_filter('m_router_data/custom_range_query_dbm-relations', array($custom_range_filters, 'query_relations'), 10, 2);
-			add_filter('m_router_data/custom_range_encode_dbm-relations', array($custom_range_filters, 'encode_relations'), 10, 1);
 			
 			add_filter('dbm_content/get_taxonomies', array($this, 'filter_get_taxonomies'), 10, 1);
 			add_filter('m_router_data/encode_post_add_ons', array($custom_range_filters, 'encode_post_add_ons'), 10, 2);

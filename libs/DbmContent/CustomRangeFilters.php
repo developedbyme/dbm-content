@@ -56,22 +56,6 @@
 			return $query_args;
 		}
 		
-		
-		public function encode_relations($post_id) {
-			//echo("\DbmContent\CustomRangeFilters::encode_relations<br />");
-			
-			
-			
-			if(function_exists('mrouter_encode_post_link')) {
-				$return_object = mrouter_encode_post_link($post_id);
-				
-				return $return_object;
-			}
-			
-			//METODO: error message
-			return null;
-		}
-		
 		protected function _get_term_path($term_id, $taxonomy) {
 			//echo("\DbmContent\CustomRangeFilters::_get_term_path<br />");
 			$current_term = get_term_by('id', $term_id, $taxonomy);

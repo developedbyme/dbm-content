@@ -1,6 +1,4 @@
 <?php
-	//MENOTE: this plugin doesn't have any functions that can be called externally
-	
 	function dbm_content_get_status_box() {
 		$current_box = new \DbmContent\OddCore\Admin\MetaData\ReactPostMetaDataHiddenBox();
 		$current_box->set_name('Dbm content controller');
