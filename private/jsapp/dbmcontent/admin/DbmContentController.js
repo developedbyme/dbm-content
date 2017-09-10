@@ -16,13 +16,12 @@ export default class DbmContentController extends OaBaseComponent {
 	componentWillMount() {
 		console.log("dbmcontent/admin/DbmContentController::componentWillMount");
 		
+		window.OA.wpAdminManager.subscribe(this._adminUpdateBound);
+		
 		if(this.props.metaFields && this.props.metaFields.dbm_content) {
 			
 			var dataObject = JSON.parse(this.props.metaFields.dbm_content);
-			
-			window.OA.wpAdminManager.subscribe(this._adminUpdateBound);
 			window.OA.wpAdminManager.setDataObject(dataObject);
-			
 		}
 	}
 	
