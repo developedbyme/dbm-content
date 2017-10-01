@@ -5,7 +5,7 @@
 	class OwnedRelationTerm {
 		
 		protected $_type = null;
-		
+		protected $_type_group = null;
 		protected $_relation_group = null;
 		
 		function __construct() {
@@ -16,7 +16,12 @@
 		
 		public function setup($type, $relation_group) {
 			$this->_type = $type;
+			$this->_type_group = $type;
 			$this->_relation_group = $relation_group;
+		}
+		
+		public function set_type_group($type_group) {
+			$this->_type_group = $type_group;
 		}
 		
 		public function register_hooks() {
@@ -48,7 +53,7 @@
 		
 		public function hook_type_set($post_id, $post) {
 			
-			$meta_name = 'dbm_relation_term_'.$this->_type;
+			$meta_name = 'dbm_relation_term_'.$this->_type_group;
 			
 			$term_id_meta = get_post_meta($post_id, $meta_name, true);
 			if(is_numeric($term_id_meta)) {

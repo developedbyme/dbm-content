@@ -33,6 +33,11 @@
 			$relation_taxonomy = $current_custom_post_type->get_owned_taxonomy('dbm_relation');
 			$this->add_custom_post_type($current_custom_post_type);
 			
+			$current_custom_post_type = new \DbmContent\Admin\CustomPostTypes\AdditionalCustomPostType();
+			$current_custom_post_type->add_taxonomy('dbm_type');
+			$current_custom_post_type->add_taxonomy('dbm_relation');
+			$this->add_custom_post_type($current_custom_post_type);
+			
 			$post_types_with_taxonomies = apply_filters('dbm_content/post_types_with_taxonomies', array('post', 'page', 'attachment'));
 			
 			foreach($post_types_with_taxonomies as $post_type) {

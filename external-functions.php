@@ -10,9 +10,12 @@
 		return $current_box;
 	}
 	
-	function dbm_content_add_owned_relationship($type, $relation_term) {
+	function dbm_content_add_owned_relationship($type, $relation_term, $type_group = null) {
 		$owned_term = new \DbmContent\Admin\Hooks\OwnedRelationTerm();
 		$owned_term->setup($type, $relation_term);
+		if(isset($type_group)) {
+			$owned_term->set_type_group($type_group);
+		}
 		$owned_term->register_hooks();
 	}
 ?>
