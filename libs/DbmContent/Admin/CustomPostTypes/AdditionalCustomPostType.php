@@ -20,7 +20,7 @@
 			$this->set_argument('rewrite', array('slug' => 'a'));
 			$this->set_argument('hierarchical', true);
 			
-			$this->set_argument('supports', array( 'title', 'editor', 'thumbnail', 'page-attributes'));
+			$this->set_argument('supports', array( 'title', 'excerpt', 'editor', 'thumbnail', 'comments', 'page-attributes'));
 			
 		}
 		
