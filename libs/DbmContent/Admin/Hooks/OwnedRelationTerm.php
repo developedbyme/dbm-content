@@ -7,6 +7,7 @@
 		protected $_type = null;
 		protected $_type_group = null;
 		protected $_relation_group = null;
+		protected $_add_term_to_owner_post = false;
 		
 		function __construct() {
 			//echo("\OddCore\Admin\Hooks\OwnedRelationTerm::__construct<br />");
@@ -18,6 +19,10 @@
 			$this->_type = $type;
 			$this->_type_group = $type;
 			$this->_relation_group = $relation_group;
+		}
+		
+		public function set_add_term_to_owner_post($add = true) {
+			$this->_add_term_to_owner_post = $add;
 		}
 		
 		public function set_type_group($type_group) {
@@ -71,9 +76,10 @@
 			
 			if(!$term_id) {
 				$new_term = wp_insert_term($post->post_title, 'dbm_relation', array('parent' => $parent_id));
-				update_post_meta($post_id, $meta_name, $new_term['term_id']);
+				$term_id = $new_term['term_id'];
+				update_post_meta($post_id, $meta_name, $term_id);
 				if(function_exists('update_field')) {
-					$term = get_term_by('id', $new_term['term_id'], 'dbm_relation');
+					$term = get_term_by('id', $term_id, 'dbm_relation');
 					update_field('dbm_taxonomy_page', $post_id, $term);
 				}
 			}
@@ -81,6 +87,9 @@
 				wp_update_term($term_id, 'dbm_relation', array('name' => $post->post_title, 'parent' => $parent_id));
 			}
 			
+			if($this->_add_term_to_owner_post) {
+				wp_set_post_terms($post_id, $term_id, 'dbm_relation', true);
+			}
 		}
 		
 		public function hook_type_removed($post_id, $post) {

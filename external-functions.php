@@ -18,4 +18,14 @@
 		}
 		$owned_term->register_hooks();
 	}
+	
+	function dbm_content_add_owned_relationship_with_auto_add($type, $relation_term, $type_group = null) {
+		$owned_term = new \DbmContent\Admin\Hooks\OwnedRelationTerm();
+		$owned_term->setup($type, $relation_term);
+		$owned_term->set_add_term_to_owner_post(true);
+		if(isset($type_group)) {
+			$owned_term->set_type_group($type_group);
+		}
+		$owned_term->register_hooks();
+	}
 ?>
