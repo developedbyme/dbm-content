@@ -69,6 +69,14 @@
 			parent::register_hooks();
 			
 			add_action('dbm_content/parse_dbm_content', array($this, 'hook_parse_dbm_content'), 10, 3);
+			
+			add_filter( 'mce_external_plugins', array($this, 'mce_external_plugins'), 10, 1 );
+		}
+		
+		public function mce_external_plugins( $plugin_array ){
+			$plugin_array['oa_generic'] = DBM_CONTENT_URL . '/libs/tinymce-plugins/oa_generic/editor_plugin_src.js';
+
+			return $plugin_array;
 		}
 		
 		public function get_full_term_slug($term, $taxonomy) {

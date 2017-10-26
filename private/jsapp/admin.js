@@ -7,6 +7,7 @@ import ShortcodeManager from "oa/admin/editor/shortcodes/ShortcodeManager";
 import WpAdminManager from "dbmcontent/WpAdminManager";
 
 import DbmContentController from "dbmcontent/admin/DbmContentController";
+import ShortcodeEditorConnection from "dbmcontent/admin/editor/ShortcodeEditorConnection";
 
 if(!window.OA) {
 	window.OA = new Object();
@@ -33,6 +34,10 @@ if(!window.OA.wpAdminManager) {
 }
 
 window.OA.reactModuleCreator.registerModule("dbmContentController", (new GenericReactClassModuleCreator()).setClass(DbmContentController));
+
+if(oaWpAdminData.screen["base"] === "post") {
+	window.OA.mceEditorMananger.addEditorControl("content", new ShortcodeEditorConnection());
+}
 
 document.addEventListener("DOMContentLoaded", function(event) {
 	//console.log("admin-main.js DOMContentLoaded");
