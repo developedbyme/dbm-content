@@ -19,22 +19,20 @@ export default class ShortcodeEditorConnection {
 	}
 	
 	_adminUpdate(aNewData) {
-		console.log("dbmcontent.admin.editor.ShortcodeEditorConnection::_adminUpdate");
-		console.log(aNewData);
+		//console.log("dbmcontent.admin.editor.ShortcodeEditorConnection::_adminUpdate");
+		//console.log(aNewData);
 		
-		var shortcodes = aNewData.shortcodes;
+		var shortcodes = aNewData.dataObject.shortcodes;
 		for(var objectName in shortcodes) {
 			var newData = shortcodes[objectName];
 			
 			var currentShortcode = this._shortcodes[objectName];
 			if(currentShortcode) {
 				if(currentShortcode.type !== newData.type) {
-					//METODO: replace type
+					this._setShortcodeAttribute(objectName, "type", newData.type);
 				}
 				
 				var encodedData = this._encodeData(newData.data);
-				console.log(">>>>>>");
-				console.log(encodedData, currentShortcode.encodedData);
 				
 				if(encodedData !== currentShortcode.encodedData) {
 					this._setShortcodeAttribute(objectName, "data", encodedData);
@@ -59,7 +57,6 @@ export default class ShortcodeEditorConnection {
 				var currentShortcodeId;
 				var idResult = currentShortcode.match(shortcodeIdRegExp);
 				if(idResult !== null) {
-					console.log(">>>>", idResult[1]);
 					currentShortcodeId = idResult[1];
 					
 					if(currentShortcodeId === aId) {
@@ -67,15 +64,15 @@ export default class ShortcodeEditorConnection {
 						
 						var attributeResult = currentShortcode.match(attributeRegExp);
 						
-						console.log("i", attributeResult);
 						if(attributeResult) {
 							var newShortcode = currentShortcode.replace(attributeRegExp, " " + aAttribute + "=\"" + aValue + "\"");
-							console.log(newShortcode);
 							var newContent = currentContent.replace(currentShortcode, newShortcode);
 							this._editor.setContent(newContent);
 						}
 						else {
-							//METODO: add
+							newShortcode = currentShortcode.substring(0, currentShortcode.length-1) + " " + aAttribute + "=\"" + aValue + "\"]";
+							var newContent = currentContent.replace(currentShortcode, newShortcode);
+							this._editor.setContent(newContent);
 						}
 					}
 				}
@@ -145,11 +142,10 @@ export default class ShortcodeEditorConnection {
 				var currentShortcodeId;
 				var idResult = currentShortcode.match(shortcodeIdRegExp);
 				if(idResult !== null) {
-					console.log(">>>>", idResult[1]);
 					currentShortcodeId = idResult[1];
 				}
 				else {
-					currentShortcodeId = ""+Math.round(100000*Math.random()); //METODO: generate better ids
+					currentShortcodeId = "id"+Math.round(100000*Math.random()); //METODO: generate better ids
 					
 					hasInjection = true;
 					
@@ -164,7 +160,6 @@ export default class ShortcodeEditorConnection {
 				
 				var typeResult = currentShortcode.match(typeRegExp);
 				var dataResult = currentShortcode.match(dataRegExp);
-				console.log(typeResult, dataResult);
 				
 				this._shortcodes[currentShortcodeId] = {
 					"type": (typeResult ? typeResult[1] : null),
@@ -177,12 +172,8 @@ export default class ShortcodeEditorConnection {
 		}
 		
 		if(hasInjection) {
-			console.log(currentContent);
 			this._editor.setContent(currentContent);
 		}
-		
-		console.log(updatedShortcodeIds);
-		console.log("mmmmmmm", this._shortcodes);
 		
 		this._currentShortcodeIds = updatedShortcodeIds;
 		
@@ -193,11 +184,6 @@ export default class ShortcodeEditorConnection {
 			var currentData = this._shortcodes[currentId];
 			
 			var decodedData = this._decodeData(currentData.encodedData);
-			
-			if(decodedData) {
-				decodedData.test = "test"; //MEDEBUG
-			}
-			
 			
 			window.OA.wpAdminManager.addShortcode(currentId, currentData.type, decodedData);
 		}

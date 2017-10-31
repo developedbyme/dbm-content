@@ -11520,9 +11520,9 @@ var WpAdminManager = function () {
 		this._pageTemplate = "default";
 		this._selectedTerms = null;
 
-		this._dataObject = {};
-		this._taxonomies = {};
 		this._shortcodes = {};
+		this._dataObject = { "shortcodes": this._shortcodes };
+		this._taxonomies = {};
 
 		this._callback_pageTemplateChangedBound = this._callback_pageTemplateChanged.bind(this);
 		this._callback_termChangedBound = this._callback_termChanged.bind(this);
@@ -11536,8 +11536,7 @@ var WpAdminManager = function () {
 				"taxonomies": this._taxonomies,
 				"postData": {
 					"terms": this._selectedTerms
-				},
-				"shortcodes": this._shortcodes
+				}
 			};
 
 			return dataObject;
@@ -11571,12 +11570,27 @@ var WpAdminManager = function () {
 			console.log("dbmcontent/WpAdminManager::setDataObject");
 
 			this._dataObject = aDataObject;
+
+			if (this._dataObject.shortcodes) {
+				this._shortcodes = this._dataObject.shortcodes;
+			} else {
+				this._dataObject.shortcodes = this._shortcodes;
+			}
+
 			this._broadcastChanges();
 		}
 	}, {
 		key: "setData",
 		value: function setData(aPath, aData) {
+			console.log("dbmcontent/WpAdminManager::setData");
+			console.log(aPath, aData);
+
+			console.log(JSON.stringify(this._dataObject));
+
 			_objectPath2.default.set(this._dataObject, aPath, aData);
+
+			console.log(JSON.stringify(this._dataObject));
+
 			this._broadcastChanges();
 		}
 	}, {
@@ -11848,22 +11862,20 @@ var ShortcodeEditorConnection = function () {
 	_createClass(ShortcodeEditorConnection, [{
 		key: "_adminUpdate",
 		value: function _adminUpdate(aNewData) {
-			console.log("dbmcontent.admin.editor.ShortcodeEditorConnection::_adminUpdate");
-			console.log(aNewData);
+			//console.log("dbmcontent.admin.editor.ShortcodeEditorConnection::_adminUpdate");
+			//console.log(aNewData);
 
-			var shortcodes = aNewData.shortcodes;
+			var shortcodes = aNewData.dataObject.shortcodes;
 			for (var objectName in shortcodes) {
 				var newData = shortcodes[objectName];
 
 				var currentShortcode = this._shortcodes[objectName];
 				if (currentShortcode) {
 					if (currentShortcode.type !== newData.type) {
-						//METODO: replace type
+						this._setShortcodeAttribute(objectName, "type", newData.type);
 					}
 
 					var encodedData = this._encodeData(newData.data);
-					console.log(">>>>>>");
-					console.log(encodedData, currentShortcode.encodedData);
 
 					if (encodedData !== currentShortcode.encodedData) {
 						this._setShortcodeAttribute(objectName, "data", encodedData);
@@ -11889,7 +11901,6 @@ var ShortcodeEditorConnection = function () {
 					var currentShortcodeId;
 					var idResult = currentShortcode.match(shortcodeIdRegExp);
 					if (idResult !== null) {
-						console.log(">>>>", idResult[1]);
 						currentShortcodeId = idResult[1];
 
 						if (currentShortcodeId === aId) {
@@ -11897,14 +11908,14 @@ var ShortcodeEditorConnection = function () {
 
 							var attributeResult = currentShortcode.match(attributeRegExp);
 
-							console.log("i", attributeResult);
 							if (attributeResult) {
 								var newShortcode = currentShortcode.replace(attributeRegExp, " " + aAttribute + "=\"" + aValue + "\"");
-								console.log(newShortcode);
 								var newContent = currentContent.replace(currentShortcode, newShortcode);
 								this._editor.setContent(newContent);
 							} else {
-								//METODO: add
+								newShortcode = currentShortcode.substring(0, currentShortcode.length - 1) + " " + aAttribute + "=\"" + aValue + "\"]";
+								var newContent = currentContent.replace(currentShortcode, newShortcode);
+								this._editor.setContent(newContent);
 							}
 						}
 					}
@@ -11979,10 +11990,9 @@ var ShortcodeEditorConnection = function () {
 					var currentShortcodeId;
 					var idResult = currentShortcode.match(shortcodeIdRegExp);
 					if (idResult !== null) {
-						console.log(">>>>", idResult[1]);
 						currentShortcodeId = idResult[1];
 					} else {
-						currentShortcodeId = "" + Math.round(100000 * Math.random()); //METODO: generate better ids
+						currentShortcodeId = "id" + Math.round(100000 * Math.random()); //METODO: generate better ids
 
 						hasInjection = true;
 
@@ -11997,7 +12007,6 @@ var ShortcodeEditorConnection = function () {
 
 					var typeResult = currentShortcode.match(typeRegExp);
 					var dataResult = currentShortcode.match(dataRegExp);
-					console.log(typeResult, dataResult);
 
 					this._shortcodes[currentShortcodeId] = {
 						"type": typeResult ? typeResult[1] : null,
@@ -12009,12 +12018,8 @@ var ShortcodeEditorConnection = function () {
 			}
 
 			if (hasInjection) {
-				console.log(currentContent);
 				this._editor.setContent(currentContent);
 			}
-
-			console.log(updatedShortcodeIds);
-			console.log("mmmmmmm", this._shortcodes);
 
 			this._currentShortcodeIds = updatedShortcodeIds;
 
@@ -12025,10 +12030,6 @@ var ShortcodeEditorConnection = function () {
 				var currentData = this._shortcodes[currentId];
 
 				var decodedData = this._decodeData(currentData.encodedData);
-
-				if (decodedData) {
-					decodedData.test = "test"; //MEDEBUG
-				}
 
 				window.OA.wpAdminManager.addShortcode(currentId, currentData.type, decodedData);
 			}

@@ -11,9 +11,10 @@ export default class WpAdminManager {
 		this._pageTemplate = "default";
 		this._selectedTerms = null;
 		
-		this._dataObject = {};
-		this._taxonomies = {};
 		this._shortcodes = {};
+		this._dataObject = {"shortcodes": this._shortcodes};
+		this._taxonomies = {};
+		
 		
 		this._callback_pageTemplateChangedBound = this._callback_pageTemplateChanged.bind(this);
 		this._callback_termChangedBound = this._callback_termChanged.bind(this);
@@ -25,8 +26,7 @@ export default class WpAdminManager {
 			"taxonomies": this._taxonomies,
 			"postData": {
 				"terms": this._selectedTerms
-			},
-			"shortcodes": this._shortcodes
+			}
 		}
 		
 		return dataObject;
@@ -57,11 +57,27 @@ export default class WpAdminManager {
 		console.log("dbmcontent/WpAdminManager::setDataObject");
 		
 		this._dataObject = aDataObject;
+		
+		if(this._dataObject.shortcodes) {
+			this._shortcodes = this._dataObject.shortcodes;
+		}
+		else {
+			this._dataObject.shortcodes = this._shortcodes;
+		}
+		
 		this._broadcastChanges();
 	}
 	
 	setData(aPath, aData) {
+		console.log("dbmcontent/WpAdminManager::setData");
+		console.log(aPath, aData);
+		
+		console.log(JSON.stringify(this._dataObject));
+		
 		objectPath.set(this._dataObject, aPath, aData);
+		
+		console.log(JSON.stringify(this._dataObject));
+		
 		this._broadcastChanges();
 	}
 	
