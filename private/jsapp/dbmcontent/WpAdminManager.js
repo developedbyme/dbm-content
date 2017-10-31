@@ -13,6 +13,7 @@ export default class WpAdminManager {
 		
 		this._dataObject = {};
 		this._taxonomies = {};
+		this._shortcodes = {};
 		
 		this._callback_pageTemplateChangedBound = this._callback_pageTemplateChanged.bind(this);
 		this._callback_termChangedBound = this._callback_termChanged.bind(this);
@@ -24,7 +25,8 @@ export default class WpAdminManager {
 			"taxonomies": this._taxonomies,
 			"postData": {
 				"terms": this._selectedTerms
-			}
+			},
+			"shortcodes": this._shortcodes
 		}
 		
 		return dataObject;
@@ -158,6 +160,19 @@ export default class WpAdminManager {
 				console.warn("Term with id " + aId + " for taxonomy " + aTaxonomy + " is not active. Can't remove.");
 			}
 		}
+	}
+	
+	addShortcode(aId, aType, aData) {
+		console.log("dbmcontent/WpAdminManager::addShortcode");
+		console.log(aId, aType, aData);
+		
+		var dataObject = {
+			"type": aType,
+			"data": aData
+		}
+		
+		this._shortcodes[aId] = dataObject;
+		this._broadcastChanges();
 	}
 	
 	_callback_termChanged(aEvent) {

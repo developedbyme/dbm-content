@@ -47,6 +47,8 @@ export default class EditorManager {
 				catch(theError) {
 					console.error("Could not start editor controller.");
 					console.log(currentController, aEditor);
+					console.log(theError.message);
+					console.log(theError.stack);
 				}
 			}
 		}
