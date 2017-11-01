@@ -4,7 +4,7 @@ import objectPath from "object-path";
 export default class WpAdminManager {
 	
 	constructor() {
-		console.log("dbmcontent/WpAdminManager::constructor");
+		//console.log("dbmcontent/WpAdminManager::constructor");
 		
 		this._subscribeFunctions = new Array();
 		
@@ -33,14 +33,14 @@ export default class WpAdminManager {
 	}
 	
 	subscribe(aSubscribeFunction) {
-		console.log("dbmcontent/WpAdminManager::subscribe");
+		//console.log("dbmcontent/WpAdminManager::subscribe");
 		
 		this._subscribeFunctions.push(aSubscribeFunction);
 		aSubscribeFunction(this._getState());
 	}
 	
 	_broadcastChanges() {
-		console.log("dbmcontent/WpAdminManager::_broadcastChanges");
+		//console.log("dbmcontent/WpAdminManager::_broadcastChanges");
 		
 		var dataObject = this._getState();
 		
@@ -54,7 +54,7 @@ export default class WpAdminManager {
 	}
 	
 	setDataObject(aDataObject) {
-		console.log("dbmcontent/WpAdminManager::setDataObject");
+		//console.log("dbmcontent/WpAdminManager::setDataObject");
 		
 		this._dataObject = aDataObject;
 		
@@ -69,20 +69,16 @@ export default class WpAdminManager {
 	}
 	
 	setData(aPath, aData) {
-		console.log("dbmcontent/WpAdminManager::setData");
-		console.log(aPath, aData);
-		
-		console.log(JSON.stringify(this._dataObject));
+		//console.log("dbmcontent/WpAdminManager::setData");
+		//console.log(aPath, aData);
 		
 		objectPath.set(this._dataObject, aPath, aData);
-		
-		console.log(JSON.stringify(this._dataObject));
 		
 		this._broadcastChanges();
 	}
 	
 	setInitialPostData(aPostData, aTaxonomies) {
-		console.log("dbmcontent/WpAdminManager::setInitialPostData");
+		//console.log("dbmcontent/WpAdminManager::setInitialPostData");
 		
 		this._taxonomies = aTaxonomies;
 		//METODO
@@ -125,7 +121,7 @@ export default class WpAdminManager {
 	}
 	
 	termAdded(aId, aTaxonomy) {
-		console.log("dbmcontent/WpAdminManager::termAdded");
+		//console.log("dbmcontent/WpAdminManager::termAdded");
 		
 		if(!this._selectedTerms[aTaxonomy]) {
 			this._selectedTerms[aTaxonomy] = new Array();
@@ -154,7 +150,7 @@ export default class WpAdminManager {
 	}
 	
 	termRemoved(aId, aTaxonomy) {
-		console.log("dbmcontent/WpAdminManager::termRemoved");
+		//console.log("dbmcontent/WpAdminManager::termRemoved");
 		
 		var currentArray = this._selectedTerms[aTaxonomy];
 		if(currentArray) {
@@ -179,8 +175,8 @@ export default class WpAdminManager {
 	}
 	
 	addShortcode(aId, aType, aData) {
-		console.log("dbmcontent/WpAdminManager::addShortcode");
-		console.log(aId, aType, aData);
+		//console.log("dbmcontent/WpAdminManager::addShortcode");
+		//console.log(aId, aType, aData);
 		
 		var dataObject = {
 			"type": aType,
@@ -192,7 +188,7 @@ export default class WpAdminManager {
 	}
 	
 	_callback_termChanged(aEvent) {
-		console.log("dbmcontent/WpAdminManager::_callback_termChanged");
+		//console.log("dbmcontent/WpAdminManager::_callback_termChanged");
 		
 		var targetElement = aEvent.currentTarget;
 		var name = targetElement.name;

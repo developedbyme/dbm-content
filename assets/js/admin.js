@@ -11513,7 +11513,7 @@ var WpAdminManager = function () {
 	function WpAdminManager() {
 		_classCallCheck(this, WpAdminManager);
 
-		console.log("dbmcontent/WpAdminManager::constructor");
+		//console.log("dbmcontent/WpAdminManager::constructor");
 
 		this._subscribeFunctions = new Array();
 
@@ -11544,7 +11544,7 @@ var WpAdminManager = function () {
 	}, {
 		key: "subscribe",
 		value: function subscribe(aSubscribeFunction) {
-			console.log("dbmcontent/WpAdminManager::subscribe");
+			//console.log("dbmcontent/WpAdminManager::subscribe");
 
 			this._subscribeFunctions.push(aSubscribeFunction);
 			aSubscribeFunction(this._getState());
@@ -11552,7 +11552,7 @@ var WpAdminManager = function () {
 	}, {
 		key: "_broadcastChanges",
 		value: function _broadcastChanges() {
-			console.log("dbmcontent/WpAdminManager::_broadcastChanges");
+			//console.log("dbmcontent/WpAdminManager::_broadcastChanges");
 
 			var dataObject = this._getState();
 
@@ -11567,7 +11567,7 @@ var WpAdminManager = function () {
 	}, {
 		key: "setDataObject",
 		value: function setDataObject(aDataObject) {
-			console.log("dbmcontent/WpAdminManager::setDataObject");
+			//console.log("dbmcontent/WpAdminManager::setDataObject");
 
 			this._dataObject = aDataObject;
 
@@ -11582,21 +11582,17 @@ var WpAdminManager = function () {
 	}, {
 		key: "setData",
 		value: function setData(aPath, aData) {
-			console.log("dbmcontent/WpAdminManager::setData");
-			console.log(aPath, aData);
-
-			console.log(JSON.stringify(this._dataObject));
+			//console.log("dbmcontent/WpAdminManager::setData");
+			//console.log(aPath, aData);
 
 			_objectPath2.default.set(this._dataObject, aPath, aData);
-
-			console.log(JSON.stringify(this._dataObject));
 
 			this._broadcastChanges();
 		}
 	}, {
 		key: "setInitialPostData",
 		value: function setInitialPostData(aPostData, aTaxonomies) {
-			console.log("dbmcontent/WpAdminManager::setInitialPostData");
+			//console.log("dbmcontent/WpAdminManager::setInitialPostData");
 
 			this._taxonomies = aTaxonomies;
 			//METODO
@@ -11644,7 +11640,7 @@ var WpAdminManager = function () {
 	}, {
 		key: "termAdded",
 		value: function termAdded(aId, aTaxonomy) {
-			console.log("dbmcontent/WpAdminManager::termAdded");
+			//console.log("dbmcontent/WpAdminManager::termAdded");
 
 			if (!this._selectedTerms[aTaxonomy]) {
 				this._selectedTerms[aTaxonomy] = new Array();
@@ -11673,7 +11669,7 @@ var WpAdminManager = function () {
 	}, {
 		key: "termRemoved",
 		value: function termRemoved(aId, aTaxonomy) {
-			console.log("dbmcontent/WpAdminManager::termRemoved");
+			//console.log("dbmcontent/WpAdminManager::termRemoved");
 
 			var currentArray = this._selectedTerms[aTaxonomy];
 			if (currentArray) {
@@ -11698,8 +11694,8 @@ var WpAdminManager = function () {
 	}, {
 		key: "addShortcode",
 		value: function addShortcode(aId, aType, aData) {
-			console.log("dbmcontent/WpAdminManager::addShortcode");
-			console.log(aId, aType, aData);
+			//console.log("dbmcontent/WpAdminManager::addShortcode");
+			//console.log(aId, aType, aData);
 
 			var dataObject = {
 				"type": aType,
@@ -11712,7 +11708,7 @@ var WpAdminManager = function () {
 	}, {
 		key: "_callback_termChanged",
 		value: function _callback_termChanged(aEvent) {
-			console.log("dbmcontent/WpAdminManager::_callback_termChanged");
+			//console.log("dbmcontent/WpAdminManager::_callback_termChanged");
 
 			var targetElement = aEvent.currentTarget;
 			var name = targetElement.name;
@@ -11969,9 +11965,6 @@ var ShortcodeEditorConnection = function () {
 		value: function _scanForChanges() {
 			var currentContent = this._editor.getContent();
 
-			console.log(this._editor);
-			console.log(currentContent);
-
 			var wprrShortcodeRegExp = new RegExp("\\[wprr-component[^\\[\\]]*\\]", "gm");
 			var shortcodeIdRegExp = new RegExp(" shortcodeId=\\\"([^\"]*)\\\"", "");
 			var typeRegExp = new RegExp(" type=\\\"([^\"]*)\\\"", "");
@@ -12042,101 +12035,10 @@ var ShortcodeEditorConnection = function () {
 	}, {
 		key: "_callback_contentUpdated",
 		value: function _callback_contentUpdated(aEvent) {
-			console.log("dbmcontent.admin.editor.ShortcodeEditorConnection::_callback_contentUpdated");
+			//console.log("dbmcontent.admin.editor.ShortcodeEditorConnection::_callback_contentUpdated");
 			//console.log(aEvent);
 
 			this._scanForChanges();
-
-			/*
-   var rootNode = this._editor.dom.getRoot();
-   
-   var hasManualPlacement = false;
-   
-   var currentContent = this._editor.getContent();
-   var adSpaceRegExp = new RegExp("\\[adSpace[^\\]]*\\]", "gm");
-   var placementRegexp = new RegExp("\\bplacement=\"([^\"]*)\"", "");
-   while(true) {
-   	var adSpaceMatches = adSpaceRegExp.exec(currentContent);
-   	
-   	if(adSpaceMatches !== null) {
-   		var placementResult = placementRegexp.exec(adSpaceMatches[0]);
-   		if(placementResult === null || placementResult[1] !== "auto") {
-   			hasManualPlacement = true;
-   			break;
-   		}
-   	}
-   	else {
-   		break;
-   	}
-   }
-   
-   if(hasManualPlacement) {
-   	//console.log("Post has manual spaces");
-   	return;
-   }
-   
-   var currentAdSpaces = new Array();
-   var currentArray = rootNode.childNodes;
-   var currentArrayLength = currentArray.length;
-   for(var i = 0; i < currentArrayLength; i++) {
-   	var currentNode = currentArray[i];
-   	if(currentNode.nodeType === 3 && currentNode.nodeValue === "[adSpace placement=\"auto\"]") {
-   		currentAdSpaces.push(currentArray[i]);
-   	}
-   	else if(currentNode.nodeType === 1 && currentNode.innerHTML === "[adSpace placement=\"auto\"]") {
-   		currentAdSpaces.push(currentArray[i]);
-   	}
-   	else if(currentNode.nodeType === 1 && currentNode.getAttribute("data-wpview-type") === "adSpace") {
-   		currentAdSpaces.push(currentArray[i]);
-   	}
-   	
-   }
-   
-   var countData = this._calculator.getInsertPositionsForElement(rootNode);
-   var hasChanges = false;
-   
-   var currentArray = countData;
-   var currentArrayLength = currentArray.length;
-   
-   for(var i = 0; i < currentArrayLength; i++) {
-   	var newNode = this._calculator.createAdSpaceNode(rootNode.ownerDocument);
-   	var currentCountData = currentArray[i];
-   	
-   	var nextSibling = currentCountData.node.nextSibling;
-   	var nextSiblingIsAdSpace = false;
-   	var currentArray2 = currentAdSpaces;
-   	var currentArray2Length = currentArray2.length;
-   	for(var j = 0; j < currentArray2Length; j++) {
-   		if(currentArray2[j] === nextSibling) {
-   			currentArray2.splice(j, 1);
-   			nextSiblingIsAdSpace = true;
-   			break;
-   		}
-   	}
-   	if(!nextSiblingIsAdSpace) {
-   		this._editor.dom.insertAfter(newNode, currentCountData.node);
-   		hasChanges = true;
-   	}
-   }
-   
-   var currentArray = currentAdSpaces;
-   var currentArrayLength = currentArray.length;
-   for(var i = 0; i < currentArrayLength; i++) {
-   	this._editor.dom.setOuterHTML(currentArray[i], "");
-   	hasChanges = true;
-   }
-   
-   if(hasChanges) {
-   	//METODO: render shortcode displays
-   	
-   	//MENOTE: this does not solve the problem
-   	//wp.mce.views.setMarkers(this._editor.getContent());
-   	//wp.mce.views.render();
-   	
-   	//METODO: this works but restes the position
-   	//this._editor.setContent(this._editor.getContent());
-   }
-   */
 		}
 
 		/**
@@ -12148,7 +12050,7 @@ var ShortcodeEditorConnection = function () {
 	}, {
 		key: "start",
 		value: function start() {
-			console.log("dbmcontent.admin.editor.ShortcodeEditorConnection::start");
+			//console.log("dbmcontent.admin.editor.ShortcodeEditorConnection::start");
 
 			this._editor.on("change", this._callback_contentUpdated_bound);
 			this._editor.on("focus", this._callback_contentUpdated_bound);
