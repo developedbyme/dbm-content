@@ -144,6 +144,10 @@
 					wp_set_post_terms($post_id, $ids, 'dbm_relation', false);
 				}
 			}
+			
+			if(isset($dbm_content['dbm']) && isset($dbm_content['dbm']['primaryCategory'])) {
+				update_post_meta($post_id, 'dbm_primary_taxonomy_term_category', $dbm_content['dbm']['primaryCategory']);
+			}
 		}
 		
 		protected function create_filters() {
