@@ -11717,6 +11717,10 @@ var WpAdminManager = function () {
 			var value = parseInt(targetElement.value, 10);
 			var checked = targetElement.checked;
 
+			if (taxonomy === "post_category[]") {
+				taxonomy = "category";
+			}
+
 			if (checked) {
 				this.termAdded(value, taxonomy);
 			} else {
