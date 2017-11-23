@@ -148,6 +148,10 @@
 			if(isset($dbm_content['dbm']) && isset($dbm_content['dbm']['primaryCategory'])) {
 				update_post_meta($post_id, 'dbm_primary_taxonomy_term_category', $dbm_content['dbm']['primaryCategory']);
 			}
+			
+			if(isset($dbm_content['dbm']) && isset($dbm_content['dbm']['relatedCategory'])) {
+				update_post_meta($post_id, 'dbm_related_taxonomy_term_category', $dbm_content['dbm']['relatedCategory']);
+			}
 		}
 		
 		protected function create_filters() {
