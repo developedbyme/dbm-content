@@ -56,6 +56,32 @@
 			return $query_args;
 		}
 		
+		public function query_relation_manager_items($query_args, $data) {
+			//echo("\DbmContent\CustomRangeFilters::query_relation_manager_items<br />");
+			
+			$taxonomy_name = $data['taxonomy'];
+			
+			$taxonomy = get_taxonomy($taxonomy_name);
+			
+			$query_args['post_type'] = $taxonomy->object_type;
+			
+			return $query_args;
+		}
+		
+		public function encode_relation_manager_items($return_object, $post_id, $data) {
+			//echo("\DbmContent\CustomRangeFilters::encode_relation_manager_items<br />");
+			
+			$taxonomy_name = $data['taxonomy'];
+			
+			$term_ids = wp_get_post_terms($post_id, $taxonomy_name, array('fields' => 'ids'));
+			
+			$return_object['terms'] = $term_ids;
+			$return_object['postType'] = get_post_type($post_id);
+			$return_object['parent'] = wp_get_post_parent_id($post_id);
+				
+			return $return_object;
+		}
+		
 		protected function _get_term_path($term_id, $taxonomy) {
 			//echo("\DbmContent\CustomRangeFilters::_get_term_path<br />");
 			$current_term = get_term_by('id', $term_id, $taxonomy);

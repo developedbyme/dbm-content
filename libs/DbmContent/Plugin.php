@@ -15,7 +15,24 @@
 
 		protected function create_pages() {
 			//echo("\DbmContent\Plugin::create_pages<br />");
-
+			
+			$wprr_configuration_data = array(
+				'sitePath' => get_site_url(),
+				'themePath' => get_stylesheet_directory_uri(),
+				'restPath' => esc_url_raw( rest_url() ),
+				'initialMRouterData' => array(),
+				'imageSizes' => array(),
+				'nonce' => wp_create_nonce( 'wp_rest' )
+			);
+			
+			$current_page = new \DbmContent\OddCore\Admin\Pages\ReactPage();
+			$current_page->set_names('DBM Relations Manager', 'Relations Manager','dbm_relations_manager');
+			$current_page->set_component('relationsManagerPage', array());
+			$current_page->add_javascript('lba-mag-admin', get_template_directory_uri().'/assets/js/admin.js');
+			$current_page->add_javascript_data('lba-mag-admin', 'wprrWpConfiguration', $wprr_configuration_data);
+			$current_page->add_css('lba-mag-admin', get_template_directory_uri().'/assets/css/admin-style.css');
+			
+			$this->add_page($current_page);
 		}
 		
 		public function filter_get_taxonomies($taxonomies) {
@@ -160,6 +177,9 @@
 			$custom_range_filters = new \DbmContent\CustomRangeFilters();
 			
 			add_filter('m_router_data/custom_range_query_dbm-relations', array($custom_range_filters, 'query_relations'), 10, 2);
+			
+			add_filter('m_router_data/custom_range_query_dbm-relation-manager-items', array($custom_range_filters, 'query_relation_manager_items'), 10, 2);
+			add_filter('m_router_data/custom_range_encode_dbm-relation-manager-items', array($custom_range_filters, 'encode_relation_manager_items'), 10, 3);
 			
 			add_filter('dbm_content/get_taxonomies', array($this, 'filter_get_taxonomies'), 10, 1);
 			add_filter('m_router_data/encode_post_add_ons', array($custom_range_filters, 'encode_post_add_ons'), 10, 2);
