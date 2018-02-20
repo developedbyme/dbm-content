@@ -57,6 +57,11 @@
 			$current_custom_post_type->add_taxonomy('post_tag');
 			$this->add_custom_post_type($current_custom_post_type);
 			
+			$current_custom_post_type = new \DbmContent\Admin\CustomPostTypes\DataCustomPostType();
+			$current_custom_post_type->add_taxonomy('dbm_type');
+			$current_custom_post_type->add_taxonomy('dbm_relation');
+			$this->add_custom_post_type($current_custom_post_type);
+			
 			$post_types_with_taxonomies = apply_filters('dbm_content/post_types_with_taxonomies', array('post', 'page', 'attachment'));
 			
 			foreach($post_types_with_taxonomies as $post_type) {
