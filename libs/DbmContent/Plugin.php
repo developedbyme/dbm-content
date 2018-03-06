@@ -191,9 +191,26 @@
 			
 			add_filter('m_router_data/encode_term', array($custom_range_filters, 'encode_term'), 10, 3);
 			add_filter('m_router_data/encode_term_link', array($custom_range_filters, 'encode_term'), 10, 3);
+			
+			
+			add_filter( 'theme_page_templates', array($this, 'filter_global_page_templates'), 10, 1 );
 		}
 		
-		
+		public function filter_global_page_templates($post_templates) {
+			
+			$global_pages_parent_term = dbm_get_relation(array('global-pages'));
+			
+			if($global_pages_parent_term) {
+				$global_pages_terms = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_all_children_of_term($global_pages_parent_term->term_id, 'dbm_relation');
+				
+				foreach($global_pages_terms as $term) {
+					$post_templates['template-global-'.($term->slug).'.php'] = ($term->name).' (global)';
+				}
+			}
+			
+			
+			return $post_templates;
+		}
 
 		public function hook_admin_enqueue_scripts() {
 			//echo("\DbmContent\Plugin::hook_admin_enqueue_scripts<br />");

@@ -28,6 +28,16 @@
 			return get_term_by('id', $current_id, $taxonomy);
 		}
 		
+		public static function get_all_children_of_term($parent_id, $taxonomy) {
+			$args = array(
+				'taxonomy' => $taxonomy,
+				'parent' => $parent_id,
+				'hide_empty' => false
+			);
+				
+			return get_terms($args);
+		}
+		
 		public static function test_import() {
 			echo("Imported \OddCore\Utils\TaxonomyFunctions<br />");
 		}
