@@ -30,7 +30,8 @@
 				$current_tax_query = array(
 					'taxonomy' => 'dbm_type',
 					'field' => $typeField,
-					'terms' => $types
+					'terms' => $types,
+					'include_children' => false
 				);
 				array_push($tax_query, $current_tax_query);
 				$has_query = true;
@@ -41,7 +42,8 @@
 				$current_tax_query = array(
 					'taxonomy' => 'dbm_relation',
 					'field' => $relationField,
-					'terms' => $relations
+					'terms' => $relations,
+					'include_children' => false
 				);
 				array_push($tax_query, $current_tax_query);
 				$has_query = true;
