@@ -37,6 +37,31 @@
 		return \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slugs($slugs, 'dbm_type');
 	}
 	
+	function dbm_create_data($name, $type_path, $grouping_path) {
+		
+		$parent_grouping_term = dbm_get_type(explode(',', $grouping_path));
+		$parent_id = \OddBooking\OddCore\Utils\TaxonomyFunctions::get_single_post_id_by_term($parent_grouping_term);
+		
+		$args = array(
+			'post_type' => 'dbm_data',
+			'post_title' => $name,
+			'post_parent' => $parent_id,
+			'post_status' => 'draft'
+		);
+		
+		$new_id = wp_insert_post($args);
+		
+		if(!$new_id) {
+			//METODO: error message
+			return $new_id;
+		}
+		
+		$type_term = dbm_get_type(explode(',', $type_path));
+		wp_set_post_terms($post_id, array($type_term->term_id), 'dbm_type', false);
+		
+		return $new_id;
+	}
+	
 	function dbm_replace_relations($post_id, $parent_term, $new_term_ids) {
 		
 		if(!($parent_term instanceof \WP_Term)) {
