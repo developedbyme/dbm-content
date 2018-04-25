@@ -39,7 +39,7 @@
 	
 	function dbm_create_data($name, $type_path, $grouping_path) {
 		
-		$parent_grouping_term = dbm_get_type(explode(',', $grouping_path));
+		$parent_grouping_term = dbm_get_type(explode('/', $grouping_path));
 		$parent_id = \OddBooking\OddCore\Utils\TaxonomyFunctions::get_single_post_id_by_term($parent_grouping_term);
 		
 		$args = array(
@@ -56,8 +56,8 @@
 			return $new_id;
 		}
 		
-		$type_term = dbm_get_type(explode(',', $type_path));
-		wp_set_post_terms($post_id, array($type_term->term_id), 'dbm_type', false);
+		$type_term = dbm_get_type(explode('/', $type_path));
+		wp_set_post_terms($new_id, array($type_term->term_id), 'dbm_type', false);
 		
 		return $new_id;
 	}
