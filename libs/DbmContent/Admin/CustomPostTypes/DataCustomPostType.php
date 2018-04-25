@@ -19,7 +19,7 @@
 			$this->set_argument('has_archive', false);
 			$this->set_argument('hierarchical', true);
 			
-			$this->set_argument('supports', array( 'title' ));
+			$this->set_argument('supports', array( 'title', 'page-attributes' ));
 			
 		}
 		
