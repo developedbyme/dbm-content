@@ -208,6 +208,15 @@
 				}
 			}
 			
+			$global_pages_parent_term = dbm_get_relation(array('page-templates'));
+			
+			if($global_pages_parent_term) {
+				$global_pages_terms = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_all_children_of_term($global_pages_parent_term->term_id, 'dbm_relation');
+				
+				foreach($global_pages_terms as $term) {
+					$post_templates['template-'.($term->slug).'.php'] = ($term->name);
+				}
+			}
 			
 			return $post_templates;
 		}
