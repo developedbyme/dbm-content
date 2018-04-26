@@ -77,4 +77,34 @@
 	
 		wp_set_post_terms($post_id, $new_term_ids, 'dbm_relation', false);
 	}
+	
+	function dbm_get_content_object_for_type_and_relation($post_id) {
+		
+		$return_object = array(
+			'dbm' => array(
+				'type' => array(),
+				'relation' => array()
+			)
+		);
+		
+		$current_terms = wp_get_post_terms($post_id, 'dbm_type');
+		foreach($current_terms as $current_term) {
+			$return_object['dbm']['type'][] = $current_term->term_id;
+		}
+		
+		$current_terms = wp_get_post_terms($post_id, 'dbm_relation');
+		foreach($current_terms as $current_term) {
+			if($current_term->parent) {
+				$parent_term = get_term_by('id', $current_term->parent, 'dbm_relation');
+				
+				$relation_path = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_full_term_slug($parent_term, 'dbm_relation');
+				if(!isset($return_object['dbm']['relation'][$relation_path])) {
+					$return_object['dbm']['relation'][$relation_path] = array();
+				}
+				$return_object['dbm']['relation'][$relation_path][] = $current_term->term_id;
+			}
+		}
+		
+		return $return_object;
+	}
 ?>
