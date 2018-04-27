@@ -124,7 +124,7 @@
 			
 			if(function_exists('get_field')) {
 				$page = get_field('dbm_taxonomy_page', $term);
-				if($page) {
+				if($page && $page instanceof \WP_Post) {
 					$return_data["permalink"] = get_permalink($page->ID);
 				}
 			}
