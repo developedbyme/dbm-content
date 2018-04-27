@@ -132,6 +132,98 @@
 			return $return_data;
 		}
 		
+		public function custom_item_get_global_relation($return_object, $id, $data) {
+			
+			$query_args = array(
+				'posts_per_page' => 1
+			);
+			
+			if($id !== 'any') {
+				$postTypes = explode(',', $id);
+				$query_args['post_type'] = $postTypes;
+			}
+			else {
+				$query_args['post_type'] = get_post_types(array(), 'names');
+			}
+			
+			$tax_query = array(
+				'relation' => 'AND',
+			);
+			
+			$has_query = false;
+			
+			if(isset($data['type'])) {
+				$types = explode(',', $data['type']);
+				$typeField = isset($data['typeField']) ? $data['typeField'] : 'slug_path';
+				
+				if($typeField === 'slug_path') {
+					$resloved_types = array();
+					foreach($types as $type) {
+						$current_term = dbm_get_type(explode("/", $type));
+						if($current_term) {
+							$resloved_types[] = $current_term->term_id;
+						}
+					}
+					$types = $resloved_types;
+					$typeField = 'id';
+				}
+				
+				$current_tax_query = array(
+					'taxonomy' => 'dbm_type',
+					'field' => $typeField,
+					'terms' => $types,
+					'include_children' => false
+				);
+				array_push($tax_query, $current_tax_query);
+				$has_query = true;
+			}
+			if(isset($data['relation'])) {
+				$relations = explode(',', $data['relation']);
+				$relationField = isset($data['relationField']) ? $data['relationField'] : 'slugPath';
+				
+				if($relationField === 'slugPath') {
+					$resloved_relations = array();
+					foreach($relations as $relation) {
+						$current_term = dbm_get_relation(explode("/", $relation));
+						if($current_term) {
+							$resloved_relations[] = $current_term->term_id;
+						}
+					}
+					$relations = $resloved_relations;
+					$relationField = 'id';
+				}
+				
+				
+				$current_tax_query = array(
+					'taxonomy' => 'dbm_relation',
+					'field' => $relationField,
+					'terms' => $relations,
+					'include_children' => false
+				);
+				$has_query = true;
+			}
+			
+			if(!$has_query) {
+				return null;
+			}
+			
+			$query_args['tax_query'] = $tax_query;
+			
+			$posts = get_posts($query_args);
+			
+			if(count($posts) > 0) {
+				return $posts[0];
+			}
+			
+			return null;
+		}
+		
+		public function custom_item_encode_global_relation($return_object, $item, $data) {
+			$return_object['data'] = mrouter_encode_post($item);
+			
+			return $return_object;
+		}
+		
 		public static function test_import() {
 			echo("Imported \DbmContent\CustomRangeFilters<br />");
 		}

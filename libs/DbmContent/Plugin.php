@@ -186,6 +186,9 @@
 			add_filter('m_router_data/custom_range_query_dbm-relation-manager-items', array($custom_range_filters, 'query_relation_manager_items'), 10, 2);
 			add_filter('m_router_data/custom_range_encode_dbm-relation-manager-items', array($custom_range_filters, 'encode_relation_manager_items'), 10, 3);
 			
+			add_filter('m_router_data/custom_item_get_global-relation', array($custom_range_filters, 'custom_item_get_global_relation'), 10, 3);
+			add_filter('m_router_data/custom_item_encode_global-relation', array($custom_range_filters, 'custom_item_encode_global_relation'), 10, 3);
+			
 			add_filter('dbm_content/get_taxonomies', array($this, 'filter_get_taxonomies'), 10, 1);
 			add_filter('m_router_data/encode_post_add_ons', array($custom_range_filters, 'encode_post_add_ons'), 10, 2);
 			
