@@ -33,8 +33,70 @@
 		return \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slugs($slugs, 'dbm_relation');
 	}
 	
+	function dbm_get_relation_by_path($path) {
+		return dbm_get_relation(explode('/', $path));
+	}
+	
+	function dbm_get_relations_by_paths($paths) {
+		$return_array = array();
+		
+		foreach($paths as $path) {
+			$return_array[] = dbm_get_relation_by_path($path);
+		}
+		
+		return $return_array;
+	}
+	
+	function dbm_get_tax_query_for_relation_paths($paths) {
+		
+		$paths = dbm_get_relations_by_paths($paths);
+		$ids = array_map(function($term) {return $term->term_id;}, $paths);
+		
+		if(isset($paths) && count($paths) > 0) {
+			return array(
+				'taxonomy' => 'dbm_relation',
+				'field' => 'id',
+				'terms' => $ids,
+				'include_children' => false
+			);
+		}
+		
+		return null;
+	}
+	
 	function dbm_get_type($slugs) {
 		return \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slugs($slugs, 'dbm_type');
+	}
+	
+	function dbm_get_type_by_path($path) {
+		return dbm_get_type(explode('/', $path));
+	}
+	
+	function dbm_get_types_by_paths($paths) {
+		$return_array = array();
+		
+		foreach($paths as $path) {
+			$return_array[] = dbm_get_type_by_path($path);
+		}
+		
+		return $return_array;
+	}
+	
+	function dbm_get_tax_query_for_type_paths($paths) {
+		
+		$paths = dbm_get_types_by_paths($paths);
+		$ids = array_map(function($term) {return $term->term_id;}, $paths);
+		
+		if(isset($paths) && count($paths) > 0) {
+			return array(
+				'taxonomy' => 'dbm_type',
+				'field' => 'id',
+				'terms' => $ids,
+				'include_children' => false
+			);
+		}
+		
+		return null;
 	}
 	
 	function dbm_create_data($name, $type_path, $grouping_path) {
@@ -122,5 +184,43 @@
 		}
 		
 		return $return_array;
+	}
+	
+	function dbm_get_post_id_by_type_and_relation($post_type = 'any', $type_paths = null, $relation_paths = null) {
+		$query_args = array(
+			'posts_per_page' => 1,
+			'fields' => 'ids'
+		);
+		
+		if($post_type !== 'any') {
+			$postTypes = explode(',', $post_type);
+			$query_args['post_type'] = $postTypes;
+		}
+		else {
+			$query_args['post_type'] = get_post_types(array(), 'names');
+		}
+		
+		$tax_query = array(
+			'relation' => 'AND',
+		);
+		
+		if($type_paths) {
+			$current_tax_query = dbm_get_tax_query_for_type_paths($type_paths);
+			array_push($tax_query, $current_tax_query);
+		}
+		if($relation_paths) {
+			$current_tax_query = dbm_get_tax_query_for_relation_paths($relation_paths);
+			array_push($tax_query, $current_tax_query);
+		}
+		
+		$query_args['tax_query'] = $tax_query;
+		
+		$posts = get_posts($query_args);
+		
+		if(count($posts) > 0) {
+			return $posts[0];
+		}
+		
+		return null;
 	}
 ?>

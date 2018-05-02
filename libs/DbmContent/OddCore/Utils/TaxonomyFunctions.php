@@ -74,10 +74,8 @@
 		
 		public static function get_single_post_id_by_term($term) {
 			
-			//METODO: add all types manually
-			
 			$args = array(
-				'post_type' => 'dbm_data',
+				'post_type' => get_post_types(array(), 'names'),
 				'fields' => 'ids',
 				'tax_query' => array(
 					array(

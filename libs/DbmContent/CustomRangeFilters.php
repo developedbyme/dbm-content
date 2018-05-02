@@ -200,6 +200,7 @@
 					'terms' => $relations,
 					'include_children' => false
 				);
+				array_push($tax_query, $current_tax_query);
 				$has_query = true;
 			}
 			
