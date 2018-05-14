@@ -7,6 +7,48 @@
 			//echo("\DbmContent\CustomRangeFilters::__construct<br />");
 		}
 		
+		protected function get_type_ids($data) {
+			$return_array = array();
+			
+			$types = explode(',', $data['type']);
+			$typeField = isset($data['typeField']) ? $data['typeField'] : 'slugPath';
+			foreach($types as $type) {
+				if($typeField === 'slugPath') {
+					$current_term = dbm_get_type_by_path($type);
+				}
+				else {
+					$current_term = get_term_by($typeField, $type, 'dbm_type');
+				}
+				
+				if($current_term) {
+					$return_array[] = $current_term->term_id;
+				}
+			}
+			
+			return $return_array;
+		}
+		
+		protected function get_relation_ids($data) {
+			$return_array = array();
+			
+			$types = explode(',', $data['relation']);
+			$typeField = isset($data['relationField']) ? $data['relationField'] : 'slugPath';
+			foreach($types as $type) {
+				if($typeField === 'slugPath') {
+					$current_term = dbm_get_relation_by_path($type);
+				}
+				else {
+					$current_term = get_term_by($typeField, $type, 'dbm_relation');
+				}
+				
+				if($current_term) {
+					$return_array[] = $current_term->term_id;
+				}
+			}
+			
+			return $return_array;
+		}
+		
 		public function query_relations($query_args, $data) {
 			//echo("\DbmContent\CustomRangeFilters::query_relations<br />");
 			
@@ -25,28 +67,35 @@
 			$has_query = false;
 			
 			if(isset($data['type'])) {
-				$types = explode(',', $data['type']);
-				$typeField = isset($data['typeField']) ? $data['typeField'] : 'id';
-				$current_tax_query = array(
-					'taxonomy' => 'dbm_type',
-					'field' => $typeField,
-					'terms' => $types,
-					'include_children' => false
-				);
-				array_push($tax_query, $current_tax_query);
-				$has_query = true;
+				
+				$type_ids = $this->get_type_ids($data);
+				
+				if(!empty($type_ids)) {
+					$current_tax_query = array(
+						'taxonomy' => 'dbm_type',
+						'field' => 'id',
+						'terms' => $type_ids,
+						'include_children' => false
+					);
+					array_push($tax_query, $current_tax_query);
+					$has_query = true;
+				}
+				
 			}
 			if(isset($data['relation'])) {
-				$relations = explode(',', $data['relation']);
-				$relationField = isset($data['relationField']) ? $data['relationField'] : 'id';
-				$current_tax_query = array(
-					'taxonomy' => 'dbm_relation',
-					'field' => $relationField,
-					'terms' => $relations,
-					'include_children' => false
-				);
-				array_push($tax_query, $current_tax_query);
-				$has_query = true;
+				
+				$relation_ids = $this->get_relation_ids($data);
+				
+				if(!empty($relation_ids)) {
+					$current_tax_query = array(
+						'taxonomy' => 'dbm_relation',
+						'field' => 'id',
+						'terms' => $relation_ids,
+						'include_children' => false
+					);
+					array_push($tax_query, $current_tax_query);
+					$has_query = true;
+				}
 			}
 			
 			if(!$has_query) {
