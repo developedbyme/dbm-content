@@ -76,11 +76,17 @@
 			
 			if(!$term_id) {
 				$new_term = wp_insert_term($post->post_title, 'dbm_relation', array('parent' => $parent_id));
-				$term_id = $new_term['term_id'];
-				update_post_meta($post_id, $meta_name, $term_id);
-				if(function_exists('update_field')) {
-					$term = get_term_by('id', $term_id, 'dbm_relation');
-					update_field('dbm_taxonomy_page', $post_id, $term);
+				if(is_wp_error($new_term)) {
+					//METODO: handle this better
+					return;
+				}
+				else {
+					$term_id = $new_term['term_id'];
+					update_post_meta($post_id, $meta_name, $term_id);
+					if(function_exists('update_field')) {
+						$term = get_term_by('id', $term_id, 'dbm_relation');
+						update_field('dbm_taxonomy_page', $post_id, $term);
+					}
 				}
 			}
 			else {

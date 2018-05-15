@@ -223,4 +223,10 @@
 		
 		return null;
 	}
+	
+	function dbm_filter_custom_range_relation_query($query_args, $data) {
+		$custom_range_filters = new \DbmContent\CustomRangeFilters();
+		
+		return $custom_range_filters->query_relations($query_args, $data);
+	}
 ?>
