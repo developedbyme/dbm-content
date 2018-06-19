@@ -6,7 +6,7 @@
 	Version: 0.1.0
 	Author: Mattias Ekenedahl
 	Author URI: http://developedbyme.com
-	License: GPL3
+	License: MIT
 	*/
 	
 	define("DBM_CONTENT_DOMAIN", "dbm_content");

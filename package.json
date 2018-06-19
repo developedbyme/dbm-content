@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Dbm content",
   "scripts": {},
-  "author": "Odd Alice",
-  "license": "ISC",
+  "author": "Developedbyme",
+  "license": "MIT",
   "dependencies": {
     "detect-browser": "^1.6.2",
     "document-offset": "^1.0.4",
