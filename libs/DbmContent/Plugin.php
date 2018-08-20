@@ -9,7 +9,7 @@
 			//echo("\DbmContent\Plugin::__construct<br />");
 
 			parent::__construct();
-
+			
 			//$this->add_javascript('dbm_content-main', DBM_CONTENT_URL.'/assets/js/main.js');
 		}
 
@@ -76,7 +76,7 @@
 		protected function create_additional_hooks() {
 			//echo("\DbmContent\Plugin::create_additional_hooks<br />");
 
-
+			$this->add_additional_hook(new \DbmContent\ChangePostHooks());
 		}
 
 		protected function create_rest_api_end_points() {
