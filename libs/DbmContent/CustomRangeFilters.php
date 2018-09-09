@@ -49,8 +49,8 @@
 			return $return_array;
 		}
 		
-		public function query_relations($query_args, $data) {
-			//echo("\DbmContent\CustomRangeFilters::query_relations<br />");
+		public function query_relations_legacy($query_args, $data) {
+			//echo("\DbmContent\CustomRangeFilters::query_relations_legacy<br />");
 			
 			if(isset($data['postType'])) {
 				$postTypes = explode(',', $data['postType']);
@@ -59,6 +59,56 @@
 			else {
 				$query_args['post_type'] = get_post_types(array(), 'names');
 			}
+			
+			$tax_query = array(
+				'relation' => 'AND',
+			);
+			
+			$has_query = false;
+			
+			if(isset($data['type'])) {
+				
+				$type_ids = $this->get_type_ids($data);
+				
+				if(!empty($type_ids)) {
+					$current_tax_query = array(
+						'taxonomy' => 'dbm_type',
+						'field' => 'id',
+						'terms' => $type_ids,
+						'include_children' => false
+					);
+					array_push($tax_query, $current_tax_query);
+					$has_query = true;
+				}
+				
+			}
+			if(isset($data['relation'])) {
+				
+				$relation_ids = $this->get_relation_ids($data);
+				
+				if(!empty($relation_ids)) {
+					$current_tax_query = array(
+						'taxonomy' => 'dbm_relation',
+						'field' => 'id',
+						'terms' => $relation_ids,
+						'include_children' => false
+					);
+					array_push($tax_query, $current_tax_query);
+					$has_query = true;
+				}
+			}
+			
+			if(!$has_query) {
+				$query_args['post__in'] = array(0);
+			}
+			
+			$query_args['tax_query'] = $tax_query;
+			
+			return $query_args;
+		}
+		
+		public function query_relations($query_args, $data) {
+			//echo("\DbmContent\CustomRangeFilters::query_relations<br />");
 			
 			$tax_query = array(
 				'relation' => 'AND',
@@ -159,8 +209,8 @@
 						$path = $this->_get_term_path($term->parent, 'dbm_relation');
 						if(!isset($add_ons["dbmContent"]["relations"][$path])) {
 							$add_ons["dbmContent"]["relations"][$path] = array();
-							$add_ons["dbmContent"]["relations"][$path][] = $term->term_id;
 						}
+						$add_ons["dbmContent"]["relations"][$path][] = $term->term_id;
 					}
 				}
 			}
