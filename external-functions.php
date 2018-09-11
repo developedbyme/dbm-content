@@ -102,7 +102,7 @@
 	function dbm_create_data($name, $type_path, $grouping_path) {
 		
 		$parent_grouping_term = dbm_get_type(explode('/', $grouping_path));
-		$parent_id = \OddBooking\OddCore\Utils\TaxonomyFunctions::get_single_post_id_by_term($parent_grouping_term);
+		$parent_id = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_single_post_id_by_term($parent_grouping_term);
 		
 		$args = array(
 			'post_type' => 'dbm_data',
