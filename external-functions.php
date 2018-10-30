@@ -41,7 +41,11 @@
 		$return_array = array();
 		
 		foreach($paths as $path) {
-			$return_array[] = dbm_get_relation_by_path($path);
+			$current_relation = dbm_get_relation_by_path($path);
+			
+			if($current_relation) {
+				$return_array[] = $current_relation;
+			}
 		}
 		
 		return $return_array;
@@ -50,9 +54,10 @@
 	function dbm_get_tax_query_for_relation_paths($paths) {
 		
 		$paths = dbm_get_relations_by_paths($paths);
-		$ids = array_map(function($term) {return $term->term_id;}, $paths);
 		
 		if(isset($paths) && count($paths) > 0) {
+			$ids = array_map(function($term) {return $term->term_id;}, $paths);
+			
 			return array(
 				'taxonomy' => 'dbm_relation',
 				'field' => 'id',
@@ -61,7 +66,12 @@
 			);
 		}
 		
-		return null;
+		return array(
+			'taxonomy' => 'dbm_relation',
+			'field' => 'id',
+			'terms' => array(-1),
+			'include_children' => false
+		);
 	}
 	
 	function dbm_get_type($slugs) {
@@ -76,7 +86,11 @@
 		$return_array = array();
 		
 		foreach($paths as $path) {
-			$return_array[] = dbm_get_type_by_path($path);
+			$current_relation = dbm_get_type_by_path($path);
+			
+			if($current_relation) {
+				$return_array[] = $current_relation;
+			}
 		}
 		
 		return $return_array;
@@ -85,9 +99,10 @@
 	function dbm_get_tax_query_for_type_paths($paths) {
 		
 		$paths = dbm_get_types_by_paths($paths);
-		$ids = array_map(function($term) {return $term->term_id;}, $paths);
 		
 		if(isset($paths) && count($paths) > 0) {
+			$ids = array_map(function($term) {return $term->term_id;}, $paths);
+			
 			return array(
 				'taxonomy' => 'dbm_type',
 				'field' => 'id',
@@ -96,7 +111,12 @@
 			);
 		}
 		
-		return null;
+		return array(
+			'taxonomy' => 'dbm_type',
+			'field' => 'id',
+			'terms' => array(-1),
+			'include_children' => false
+		);
 	}
 	
 	function dbm_create_data($name, $type_path, $grouping_path) {
