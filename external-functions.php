@@ -244,6 +244,40 @@
 		return null;
 	}
 	
+	function dbm_get_post_ids_by_type_and_relation($post_type = 'any', $type_paths = null, $relation_paths = null) {
+		$query_args = array(
+			'posts_per_page' => -1,
+			'fields' => 'ids'
+		);
+		
+		if($post_type !== 'any') {
+			$postTypes = explode(',', $post_type);
+			$query_args['post_type'] = $postTypes;
+		}
+		else {
+			$query_args['post_type'] = get_post_types(array(), 'names');
+		}
+		
+		$tax_query = array(
+			'relation' => 'AND',
+		);
+		
+		if($type_paths) {
+			$current_tax_query = dbm_get_tax_query_for_type_paths($type_paths);
+			array_push($tax_query, $current_tax_query);
+		}
+		if($relation_paths) {
+			$current_tax_query = dbm_get_tax_query_for_relation_paths($relation_paths);
+			array_push($tax_query, $current_tax_query);
+		}
+		
+		$query_args['tax_query'] = $tax_query;
+		
+		$posts = get_posts($query_args);
+		
+		return $posts;
+	}
+	
 	function dbm_filter_custom_range_relation_query($query_args, $data) {
 		$custom_range_filters = new \DbmContent\CustomRangeFilters();
 		
