@@ -137,13 +137,38 @@
 				$relation_ids = $this->get_relation_ids($data);
 				
 				if(!empty($relation_ids)) {
-					$current_tax_query = array(
-						'taxonomy' => 'dbm_relation',
-						'field' => 'id',
-						'terms' => $relation_ids,
-						'include_children' => false
-					);
-					array_push($tax_query, $current_tax_query);
+					$relation_match = 'any';
+					if(isset($data['relationMatch'])) {
+						switch($data['relationMatch']) {
+							case "all":
+							case "any":
+								$relation_match = $data['relationMatch'];
+						}
+						
+					}
+					
+					if($relation_match === 'any') {
+						$current_tax_query = array(
+							'taxonomy' => 'dbm_relation',
+							'field' => 'id',
+							'terms' => $relation_ids,
+							'include_children' => false
+						);
+						array_push($tax_query, $current_tax_query);
+					}
+					else {
+						$current_combined_query = array('relation' => 'AND');
+						foreach($relation_ids as $relation_id) {
+							$current_tax_query = array(
+								'taxonomy' => 'dbm_relation',
+								'field' => 'id',
+								'terms' => $relation_id,
+								'include_children' => false
+							);
+							array_push($current_combined_query, $current_tax_query);
+						}
+						array_push($tax_query, $current_combined_query);
+					}
 					$has_query = true;
 				}
 			}
