@@ -206,6 +206,31 @@
 		return $return_array;
 	}
 	
+	function dbm_add_post_relation($post_id, $relation_path) {
+		$term = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slugs(explode('/', $relation_path), 'dbm_relation');
+		
+		if($term) {
+			wp_add_object_terms($post_id, array($term->term_id), 'dbm_relation');
+		}
+	}
+	
+	function dbm_remove_post_relation($post_id, $relation_path) {
+		$term = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slugs(explode('/', $relation_path), 'dbm_relation');
+		
+		if($term) {
+			wp_remove_object_terms($post_id, array($term->term_id), 'dbm_relation');
+		}
+	}
+	
+	function dbm_has_post_relation($post_id, $relation_path) {
+		$term = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slugs(explode('/', $relation_path), 'dbm_relation');
+		
+		if($term) {
+			return has_term($term->term_id, 'dbm_relation', $post_id);
+		}
+		return false;
+	}
+	
 	function dbm_get_post_id_by_type_and_relation($post_type = 'any', $type_paths = null, $relation_paths = null) {
 		$query_args = array(
 			'posts_per_page' => 1,
