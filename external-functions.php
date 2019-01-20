@@ -62,7 +62,8 @@
 				'taxonomy' => 'dbm_relation',
 				'field' => 'id',
 				'terms' => $ids,
-				'include_children' => false
+				'include_children' => false,
+				'operator' => 'AND'
 			);
 		}
 		
@@ -70,7 +71,8 @@
 			'taxonomy' => 'dbm_relation',
 			'field' => 'id',
 			'terms' => array(-1),
-			'include_children' => false
+			'include_children' => false,
+			'operator' => 'AND'
 		);
 	}
 	
@@ -107,7 +109,8 @@
 				'taxonomy' => 'dbm_type',
 				'field' => 'id',
 				'terms' => $ids,
-				'include_children' => false
+				'include_children' => false,
+				'operator' => 'AND'
 			);
 		}
 		
@@ -115,7 +118,8 @@
 			'taxonomy' => 'dbm_type',
 			'field' => 'id',
 			'terms' => array(-1),
-			'include_children' => false
+			'include_children' => false,
+			'operator' => 'AND'
 		);
 	}
 	
