@@ -206,6 +206,22 @@
 		return $return_array;
 	}
 	
+	function dbm_get_post_relation_with_children($post_id, $relation_path) {
+		
+		$return_array = array();
+		
+		$parent_term = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slugs(explode('/', $relation_path), 'dbm_relation');
+		
+		$current_terms = wp_get_post_terms($post_id, 'dbm_relation');
+		foreach($current_terms as $current_term) {
+			if(term_is_ancestor_of($parent_term, $current_term, 'dbm_relation')) {
+				$return_array[] = $current_term->term_id;
+			}
+		}
+		
+		return $return_array;
+	}
+	
 	function dbm_add_post_relation($post_id, $relation_path) {
 		$term = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slugs(explode('/', $relation_path), 'dbm_relation');
 		
