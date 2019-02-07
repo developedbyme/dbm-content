@@ -62,7 +62,8 @@
 				'taxonomy' => 'dbm_relation',
 				'field' => 'id',
 				'terms' => $ids,
-				'include_children' => false
+				'include_children' => false,
+				'operator' => 'AND'
 			);
 		}
 		
@@ -70,7 +71,8 @@
 			'taxonomy' => 'dbm_relation',
 			'field' => 'id',
 			'terms' => array(-1),
-			'include_children' => false
+			'include_children' => false,
+			'operator' => 'AND'
 		);
 	}
 	
@@ -107,7 +109,8 @@
 				'taxonomy' => 'dbm_type',
 				'field' => 'id',
 				'terms' => $ids,
-				'include_children' => false
+				'include_children' => false,
+				'operator' => 'AND'
 			);
 		}
 		
@@ -115,7 +118,8 @@
 			'taxonomy' => 'dbm_type',
 			'field' => 'id',
 			'terms' => array(-1),
-			'include_children' => false
+			'include_children' => false,
+			'operator' => 'AND'
 		);
 	}
 	
@@ -243,6 +247,15 @@
 		
 		if($term) {
 			return has_term($term->term_id, 'dbm_relation', $post_id);
+		}
+		return false;
+	}
+	
+	function dbm_has_post_type($post_id, $type_path) {
+		$term = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slugs(explode('/', $type_path), 'dbm_type');
+		
+		if($term) {
+			return has_term($term->term_id, 'dbm_type', $post_id);
 		}
 		return false;
 	}
