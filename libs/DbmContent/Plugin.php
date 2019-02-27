@@ -105,7 +105,7 @@
 			$return_string = $term->slug;
 			if($term->parent !== 0) {
 				$parent_term = get_term_by('id', $term->parent, $taxonomy);
-				$return_string = $this->get_full_term_slug($parent_term, $taxonomy).$return_string;
+				$return_string = $this->get_full_term_slug($parent_term, $taxonomy).'/'.$return_string;
 			}
 			return $return_string;
 		}
