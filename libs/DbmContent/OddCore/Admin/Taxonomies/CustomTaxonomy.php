@@ -33,6 +33,9 @@
 				'show_admin_column' => true,
 				'show_in_nav_menus' => true,
 				'show_tagcloud' => false,
+				'show_in_rest' => true,
+				'rest_base' => $this->_system_name,
+				'rest_controller_class' => 'WP_REST_Terms_Controller',
 				'rewrite' => array( 'slug' => $this->_system_name ),
 			);
 		}
@@ -52,6 +55,7 @@
 			
 			$this->_system_name = $system_name;
 			if($this->_arguments) {
+				$this->_arguments['rest_base'] = $this->_system_name;
 				$this->_arguments['rewrite'] = array( 'slug' => $this->_system_name );
 			}
 			
