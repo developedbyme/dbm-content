@@ -7,6 +7,23 @@
 			//echo("\DbmContent\CustomRangeFilters::__construct<br />");
 		}
 		
+		protected function add_tax_query(&$query_args, $tax_query, $relation = 'AND') {
+			if(isset($query_args['tax_query'])) {
+				$combined_query = array(
+					'relation' => $relation,
+					$tax_query,
+					$query_args['tax_query']
+				);
+				
+				$query_args['tax_query'] = $combined_query;
+			}
+			else {
+				$query_args['tax_query'] = array($tax_query);
+			}
+			
+			return $query_args;
+		}
+		
 		protected function get_type_ids($data) {
 			$return_array = array();
 			
@@ -206,6 +223,25 @@
 			$return_object['parent'] = wp_get_post_parent_id($post_id);
 				
 			return $return_object;
+		}
+		
+		public function query_languageTerm($query_args, $data) {
+			//echo("\DbmContent\CustomRangeFilters::query_languageTerm<br />");
+			
+			if(isset($data['language'])) {
+				$language_term = dbm_get_relation_by_path('languages/'.$data['language']);
+				if($language_term) {
+					$this->add_tax_query($query_args, array(
+						'taxonomy' => 'dbm_relation',
+						'field' => 'id',
+						'terms' => array($language_term->term_id),
+						'include_children' => false,
+						'operator' => 'AND'
+					));
+				}
+			}
+			
+			return $query_args;
 		}
 		
 		protected function _get_term_path($term_id, $taxonomy) {
