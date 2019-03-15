@@ -183,6 +183,7 @@
 			
 			add_filter('m_router_data/custom_range_query_dbm-relations', array($custom_range_filters, 'query_relations_legacy'), 10, 2);
 			add_filter('wprr/range_query/relation', array($custom_range_filters, 'query_relations'), 10, 2);
+			add_filter('wprr/range_query/byOwnedRelation', array($custom_range_filters, 'query_by_owned_relation'), 10, 2);
 			
 			add_filter('wprr/range_query/languageTerm', array($custom_range_filters, 'query_languageTerm'), 10, 2);
 			
