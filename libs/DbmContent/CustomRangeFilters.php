@@ -45,11 +45,11 @@
 			return $return_array;
 		}
 		
-		protected function get_relation_ids($data) {
+		protected function get_relation_ids($data, $relation_key = 'relation', $relation_field_key = 'relationField') {
 			$return_array = array();
 			
-			$types = explode(',', $data['relation']);
-			$typeField = isset($data['relationField']) ? $data['relationField'] : 'slugPath';
+			$types = explode(',', $data[$relation_key]);
+			$typeField = isset($data[$relation_field_key]) ? $data[$relation_field_key] : 'slugPath';
 			foreach($types as $type) {
 				if($typeField === 'slugPath') {
 					$current_term = dbm_get_relation_by_path($type);
@@ -231,6 +231,53 @@
 					$this->add_tax_query($query_args, $current_tax_query);
 				}
 				
+			}
+			
+			if(!$has_query) {
+				$query_args['post__in'] = array(0);
+			}
+			
+			return $query_args;
+		}
+		
+		public function query_by_relation_owner($query_args, $data) {
+			$has_query = false;
+			if(isset($data['relationGroup']) && isset($data['from'])) {
+				
+				$relation_ids = $this->get_relation_ids($data, 'relationGroup', 'relationGroupField');
+				$group_term_id = $relation_ids[0];
+				
+				$post_id = (int)$data['from'];
+				
+				$term_ids = array();
+				
+				$parent_term = get_term_by('id', $group_term_id, 'dbm_relation');
+				$current_terms = wp_get_post_terms($post_id, 'dbm_relation');
+				foreach($current_terms as $current_term) {
+					if(term_is_ancestor_of($parent_term, $current_term, 'dbm_relation')) {
+						$term_ids[] = $current_term->term_id;
+					}
+				}
+				
+				$type_ids = $this->get_type_ids($data);
+				
+				$current_tax_query = array(
+					'taxonomy' => 'dbm_type',
+					'field' => 'id',
+					'terms' => $type_ids,
+					'include_children' => false
+				);
+				$this->add_tax_query($query_args, $current_tax_query);
+				
+				$current_tax_query = array(
+					'taxonomy' => 'dbm_relation',
+					'field' => 'id',
+					'terms' => $term_ids,
+					'include_children' => false
+				);
+				$this->add_tax_query($query_args, $current_tax_query);
+				
+				$has_query = true;
 			}
 			
 			if(!$has_query) {

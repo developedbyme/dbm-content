@@ -17,6 +17,9 @@
 			$owned_term->set_type_group($type_group);
 		}
 		$owned_term->register_hooks();
+		
+		global $DbmContentPlugin;
+		$DbmContentPlugin->add_owned_relation_term($owned_term);
 	}
 	
 	function dbm_content_add_owned_relationship_with_auto_add($type, $relation_term, $type_group = null) {
@@ -27,6 +30,9 @@
 			$owned_term->set_type_group($type_group);
 		}
 		$owned_term->register_hooks();
+		
+		global $DbmContentPlugin;
+		$DbmContentPlugin->add_owned_relation_term($owned_term);
 	}
 	
 	function dbm_get_relation($slugs) {
