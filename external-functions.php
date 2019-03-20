@@ -57,6 +57,16 @@
 		return $return_array;
 	}
 	
+	function dbm_get_tax_query_for_relation_ids($ids) {
+		return array(
+			'taxonomy' => 'dbm_relation',
+			'field' => 'id',
+			'terms' => $ids,
+			'include_children' => false,
+			'operator' => 'AND'
+		);
+	}
+	
 	function dbm_get_tax_query_for_relation_paths($paths) {
 		
 		$paths = dbm_get_relations_by_paths($paths);
@@ -64,13 +74,7 @@
 		if(isset($paths) && count($paths) > 0) {
 			$ids = array_map(function($term) {return $term->term_id;}, $paths);
 			
-			return array(
-				'taxonomy' => 'dbm_relation',
-				'field' => 'id',
-				'terms' => $ids,
-				'include_children' => false,
-				'operator' => 'AND'
-			);
+			return dbm_get_tax_query_for_relation_ids($ids);
 		}
 		
 		return array(
@@ -104,6 +108,16 @@
 		return $return_array;
 	}
 	
+	function dbm_get_tax_query_for_type_ids($ids) {
+		return array(
+			'taxonomy' => 'dbm_type',
+			'field' => 'id',
+			'terms' => $ids,
+			'include_children' => false,
+			'operator' => 'AND'
+		);
+	}
+	
 	function dbm_get_tax_query_for_type_paths($paths) {
 		
 		$paths = dbm_get_types_by_paths($paths);
@@ -111,13 +125,7 @@
 		if(isset($paths) && count($paths) > 0) {
 			$ids = array_map(function($term) {return $term->term_id;}, $paths);
 			
-			return array(
-				'taxonomy' => 'dbm_type',
-				'field' => 'id',
-				'terms' => $ids,
-				'include_children' => false,
-				'operator' => 'AND'
-			);
+			return dbm_get_tax_query_for_type_ids($ids);
 		}
 		
 		return array(
