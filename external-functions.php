@@ -224,6 +224,15 @@
 		return $return_array;
 	}
 	
+	function dbm_get_single_post_relation($post_id, $relation_path) {
+		$relations = dbm_get_post_relation($post_id, $relation_path);
+		if(!empty($relations)) {
+			return $relations[0];
+		}
+		
+		return null;
+	}
+	
 	function dbm_get_post_relation_with_children($post_id, $relation_path) {
 		
 		$return_array = array();
