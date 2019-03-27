@@ -67,6 +67,12 @@
 		);
 	}
 	
+	function dbm_get_ids_from_terms($terms) {
+		$ids = array_map(function($term) {return $term->term_id;}, $terms);
+		
+		return $ids;
+	}
+	
 	function dbm_get_tax_query_for_relation_paths($paths) {
 		
 		$paths = dbm_get_relations_by_paths($paths);
@@ -176,6 +182,14 @@
 		}
 	
 		wp_set_post_terms($post_id, $new_term_ids, 'dbm_relation', false);
+	}
+	
+	function dbm_set_single_relation_by_name($post_id, $parent_path, $child_name) {
+		
+		$parent_term = dbm_get_relation_by_path($parent_path);
+		$ids = dbm_get_ids_from_terms(dbm_get_relations_by_paths(array($parent_path.'/'.$child_name)));
+		
+		dbm_replace_relations($post_id, $parent_term, $ids);
 	}
 	
 	function dbm_get_content_object_for_type_and_relation($post_id) {
