@@ -473,6 +473,17 @@
 			return $return_object;
 		}
 		
+		public function encode_edit_fields($encoded_data, $post_id, $data) {
+			$type_ids = wp_get_post_terms($post_id, 'dbm_type', array('fields' => 'ids'));
+			
+			foreach($type_ids as $type_id) {
+				$current_type = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_full_term_slug(get_term_by('id', $type_id, 'dbm_type'), 'dbm_type');
+				$encoded_data = apply_filters('wprr/edit_fields/dbm/type/'.$current_type, $encoded_data, $post_id, $data);
+			}
+			
+			return $encoded_data;
+		}
+		
 		public static function test_import() {
 			echo("Imported \DbmContent\CustomRangeFilters<br />");
 		}

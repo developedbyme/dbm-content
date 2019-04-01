@@ -196,6 +196,8 @@
 			
 			add_filter('wprr/range_query/languageTerm', array($custom_range_filters, 'query_languageTerm'), 10, 2);
 			
+			add_filter('wprr/range_encoding/editFields', array($custom_range_filters, 'encode_edit_fields'), 10, 3);
+			
 			add_filter('m_router_data/custom_range_query_dbm-relation-manager-items', array($custom_range_filters, 'query_relation_manager_items'), 10, 2);
 			add_filter('m_router_data/custom_range_encode_dbm-relation-manager-items', array($custom_range_filters, 'encode_relation_manager_items'), 10, 3);
 			
@@ -207,7 +209,6 @@
 			
 			add_filter('m_router_data/encode_term', array($custom_range_filters, 'encode_term'), 10, 3);
 			add_filter('m_router_data/encode_term_link', array($custom_range_filters, 'encode_term'), 10, 3);
-			
 			
 			add_filter( 'theme_page_templates', array($this, 'filter_global_page_templates'), 10, 1 );
 		}
