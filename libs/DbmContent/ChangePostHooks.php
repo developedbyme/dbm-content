@@ -32,6 +32,10 @@
 			$parent_slug = $data['path'];
 			$ids = $data['value'];
 			
+			if(!is_array($ids)) {
+				$ids = explode(',', $ids);
+			}
+			
 			$parent = dbm_get_relation_by_path($parent_slug);
 			
 			dbm_replace_relations($post_id, $parent, $ids);
@@ -71,6 +75,7 @@
 			if($owner) {
 				$meta_name = 'dbm_relation_term_'.$data['group'];
 				$term_id = (int)get_post_meta($owner_id, $meta_name, true);
+				
 				wp_add_object_terms($post_id, array($term_id), 'dbm_relation');
 			}
 		}
