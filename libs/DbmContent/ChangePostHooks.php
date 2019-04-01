@@ -50,19 +50,13 @@
 			
 			$path = 'admin-grouping/'.$data['value'];
 			
-			var_dump($path);
-			
 			$parent = dbm_get_post_id_by_type_and_relation('any', array($path));
-			
-			var_dump($parent);
 			
 			if($parent) {
 				$args = array(
 					'ID' => $post_id,
 					'post_parent' => $parent
 				);
-				
-				var_dump($args);
 				
 				wp_update_post($args);
 			}
