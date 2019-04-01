@@ -22,6 +22,7 @@
 			$this->register_hook_for_type('dbm/relation', 'hook_set_relation');
 			$this->register_hook_for_type('dbm/autoDbmContent', 'hook_auto_dbm_content');
 			$this->register_hook_for_type('dbm/inAdminGrouping', 'hook_in_admin_grouping');
+			$this->register_hook_for_type('dbm/addTermFromOwner', 'hook_add_term_from_owner');
 			
 		}
 		
@@ -64,6 +65,19 @@
 				var_dump($args);
 				
 				wp_update_post($args);
+			}
+		}
+		
+		public function hook_add_term_from_owner($data, $post_id) {
+			//echo("\DbmContent\ChangePostHooks::hook_add_term_from_owner<br />");
+			
+			$owner_id = $data['value'];
+			
+			$owner = get_post($owner_id);
+			if($owner) {
+				$meta_name = 'dbm_relation_term_'.$data['group'];
+				$term_id = (int)get_post_meta($owner_id, $meta_name, true);
+				wp_add_object_terms($post_id, array($term_id), 'dbm_relation');
 			}
 		}
 		

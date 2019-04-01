@@ -19,7 +19,8 @@
 	require_once(DBM_CONTENT_DIR."/libs/DbmContent/bootstrap.php");
 	
 	require_once(DBM_CONTENT_DIR."/register-acf-fields.php");
-
+	
+	global $DbmContentPlugin;
 	$DbmContentPlugin = new \DbmContent\Plugin();
 
 	require_once(DBM_CONTENT_DIR."/external-functions.php");

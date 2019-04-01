@@ -17,6 +17,9 @@
 			$owned_term->set_type_group($type_group);
 		}
 		$owned_term->register_hooks();
+		
+		global $DbmContentPlugin;
+		$DbmContentPlugin->add_owned_relation_term($owned_term);
 	}
 	
 	function dbm_content_add_owned_relationship_with_auto_add($type, $relation_term, $type_group = null) {
@@ -27,6 +30,9 @@
 			$owned_term->set_type_group($type_group);
 		}
 		$owned_term->register_hooks();
+		
+		global $DbmContentPlugin;
+		$DbmContentPlugin->add_owned_relation_term($owned_term);
 	}
 	
 	function dbm_get_relation($slugs) {
@@ -51,6 +57,22 @@
 		return $return_array;
 	}
 	
+	function dbm_get_tax_query_for_relation_ids($ids) {
+		return array(
+			'taxonomy' => 'dbm_relation',
+			'field' => 'id',
+			'terms' => $ids,
+			'include_children' => false,
+			'operator' => 'AND'
+		);
+	}
+	
+	function dbm_get_ids_from_terms($terms) {
+		$ids = array_map(function($term) {return $term->term_id;}, $terms);
+		
+		return $ids;
+	}
+	
 	function dbm_get_tax_query_for_relation_paths($paths) {
 		
 		$paths = dbm_get_relations_by_paths($paths);
@@ -58,13 +80,7 @@
 		if(isset($paths) && count($paths) > 0) {
 			$ids = array_map(function($term) {return $term->term_id;}, $paths);
 			
-			return array(
-				'taxonomy' => 'dbm_relation',
-				'field' => 'id',
-				'terms' => $ids,
-				'include_children' => false,
-				'operator' => 'AND'
-			);
+			return dbm_get_tax_query_for_relation_ids($ids);
 		}
 		
 		return array(
@@ -98,6 +114,16 @@
 		return $return_array;
 	}
 	
+	function dbm_get_tax_query_for_type_ids($ids) {
+		return array(
+			'taxonomy' => 'dbm_type',
+			'field' => 'id',
+			'terms' => $ids,
+			'include_children' => false,
+			'operator' => 'AND'
+		);
+	}
+	
 	function dbm_get_tax_query_for_type_paths($paths) {
 		
 		$paths = dbm_get_types_by_paths($paths);
@@ -105,13 +131,7 @@
 		if(isset($paths) && count($paths) > 0) {
 			$ids = array_map(function($term) {return $term->term_id;}, $paths);
 			
-			return array(
-				'taxonomy' => 'dbm_type',
-				'field' => 'id',
-				'terms' => $ids,
-				'include_children' => false,
-				'operator' => 'AND'
-			);
+			return dbm_get_tax_query_for_type_ids($ids);
 		}
 		
 		return array(
@@ -164,6 +184,14 @@
 		wp_set_post_terms($post_id, $new_term_ids, 'dbm_relation', false);
 	}
 	
+	function dbm_set_single_relation_by_name($post_id, $parent_path, $child_name) {
+		
+		$parent_term = dbm_get_relation_by_path($parent_path);
+		$ids = dbm_get_ids_from_terms(dbm_get_relations_by_paths(array($parent_path.'/'.$child_name)));
+		
+		dbm_replace_relations($post_id, $parent_term, $ids);
+	}
+	
 	function dbm_get_content_object_for_type_and_relation($post_id) {
 		
 		$return_object = array(
@@ -208,6 +236,15 @@
 		}
 		
 		return $return_array;
+	}
+	
+	function dbm_get_single_post_relation($post_id, $relation_path) {
+		$relations = dbm_get_post_relation($post_id, $relation_path);
+		if(!empty($relations)) {
+			return $relations[0];
+		}
+		
+		return null;
 	}
 	
 	function dbm_get_post_relation_with_children($post_id, $relation_path) {

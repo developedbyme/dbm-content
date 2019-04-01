@@ -56,6 +56,33 @@
 			return $parent_term->term_id;
 		}
 		
+		protected function get_free_slug($wanted_slug, $taken_slugs) {
+			
+			$matching_slugs = array();
+			
+			foreach($taken_slugs as $taken_slug) {
+				if(strpos($taken_slug, $wanted_slug) === 0) {
+					$matching_slugs[] = $taken_slug;
+				}
+			}
+			
+			if(!empty($matching_slugs)) {
+				
+				$slug_length = strlen($wanted_slug);
+				$next_value = 2;
+				foreach($matching_slugs as $taken_slug) {
+					$current_count = (int)substr($taken_slug, $slug_length+1);
+					if($current_count) {
+						$next_value = max($next_value, $current_count+1);
+					}
+				}
+				
+				$wanted_slug .= '-'.$next_value;
+			}
+			
+			return $wanted_slug;
+		}
+		
 		public function hook_type_set($post_id, $post) {
 			
 			$meta_name = 'dbm_relation_term_'.$this->_type_group;
@@ -75,9 +102,22 @@
 			$parent_id = $this->get_parent_term($post, $meta_name);
 			
 			if(!$term_id) {
-				$new_term = wp_insert_term($post->post_title, 'dbm_relation', array('parent' => $parent_id));
+				$siblings = get_terms(array(
+					'taxonomy' => 'dbm_relation',
+					'hide_empty' => false,
+					'parent' => $parent_id
+				));
+				
+				$wanted_slug = sanitize_title($post->post_title);
+				
+				if($siblings) {
+					$wanted_slug = $this->get_free_slug($wanted_slug, wp_list_pluck($siblings, 'slug'));
+				}
+				
+				$new_term = wp_insert_term($post->post_title, 'dbm_relation', array('slug' => $wanted_slug, 'parent' => $parent_id));
 				if(is_wp_error($new_term)) {
-					//METODO: handle this better
+					//MENOTE: this should never happend as we are generating unique slugs
+					//METODO: throw error
 					return;
 				}
 				else {
