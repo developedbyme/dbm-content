@@ -374,4 +374,15 @@
 		
 		return $custom_range_filters->query_relations($query_args, $data);
 	}
+	
+	function dbm_get_owned_relation($owner_id, $group) {
+		$meta_name = 'dbm_relation_term_'.$group;
+		$term_id = (int)get_post_meta($owner_id, $meta_name, true);
+		
+		if($term_id) {
+			return get_term_by('id', $term_id, 'dbm_relation');
+		}
+		
+		return null;
+	}
 ?>
