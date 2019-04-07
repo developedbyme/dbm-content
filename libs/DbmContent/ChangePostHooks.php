@@ -26,15 +26,27 @@
 			
 		}
 		
+		protected function get_relation_terms($data) {
+			$terms = $data['value'];
+			if(!is_array($terms)) {
+				$terms = explode(',', $terms);
+			}
+			
+			if(isset($data['field'])) {
+				switch($data['field']) {
+					case 'slugPath':
+						$terms = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_ids_from_terms(\DbmContent\OddCore\Utils\TaxonomyFunctions::get_terms_by_slug_paths($terms, 'dbm_relation'));
+				}
+			}
+			
+			return $terms;
+		}
+		
 		public function hook_set_relation($data, $post_id) {
 			//echo("\DbmContent\ChangePostHooks::hook_set_relation<br />");
 			
 			$parent_slug = $data['path'];
-			$ids = $data['value'];
-			
-			if(!is_array($ids)) {
-				$ids = explode(',', $ids);
-			}
+			$ids = $this->get_relation_terms($data);
 			
 			$parent = dbm_get_relation_by_path($parent_slug);
 			

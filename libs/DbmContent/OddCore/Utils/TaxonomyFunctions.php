@@ -16,7 +16,7 @@
 					'parent' => $current_id,
 					'hide_empty' => false
 				);
-					
+				
 				$terms = get_terms($args);
 				
 				if(empty($terms)) {
@@ -26,6 +26,28 @@
 			}
 			
 			return get_term_by('id', $current_id, $taxonomy);
+		}
+		
+		public static function get_term_by_slug_path($slug_path, $taxonomy) {
+			return self::get_term_by_slugs(explode('/', $slug_path), $taxonomy);
+		}
+		
+		public static function get_terms_by_slug_paths($slug_paths, $taxonomy) {
+			$return_array = array();
+			foreach($slug_paths as $slug_path) {
+				$return_array[] = self::get_term_by_slugs(explode('/', $slug_path), $taxonomy);
+			}
+			return $return_array;
+		}
+		
+		public static function get_ids_from_terms($terms) {
+			$return_array = array();
+			foreach($terms as $term) {
+				if($term) {
+					$return_array[] = $term->term_id;
+				}
+			}
+			return $return_array;
 		}
 		
 		public static function filter_force_original_slug($slug, $term, $original_slug) {
