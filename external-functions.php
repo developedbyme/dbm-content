@@ -385,4 +385,19 @@
 		
 		return null;
 	}
+	
+	function dbm_new_query($query_args_or_post_type = null) {
+		$new_query = new \DbmContent\DbmQuery();
+		
+		if($query_args_or_post_type) {
+			if(is_string($query_args_or_post_type)) {
+				$new_query->set_post_type($query_args_or_post_type);
+			}
+			else if(is_array($query_args_or_post_type)) {
+				$new_query->set_query_args($query_args_or_post_type);
+			}
+		}
+		
+		return $new_query;
+	}
 ?>
