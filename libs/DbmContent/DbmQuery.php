@@ -132,6 +132,7 @@
 		
 		public function perform_ids_query($query_args) {
 			$query_args['fields'] = 'ids';
+			$query_args['posts_per_page'] = -1;
 			return get_posts($query_args);
 		}
 		
