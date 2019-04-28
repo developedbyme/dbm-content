@@ -78,6 +78,29 @@
 			return $this;
 		}
 		
+		public function add_relation_by_path($path) {
+			if(!isset($path)) {
+				//METODO: error message
+				$tax_query = DbmQuery::create_no_term_tax_query('dbm_relation');
+				$this->add_query($tax_query);
+				return $this;
+			}
+			
+			$term = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slug_path($path, 'dbm_relation');
+			
+			if(!$term) {
+				//METODO: error message
+				$tax_query = DbmQuery::create_no_term_tax_query('dbm_relation');
+				$this->add_query($tax_query);
+				return $this;
+			}
+			
+			$tax_query = DbmQuery::create_term_ids_tax_query(array($term->term_id), 'dbm_relation');
+			$this->add_query($tax_query);
+			
+			return $this;
+		}
+		
 		public function add_type_by_path($path) {
 			if(!isset($path)) {
 				//METODO: error message
