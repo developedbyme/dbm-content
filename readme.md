@@ -24,6 +24,12 @@ Creates a new data post
 ### dbm_get_owned_relation($owner_id, $group)
 Gets the relation that is owned by an object
 
+### dbm_get_single_post_relation($post_id, $relation_path)
+Gets a posts first relation in a group
+
+### dbm_new_query($query_args_or_post_type = null)
+Creates a new dbm content query
+
 ## Range options
 ### Selections
 #### byOwnedRelation
