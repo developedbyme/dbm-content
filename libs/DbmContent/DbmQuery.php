@@ -16,6 +16,12 @@
 			return $this;
 		}
 		
+		public function set_argument($name, $value) {
+			$this->query_args[$name] = $value;
+			
+			return $this;
+		}
+		
 		public function set_post_type($post_type) {
 			$this->set_field('post_type', $post_type);
 			
@@ -24,6 +30,16 @@
 		
 		public function set_field($field_name, $value) {
 			$this->query_args[$field_name] = $value;
+			
+			return $this;
+		}
+		
+		public function ensure_meta_query_exists() {
+			if(!isset($this->query_args['meta_query'])) {
+				$this->query_args['meta_query'] = array(
+					'relation' => 'AND'
+				);
+			}
 			
 			return $this;
 		}
@@ -138,8 +154,30 @@
 			return $this;
 		}
 		
+		public function add_meta_query($field, $value, $compare = '=', $type = 'CHAR') {
+			$query = array(
+				'field' => $field,
+				'value' => $value,
+				'compare' => $compare,
+				'type' => $type,
+			);
+			
+			$this->ensure_meta_query_exists();
+			$this->query_args['meta_query'][] = $query;
+			
+			return $this;
+		}
+		
 		public function get_query_args() {
 			return $this->query_args;
+		}
+		
+		public function get_post_ids() {
+			$query_args = $this->get_query_args();
+			
+			$ids = $this->perform_ids_query($query_args);
+			
+			return $ids;
 		}
 		
 		public function get_post_id() {
