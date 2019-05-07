@@ -57,6 +57,13 @@
 			return $this;
 		}
 		
+		public function add_relation_ids($ids, $operator = 'AND') {
+			$tax_query = DbmQuery::create_term_ids_tax_query($ids, 'dbm_relation', false, $operator);
+			$this->add_query($tax_query);
+			
+			return $this;
+		}
+		
 		public function add_relation_by_id($term_id) {
 			if(!isset($term_id)) {
 				//METODO: error message
@@ -124,6 +131,13 @@
 			return $this;
 		}
 		
+		public function add_type_ids($ids, $operator = 'AND') {
+			$tax_query = DbmQuery::create_term_ids_tax_query($ids, 'dbm_type', false, $operator);
+			$this->add_query($tax_query);
+			
+			return $this;
+		}
+		
 		public function get_query_args() {
 			return $this->query_args;
 		}
@@ -159,13 +173,13 @@
 			return get_posts($query_args);
 		}
 		
-		public static function create_term_ids_tax_query($term_ids, $taxonomy, $include_chldren = false) {
+		public static function create_term_ids_tax_query($term_ids, $taxonomy, $include_chldren = false, $operator = 'AND') {
 			return array(
 				'taxonomy' => $taxonomy,
 				'field' => 'id',
 				'terms' => $term_ids,
 				'include_children' => $include_chldren,
-				'operator' => 'AND'
+				'operator' => $operator
 			);
 		}
 		

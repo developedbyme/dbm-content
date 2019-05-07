@@ -127,25 +127,21 @@
 		public function query_relations($query_args, $data) {
 			//echo("\DbmContent\CustomRangeFilters::query_relations<br />");
 			
-			$tax_query = array(
-				'relation' => 'AND',
-			);
-			
 			$has_query = false;
+			
+			$dbm_query = dbm_new_query($query_args);
 			
 			if(isset($data['type'])) {
 				
 				$type_ids = $this->get_type_ids($data);
 				
 				if(!empty($type_ids)) {
-					$current_tax_query = array(
-						'taxonomy' => 'dbm_type',
-						'field' => 'id',
-						'terms' => $type_ids,
-						'include_children' => false
-					);
-					array_push($tax_query, $current_tax_query);
+					$dbm_query->add_type_ids($type_ids);
 					$has_query = true;
+				}
+				else {
+					$query_args['post__in'] = array(0);
+					return $query_args;
 				}
 				
 			}
@@ -154,47 +150,33 @@
 				$relation_ids = $this->get_relation_ids($data);
 				
 				if(!empty($relation_ids)) {
-					$relation_match = 'any';
+					$operator = 'AND';
 					if(isset($data['relationMatch'])) {
 						switch($data['relationMatch']) {
 							case "all":
+								//MENOTE: do nothing
+								break;
 							case "any":
-								$relation_match = $data['relationMatch'];
+								$operator = 'IN';
+								break;
 						}
 						
 					}
 					
-					if($relation_match === 'any') {
-						$current_tax_query = array(
-							'taxonomy' => 'dbm_relation',
-							'field' => 'id',
-							'terms' => $relation_ids,
-							'include_children' => false
-						);
-						array_push($tax_query, $current_tax_query);
-					}
-					else {
-						$current_combined_query = array('relation' => 'AND');
-						foreach($relation_ids as $relation_id) {
-							$current_tax_query = array(
-								'taxonomy' => 'dbm_relation',
-								'field' => 'id',
-								'terms' => $relation_id,
-								'include_children' => false
-							);
-							array_push($current_combined_query, $current_tax_query);
-						}
-						array_push($tax_query, $current_combined_query);
-					}
+					$dbm_query->add_relation_ids($relation_ids, $operator);
 					$has_query = true;
 				}
+				else {
+					$query_args['post__in'] = array(0);
+					return $query_args;
+				}
 			}
+			
+			$query_args = $dbm_query->get_query_args();
 			
 			if(!$has_query) {
 				$query_args['post__in'] = array(0);
 			}
-			
-			$this->add_tax_query($query_args, $tax_query);
 			
 			return $query_args;
 		}
@@ -316,18 +298,12 @@
 		public function query_languageTerm($query_args, $data) {
 			//echo("\DbmContent\CustomRangeFilters::query_languageTerm<br />");
 			
+			$dbm_query = dbm_new_query($query_args);
 			if(isset($data['language'])) {
-				$language_term = dbm_get_relation_by_path('languages/'.$data['language']);
-				if($language_term) {
-					$this->add_tax_query($query_args, array(
-						'taxonomy' => 'dbm_relation',
-						'field' => 'id',
-						'terms' => array($language_term->term_id),
-						'include_children' => false,
-						'operator' => 'AND'
-					));
-				}
+				$dbm_query->add_relation_by_path('languages/'.$data['language']);
 			}
+			
+			$query_args = $dbm_query->get_query_args();
 			
 			return $query_args;
 		}
