@@ -222,6 +222,45 @@
 			return $query_args;
 		}
 		
+		public function query_byPostRelation($query_args, $data) {
+			$has_query = false;
+			if(isset($data['postRelation'])) {
+				
+				$term_ids = array();
+				
+				$owned_relations = explode(',', $data['postRelation']);
+				foreach($owned_relations as $owned_relation) {
+					$temp_array = explode(':', $data['postRelation']);
+					$group = $temp_array[0];
+					$owner_id = (int)$temp_array[1];
+					
+					$term_ids = dbm_get_post_relation($owner_id, $group);
+				}
+				
+				if(!empty($term_ids)) {
+					$has_query = true;
+					
+					$current_tax_query = array(
+						'taxonomy' => 'dbm_relation',
+						'field' => 'id',
+						'terms' => $term_ids,
+						'include_children' => false
+					);
+					
+					$this->add_tax_query($query_args, $current_tax_query);
+				}
+				
+			}
+			
+			if(!$has_query) {
+				$query_args['post__in'] = array(0);
+			}
+			
+			return $query_args;
+		}
+		
+		
+		
 		public function query_by_relation_owner($query_args, $data) {
 			$has_query = false;
 			if(isset($data['relationGroup']) && isset($data['from'])) {
