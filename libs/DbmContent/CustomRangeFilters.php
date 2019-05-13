@@ -206,7 +206,7 @@
 					$current_tax_query = array(
 						'taxonomy' => 'dbm_relation',
 						'field' => 'id',
-						'terms' => $term_id,
+						'terms' => $term_ids,
 						'include_children' => false
 					);
 					
