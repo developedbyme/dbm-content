@@ -208,6 +208,7 @@
 		public function perform_ids_query($query_args) {
 			$query_args['fields'] = 'ids';
 			$query_args['posts_per_page'] = -1;
+			$query_args['suppress_filters'] = 0;
 			return get_posts($query_args);
 		}
 		
