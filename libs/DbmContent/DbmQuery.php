@@ -156,7 +156,7 @@
 		
 		public function add_meta_query($field, $value, $compare = '=', $type = 'CHAR') {
 			$query = array(
-				'field' => $field,
+				'key' => $field,
 				'value' => $value,
 				'compare' => $compare,
 				'type' => $type,
