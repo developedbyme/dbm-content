@@ -408,4 +408,10 @@
 		
 		return $new_query;
 	}
+	
+	function dbm_get_post($id) {
+		$new_post = new \DbmContent\DbmPost($id);
+		
+		return $new_post;
+	}
 ?>
