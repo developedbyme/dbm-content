@@ -92,7 +92,11 @@
 
 			$api_namespace = 'dbm-content';
 			
-			
+			$current_end_point = new \DbmContent\OddCore\RestApi\ReactivatePluginEndpoint();
+			$current_end_point->set_plugin($this);
+			$current_end_point->add_headers(array('Access-Control-Allow-Origin' => '*'));
+			$current_end_point->setup('reactivate-plugin', $api_namespace, 1, 'GET');
+			$this->_rest_api_end_points[] = $current_end_point;
 		}
 		
 		public function register_hooks() {
@@ -100,7 +104,6 @@
 			
 			add_action('dbm_content/parse_dbm_content', array($this, 'hook_parse_dbm_content'), 10, 3);
 			
-			add_filter( 'mce_external_plugins', array($this, 'mce_external_plugins'), 10, 1 );
 		}
 		
 		public function mce_external_plugins( $plugin_array ){
@@ -212,6 +215,32 @@
 			add_filter('m_router_data/encode_term_link', array($custom_range_filters, 'encode_term'), 10, 3);
 			
 			add_filter( 'theme_page_templates', array($this, 'filter_global_page_templates'), 10, 1 );
+			
+			add_filter('dbm_content/get_menu_positions', array($this, 'filter_add_menu_position'), 10, 1);
+			
+			add_filter( 'mce_external_plugins', array($this, 'mce_external_plugins'), 10, 1 );
+		}
+		
+		public function filter_add_menu_position($menu_positions) {
+			
+			$menu_positions_term = dbm_get_relation_by_path('menu-position');
+			if($menu_positions_term) {
+				$parent_term_id = $menu_positions_term->term_id;
+				//var_dump($menu_positions_term);
+				$term_ids = get_term_children($parent_term_id, 'dbm_relation');
+				foreach($term_ids as $term_id) {
+					$parent_term = get_term_by('id', $term_id, 'dbm_relation');
+					if($parent_term->parent === $parent_term_id) {
+						$position_ids = get_term_children($term_id, 'dbm_relation');
+						foreach($position_ids as $position_id) {
+							$term = get_term_by('id', $position_id, 'dbm_relation');
+							$menu_positions[$parent_term->slug.'_'.$term->slug] = $parent_term->name.': '.$term->name;
+						}
+					}
+				}
+			}
+			
+			return $menu_positions;
 		}
 		
 		public function filter_global_page_templates($post_templates) {
@@ -237,6 +266,17 @@
 			}
 			
 			return $post_templates;
+		}
+		
+		public function hook_init() {
+
+			parent::hook_init();
+			
+			$menu_positions = array();
+			
+			$menu_positions = apply_filters('dbm_content/get_menu_positions', $menu_positions);
+			
+			register_nav_menus($menu_positions);
 		}
 
 		public function hook_admin_enqueue_scripts() {
@@ -289,9 +329,11 @@
 			}
 			
 		}
-
-
-
+		
+		public function activation_setup() {
+			\DbmContent\Admin\PluginActivation::run_setup();
+		}
+		
 		public static function test_import() {
 			echo("Imported \DbmContent\Plugin<br />");
 		}

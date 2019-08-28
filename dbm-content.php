@@ -24,4 +24,10 @@
 	$DbmContentPlugin = new \DbmContent\Plugin();
 
 	require_once(DBM_CONTENT_DIR."/external-functions.php");
+	
+	function dbm_content_compat_plugin_activate() {
+		global $DbmContentPlugin;
+		$DbmContentPlugin->activation_setup();
+	}
+	register_activation_hook( __FILE__, 'dbm_content_compat_plugin_activate' );
 ?>

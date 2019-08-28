@@ -436,6 +436,10 @@
 				wp_enqueue_script($id, $path, array(), "wp-".get_bloginfo('version').','.DBM_CONTENT_DOMAIN.'-'.DBM_CONTENT_VERSION);
 			}
 		}
+		
+		public function activation_setup() {
+			
+		}
 
 		public static function test_import() {
 			echo("Imported \DbmContent\OddCore\PluginBase<br />");
