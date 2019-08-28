@@ -118,16 +118,14 @@
 			
 			$current_term_id = self::add_term('dbm_relation:page-templates', 'Page templates');
 			
-			/*
 			$current_term_id = self::add_term('dbm_relation:languages', 'Languages');
 			
 			$languages = apply_filters( 'wpml_active_languages', NULL, 'skip_missing=0&orderby=id&order=desc' );
 			if($languages) {
 				foreach($languages as $language) {
-					var_dump($language);
+					$current_term_id = self::add_term('dbm_relation:languages/'.$language['code'], $language['translated_name']);
 				}
 			}
-			*/
 			
 			$current_term_id = self::add_term('dbm_relation:menu-position', 'Menu position');
 			$current_term_id = self::add_term('dbm_relation:menu-position/side-menu', 'Side menu');
