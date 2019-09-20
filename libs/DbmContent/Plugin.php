@@ -33,14 +33,15 @@
 				'nonce' => wp_create_nonce( 'wp_rest' )
 			);
 			
-			$current_page = new \DbmContent\OddCore\Admin\Pages\ReactPage();
+			$current_page = new \DbmContent\OddCore\Admin\Pages\WprrPage();
 			$current_page->set_names('DBM Relations Manager', 'Relations Manager','dbm_relations_manager');
 			$current_page->set_component('relationsManagerPage', array());
 			$current_page->add_javascript('lba-mag-admin', get_template_directory_uri().'/assets/js/admin.js');
-			$current_page->add_javascript_data('lba-mag-admin', 'wprrWpConfiguration', $wprr_configuration_data);
 			$current_page->add_css('lba-mag-admin', get_template_directory_uri().'/assets/css/admin-style.css');
+			$current_page->add_javascript_data('lba-mag-admin', 'wprrWpConfiguration', $wprr_configuration_data);
 			
 			$this->add_page($current_page);
+			
 		}
 		
 		public function filter_get_taxonomies($taxonomies) {
