@@ -20,7 +20,7 @@
 		
 		public function add_type_by_name($path) {
 			
-			$term_ids = dbm_get_ids_from_terms(dbm_get_type_by_path($path));
+			$term_ids = dbm_get_ids_from_terms(array(dbm_get_type_by_path($path)));
 			wp_set_post_terms($this->id, $term_ids, 'dbm_type', true);
 			
 			return $this;
