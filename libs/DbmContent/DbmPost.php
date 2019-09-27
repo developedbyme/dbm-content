@@ -75,6 +75,17 @@
 			return null;
 		}
 		
+		public function dbm_get_owned_relation($group) {
+			$meta_name = 'dbm_relation_term_'.$group;
+			$term_id = (int)get_post_meta($this->id, $meta_name, true);
+		
+			if($term_id) {
+				return get_term_by('id', $term_id, 'dbm_relation');
+			}
+		
+			return null;
+		}
+		
 		public static function test_import() {
 			echo("Imported \DbmContent\DbmPost<br />");
 		}
