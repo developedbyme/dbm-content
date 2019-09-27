@@ -26,7 +26,7 @@
 			
 		}
 		
-		protected function get_relation_terms($data) {
+		protected function get_relation_terms($data, $parent_path = null) {
 			$terms = $data['value'];
 			if(!is_array($terms)) {
 				$terms = explode(',', $terms);
@@ -36,6 +36,17 @@
 				switch($data['field']) {
 					case 'slugPath':
 						$terms = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_ids_from_terms(\DbmContent\OddCore\Utils\TaxonomyFunctions::get_terms_by_slug_paths($terms, 'dbm_relation'));
+						break;
+					case 'slugPathFromParent':
+						if($parent_path) {
+							$new_terms = array();
+							foreach($terms as $term) {
+								$new_terms[] = $parent_path.'/'.$term;
+							}
+						}
+						$terms = $new_terms;
+						$terms = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_ids_from_terms(\DbmContent\OddCore\Utils\TaxonomyFunctions::get_terms_by_slug_paths($terms, 'dbm_relation'));
+						break;
 				}
 			}
 			
@@ -46,7 +57,7 @@
 			//echo("\DbmContent\ChangePostHooks::hook_set_relation<br />");
 			
 			$parent_slug = $data['path'];
-			$ids = $this->get_relation_terms($data);
+			$ids = $this->get_relation_terms($data, $parent_slug);
 			
 			$parent = dbm_get_relation_by_path($parent_slug);
 			
