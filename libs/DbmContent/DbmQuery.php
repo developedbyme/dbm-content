@@ -101,6 +101,14 @@
 			return $this;
 		}
 		
+		public function add_relation_from_owner($post_id, $group_name) {
+			$related_term = dbm_get_owned_relation($post_id, $group_name);
+			
+			$this->add_relation_term($related_term);
+			
+			return $this;
+		}
+		
 		public function add_relation_by_path($path) {
 			if(!isset($path)) {
 				//METODO: error message
