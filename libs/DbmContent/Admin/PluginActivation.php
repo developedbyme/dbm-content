@@ -114,6 +114,7 @@
 			
 			remove_all_actions('pre_get_posts');
 			
+			/*
 			$current_term_id = self::add_term('dbm_relation:global-pages', 'Global pages');
 			
 			$current_term_id = self::add_term('dbm_relation:page-templates', 'Page templates');
@@ -134,6 +135,7 @@
 			$current_term_id = self::add_term('dbm_relation:menu-position/top-menu/default', 'Default top menu');
 			$current_term_id = self::add_term('dbm_relation:menu-position/footer-menu', 'Footer menu');
 			$current_term_id = self::add_term('dbm_relation:menu-position/footer-menu/default', 'Default footer menu');
+			*/
 			
 		}
 		
