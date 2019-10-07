@@ -57,6 +57,13 @@
 		return $return_array;
 	}
 	
+	function dbm_get_child_relations_by_path($path) {
+		
+		$parent = dbm_get_relation(explode('/', $path));
+		
+		return get_term_children($parent->term_id, 'dbm_relation');
+	}
+	
 	function dbm_get_tax_query_for_relation_ids($ids) {
 		return array(
 			'taxonomy' => 'dbm_relation',
