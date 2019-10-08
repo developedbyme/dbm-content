@@ -20,8 +20,7 @@
 				$terms = get_terms($args);
 				
 				if(is_wp_error($terms)) {
-					var_dump($terms->get_error_message());
-					var_dump($taxonomy);
+					//METODO: error message
 					return null;
 				}
 				if(empty($terms)) {
