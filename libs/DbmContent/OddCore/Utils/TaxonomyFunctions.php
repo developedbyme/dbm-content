@@ -21,6 +21,7 @@
 				
 				if(is_wp_error($terms)) {
 					var_dump($terms->get_error_message());
+					var_dump($taxonomy);
 					return null;
 				}
 				if(empty($terms)) {
