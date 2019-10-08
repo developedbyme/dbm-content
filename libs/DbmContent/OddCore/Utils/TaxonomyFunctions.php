@@ -19,6 +19,10 @@
 				
 				$terms = get_terms($args);
 				
+				if(is_wp_error($terms)) {
+					var_dump($terms->get_error_message());
+					return null;
+				}
 				if(empty($terms)) {
 					return null;
 				}
