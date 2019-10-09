@@ -4,10 +4,30 @@
 	class DbmQuery {
 
 		protected $query_args = array();
+		protected $errors = array();
+		protected $has_error = false;
 
 		function __construct() {
 			//echo("\DbmContent\DbmQuery::__construct<br />");
 			
+		}
+		
+		protected function add_error($message) {
+			
+			$this->errors[] = $message;
+			$this->has_error = true;
+			
+			$tax_query = DbmQuery::create_no_term_tax_query('dbm_relation');
+			$this->add_query($tax_query);
+			
+			return $this;
+		}
+		
+		public function remove_errors() {
+			$this->errors = array();
+			$this->has_error = false;
+			
+			return $this;
 		}
 		
 		public function set_query_args($query_args) {
@@ -94,14 +114,24 @@
 		}
 		
 		public function add_relations_from_post($post_id, $relation_path) {
+			//echo("\DbmContent\DbmQuery::add_relations_from_post<br />");
 			
-			$tax_query = DbmQuery::create_term_ids_tax_query(dbm_get_post_relation($post_id, $relation_path), 'dbm_relation');
+			$term_ids = dbm_get_post_relation($post_id, $relation_path);
+			
+			if(empty($term_ids)) {
+				$this->add_error("Post {$post_id} doesn't have any relation {$relation_path}");
+				return $this;
+			}
+			
+			$tax_query = DbmQuery::create_term_ids_tax_query($term_ids, 'dbm_relation');
 			$this->add_query($tax_query);
 			
 			return $this;
 		}
 		
 		public function add_relation_from_owner($post_id, $group_name) {
+			//echo("\DbmContent\DbmQuery::add_relation_from_owner<br />");
+			
 			$related_term = dbm_get_owned_relation($post_id, $group_name);
 			
 			$this->add_relation_term($related_term);
@@ -181,6 +211,10 @@
 		}
 		
 		public function get_post_ids() {
+			if($this->has_error) {
+				return array();
+			}
+			
 			$query_args = $this->get_query_args();
 			
 			$ids = $this->perform_ids_query($query_args);
@@ -189,19 +223,21 @@
 		}
 		
 		public function get_post_id() {
-			$query_args = $this->get_query_args();
+			$id = $this->get_post_id_if_exists();
 			
-			$ids = $this->perform_ids_query($query_args);
-			
-			if(empty($ids)) {
+			if($id === 0) {
 				//METODO: error message
-				return 0;
 			}
 			
-			return $ids[0];
+			return $id;
 		}
 		
 		public function get_post_id_if_exists() {
+			
+			if($this->has_error) {
+				return 0;
+			}
+			
 			$query_args = $this->get_query_args();
 			
 			$ids = $this->perform_ids_query($query_args);
