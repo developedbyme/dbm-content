@@ -114,29 +114,28 @@
 			
 			remove_all_actions('pre_get_posts');
 			
-			/*
-			$current_term_id = self::add_term('dbm_relation:global-pages', 'Global pages');
+			if(taxonomy_exists('dbm_relation')) {
+				$current_term_id = self::add_term('dbm_relation:global-pages', 'Global pages');
 			
-			$current_term_id = self::add_term('dbm_relation:page-templates', 'Page templates');
+				$current_term_id = self::add_term('dbm_relation:page-templates', 'Page templates');
 			
-			$current_term_id = self::add_term('dbm_relation:languages', 'Languages');
+				$current_term_id = self::add_term('dbm_relation:languages', 'Languages');
 			
-			$languages = apply_filters( 'wpml_active_languages', NULL, 'skip_missing=0&orderby=id&order=desc' );
-			if($languages) {
-				foreach($languages as $language) {
-					$current_term_id = self::add_term('dbm_relation:languages/'.$language['code'], $language['translated_name']);
+				$languages = apply_filters( 'wpml_active_languages', NULL, 'skip_missing=0&orderby=id&order=desc' );
+				if($languages) {
+					foreach($languages as $language) {
+						$current_term_id = self::add_term('dbm_relation:languages/'.$language['code'], $language['translated_name']);
+					}
 				}
+			
+				$current_term_id = self::add_term('dbm_relation:menu-position', 'Menu position');
+				$current_term_id = self::add_term('dbm_relation:menu-position/side-menu', 'Side menu');
+				$current_term_id = self::add_term('dbm_relation:menu-position/side-menu/default', 'Default side menu');
+				$current_term_id = self::add_term('dbm_relation:menu-position/top-menu', 'Top menu');
+				$current_term_id = self::add_term('dbm_relation:menu-position/top-menu/default', 'Default top menu');
+				$current_term_id = self::add_term('dbm_relation:menu-position/footer-menu', 'Footer menu');
+				$current_term_id = self::add_term('dbm_relation:menu-position/footer-menu/default', 'Default footer menu');
 			}
-			
-			$current_term_id = self::add_term('dbm_relation:menu-position', 'Menu position');
-			$current_term_id = self::add_term('dbm_relation:menu-position/side-menu', 'Side menu');
-			$current_term_id = self::add_term('dbm_relation:menu-position/side-menu/default', 'Default side menu');
-			$current_term_id = self::add_term('dbm_relation:menu-position/top-menu', 'Top menu');
-			$current_term_id = self::add_term('dbm_relation:menu-position/top-menu/default', 'Default top menu');
-			$current_term_id = self::add_term('dbm_relation:menu-position/footer-menu', 'Footer menu');
-			$current_term_id = self::add_term('dbm_relation:menu-position/footer-menu/default', 'Default footer menu');
-			*/
-			
 		}
 		
 		public static function test_import() {
