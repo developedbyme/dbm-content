@@ -180,6 +180,13 @@
 			return $this->query_args;
 		}
 		
+		public function debug_print_query_args() {
+			
+			var_dump($this->query_args);
+			
+			return $this;
+		}
+		
 		public function get_post_ids() {
 			$query_args = $this->get_query_args();
 			
