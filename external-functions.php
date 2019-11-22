@@ -427,4 +427,10 @@
 		
 		return $new_post;
 	}
+	
+	function dbm_get_global_page_id($slug) {
+		$id = dbm_new_query('page')->add_relation_by_path('global-pages/'.$slug)->get_post_id();
+		
+		return $id;
+	}
 ?>
