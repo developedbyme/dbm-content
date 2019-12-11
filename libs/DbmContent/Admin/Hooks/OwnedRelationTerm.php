@@ -84,15 +84,17 @@
 		}
 		
 		public function hook_type_set($post_id, $post) {
-			global $wpml_post_translations;
+			global $sitepress, $wpml_post_translations;
 			
 			$meta_name = 'dbm_relation_term_'.$this->_type_group;
 			
 			$original_id = $post_id;
-			if($wpml_post_translations) {
-				$original_id = $wpml_post_translations->get_original_element($post_id);
-				if($original_id === null) {
-					return;
+			if($sitepress && $wpml_post_translations) {
+				if($sitepress->is_translated_post_type(get_post_type($post_id))) {
+					$original_id = $wpml_post_translations->get_original_element($post_id);
+					if($original_id === null) {
+						return;
+					}
 				}
 			}
 			$is_original = ($post_id === $original_id);
