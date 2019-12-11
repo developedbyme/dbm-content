@@ -313,10 +313,7 @@
 	}
 	
 	function dbm_get_post_id_by_type_and_relation($post_type = 'any', $type_paths = null, $relation_paths = null) {
-		$query_args = array(
-			'posts_per_page' => 1,
-			'fields' => 'ids'
-		);
+		$query_args = array();
 		
 		if($post_type !== 'any') {
 			$postTypes = explode(',', $post_type);
@@ -326,35 +323,21 @@
 			$query_args['post_type'] = get_post_types(array(), 'names');
 		}
 		
-		$tax_query = array(
-			'relation' => 'AND',
-		);
+		$dbm_query = dbm_new_query($query_args);
 		
 		if($type_paths) {
-			$current_tax_query = dbm_get_tax_query_for_type_paths($type_paths);
-			array_push($tax_query, $current_tax_query);
+			$dbm_query->add_type_by_path(implode(',', $type_paths));
 		}
 		if($relation_paths) {
-			$current_tax_query = dbm_get_tax_query_for_relation_paths($relation_paths);
-			array_push($tax_query, $current_tax_query);
+			$dbm_query->add_relation_by_path(implode(',', $relation_paths));
 		}
 		
-		$query_args['tax_query'] = $tax_query;
+		return $dbm_query->get_post_id();
 		
-		$posts = get_posts($query_args);
-		
-		if(count($posts) > 0) {
-			return $posts[0];
-		}
-		
-		return null;
 	}
 	
 	function dbm_get_post_ids_by_type_and_relation($post_type = 'any', $type_paths = null, $relation_paths = null) {
-		$query_args = array(
-			'posts_per_page' => -1,
-			'fields' => 'ids'
-		);
+		$query_args = array();
 		
 		if($post_type !== 'any') {
 			$postTypes = explode(',', $post_type);
@@ -364,24 +347,16 @@
 			$query_args['post_type'] = get_post_types(array(), 'names');
 		}
 		
-		$tax_query = array(
-			'relation' => 'AND',
-		);
+		$dbm_query = dbm_new_query($query_args);
 		
 		if($type_paths) {
-			$current_tax_query = dbm_get_tax_query_for_type_paths($type_paths);
-			array_push($tax_query, $current_tax_query);
+			$dbm_query->add_type_by_path(implode(',', $type_paths));
 		}
 		if($relation_paths) {
-			$current_tax_query = dbm_get_tax_query_for_relation_paths($relation_paths);
-			array_push($tax_query, $current_tax_query);
+			$dbm_query->add_relation_by_path(implode(',', $relation_paths));
 		}
 		
-		$query_args['tax_query'] = $tax_query;
-		
-		$posts = get_posts($query_args);
-		
-		return $posts;
+		return $dbm_query->get_post_ids();
 	}
 	
 	function dbm_filter_custom_range_relation_query($query_args, $data) {
