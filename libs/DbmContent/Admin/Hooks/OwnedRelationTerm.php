@@ -84,10 +84,20 @@
 		}
 		
 		public function hook_type_set($post_id, $post) {
+			global $wpml_post_translations;
 			
 			$meta_name = 'dbm_relation_term_'.$this->_type_group;
 			
-			$term_id_meta = get_post_meta($post_id, $meta_name, true);
+			$original_id = $post_id;
+			if($wpml_post_translations) {
+				$original_id = $wpml_post_translations->get_original_element($post_id);
+				if($original_id === null) {
+					return;
+				}
+			}
+			$is_original = ($post_id === $original_id);
+			
+			$term_id_meta = get_post_meta($original_id, $meta_name, true);
 			if(is_numeric($term_id_meta)) {
 				$term_id = intVal($term_id_meta);
 				$current_term = get_term_by('id', $term_id, 'dbm_relation');
@@ -99,7 +109,7 @@
 				$term_id = false;
 			}
 			
-			$parent_id = $this->get_parent_term($post, $meta_name);
+			$parent_id = $this->get_parent_term(get_post($original_id), $meta_name);
 			
 			if(!$term_id) {
 				$siblings = get_terms(array(
@@ -130,7 +140,12 @@
 				}
 			}
 			else {
-				wp_update_term($term_id, 'dbm_relation', array('name' => $post->post_title, 'parent' => $parent_id));
+				if($is_original) {
+					wp_update_term($term_id, 'dbm_relation', array('name' => $post->post_title, 'parent' => $parent_id));
+				}
+				else {
+					update_post_meta($post_id, $meta_name, $term_id);
+				}
 			}
 			
 			if($this->_add_term_to_owner_post) {
