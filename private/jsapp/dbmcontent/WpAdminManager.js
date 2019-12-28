@@ -178,6 +178,10 @@ export default class WpAdminManager {
 		//console.log("dbmcontent/WpAdminManager::addShortcode");
 		//console.log(aId, aType, aData);
 		
+		if(!aData) {
+			aData = new Object();
+		}
+		
 		var dataObject = {
 			"type": aType,
 			"data": aData
