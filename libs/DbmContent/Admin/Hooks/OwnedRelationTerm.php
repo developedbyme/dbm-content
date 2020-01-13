@@ -96,6 +96,7 @@
 					$original_id = $wpml_post_translations->get_original_element($post_id);
 					if($original_id === null) {
 						//METODO: this needs to be checked, sometimes it's triggered before elements are ready and sometimes after, return should be there if before
+						$original_id = $post_id;
 						//return;
 					}
 				}
