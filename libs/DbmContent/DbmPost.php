@@ -88,6 +88,17 @@
 			return $this;
 		}
 		
+		public function set_single_relation_by_name($path) {
+			
+			$path_array = explode('/', $path);
+			$child_name = array_pop($path_array);
+			$parent_path = implode('/', $path_array);
+			
+			dbm_set_single_relation_by_name($this->get_id(), $parent_path, $child_name);
+			
+			return $this;
+		}
+		
 		public function get_subtypes($path) {
 			$return_array = array();
 		
