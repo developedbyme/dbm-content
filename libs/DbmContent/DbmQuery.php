@@ -129,6 +129,22 @@
 			return $this;
 		}
 		
+		public function add_any_relations_from_post($post_id, $relation_path) {
+			//echo("\DbmContent\DbmQuery::add_any_relations_from_post<br />");
+			
+			$term_ids = dbm_get_post_relation($post_id, $relation_path);
+			
+			if(empty($term_ids)) {
+				$this->add_error("Post {$post_id} doesn't have any relation {$relation_path}");
+				return $this;
+			}
+			
+			$tax_query = DbmQuery::create_term_ids_tax_query($term_ids, 'dbm_relation', false, 'OR');
+			$this->add_query($tax_query);
+			
+			return $this;
+		}
+		
 		public function add_relation_from_owner($post_id, $group_name) {
 			//echo("\DbmContent\DbmQuery::add_relation_from_owner<br />");
 			
