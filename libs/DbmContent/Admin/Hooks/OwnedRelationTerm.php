@@ -84,6 +84,8 @@
 		}
 		
 		public function hook_type_set($post_id, $post) {
+			//echo('hook_type_set');
+			
 			global $sitepress, $wpml_post_translations;
 			
 			$meta_name = 'dbm_relation_term_'.$this->_type_group;
@@ -93,7 +95,9 @@
 				if($sitepress->is_translated_post_type(get_post_type($post_id))) {
 					$original_id = $wpml_post_translations->get_original_element($post_id);
 					if($original_id === null) {
-						return;
+						//METODO: this needs to be checked, sometimes it's triggered before elements are ready and sometimes after, return should be there if before
+						$original_id = $post_id;
+						//return;
 					}
 				}
 			}

@@ -140,6 +140,29 @@
 			}
 			
 			$tax_query = DbmQuery::create_term_ids_tax_query($term_ids, 'dbm_relation', false, 'OR');
+			
+			$this->add_query($tax_query);
+			
+			return $this;
+		}
+		
+		public function add_relations_with_children_from_post($post_id, $relation_path) {
+			//echo("\DbmContent\DbmQuery::add_relations_with_children_from_post<br />");
+			
+			$term_ids = dbm_get_post_relation_with_children($post_id, $relation_path);
+			
+			if(empty($term_ids)) {
+				$this->add_error("Post {$post_id} doesn't have any relation {$relation_path}");
+				return $this;
+			}
+			
+			if(empty($term_ids)) {
+				$this->add_error("Post {$post_id} doesn't have any relation {$relation_path}");
+				return $this;
+			}
+			
+			$tax_query = DbmQuery::create_term_ids_tax_query($term_ids, 'dbm_relation');
+			
 			$this->add_query($tax_query);
 			
 			return $this;

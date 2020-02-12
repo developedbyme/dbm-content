@@ -136,8 +136,6 @@
 				else {
 					$removed_types = array();
 				}
-					
-				
 				
 				wp_set_post_terms($post_id, $type_ids, 'dbm_type', false);
 				update_post_meta($post_id, 'dbm_registered_types', $type_ids);
