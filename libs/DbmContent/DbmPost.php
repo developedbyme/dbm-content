@@ -16,7 +16,7 @@
 		}
 		
 		public function get_title() {
-			return get_post_field('post_content', $this->get_id());
+			return get_post_field('post_title', $this->get_id());
 		}
 		
 		public function get_content() {
