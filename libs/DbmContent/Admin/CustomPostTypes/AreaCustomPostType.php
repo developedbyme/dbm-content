@@ -19,6 +19,7 @@
 			$this->set_argument('has_archive', false);
 			$this->set_argument('rewrite', false);
 			$this->set_argument('hierarchical', true);
+			$this->set_argument('show_in_rest', true);
 			
 			$this->set_argument('supports', array( 'title', 'editor', 'thumbnail', 'page-attributes'));
 			
