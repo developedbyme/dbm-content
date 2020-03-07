@@ -99,6 +99,16 @@
 			return $this;
 		}
 		
+		public function add_relations_from_post($post_id, $path) {
+			
+			$copy_post = dbm_get_post($post_id);
+			
+			$term_ids = $copy_post->get_relation($path);
+			wp_set_post_terms($this->get_id(), $term_ids, 'dbm_relation', true);
+			
+			return $this;
+		}
+		
 		public function get_subtypes($path) {
 			$return_array = array();
 		
