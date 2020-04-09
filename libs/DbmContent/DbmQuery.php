@@ -6,6 +6,8 @@
 		protected $query_args = array();
 		protected $errors = array();
 		protected $has_error = false;
+		
+		protected $suppress_filters = 0;
 
 		function __construct() {
 			//echo("\DbmContent\DbmQuery::__construct<br />");
@@ -50,6 +52,12 @@
 		
 		public function set_field($field_name, $value) {
 			$this->query_args[$field_name] = $value;
+			
+			return $this;
+		}
+		
+		public function set_filter_suppression($suppress = 1) {
+			$this->suppress_filters = $suppress;
 			
 			return $this;
 		}
@@ -298,7 +306,7 @@
 		public function perform_ids_query($query_args) {
 			$query_args['fields'] = 'ids';
 			$query_args['posts_per_page'] = -1;
-			$query_args['suppress_filters'] = 0;
+			$query_args['suppress_filters'] = $this->suppress_filters;
 			return get_posts($query_args);
 		}
 		
