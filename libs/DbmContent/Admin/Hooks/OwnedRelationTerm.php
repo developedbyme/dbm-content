@@ -118,19 +118,19 @@
 			$parent_id = $this->get_parent_term(get_post($original_id), $meta_name);
 			
 			if(!$term_id) {
+				
+				$temporary_slug = 'dbm-auto-'.uniqid().'-'.sanitize_title($post->post_title);
 				$siblings = get_terms(array(
 					'taxonomy' => 'dbm_relation',
 					'hide_empty' => false,
 					'parent' => $parent_id
 				));
 				
-				$wanted_slug = sanitize_title($post->post_title);
-				
 				if($siblings) {
-					$wanted_slug = $this->get_free_slug($wanted_slug, wp_list_pluck($siblings, 'slug'));
+					$wanted_slug = $this->get_free_slug($temporary_slug, wp_list_pluck($siblings, 'slug'));
 				}
 				
-				$new_term = wp_insert_term($post->post_title, 'dbm_relation', array('slug' => $wanted_slug, 'parent' => $parent_id));
+				$new_term = wp_insert_term($post->post_title, 'dbm_relation', array('slug' => $temporary_slug, 'parent' => $parent_id));
 				if(is_wp_error($new_term)) {
 					//MENOTE: this should never happend as we are generating unique slugs
 					//METODO: throw error
@@ -139,6 +139,17 @@
 				else {
 					$term_id = $new_term['term_id'];
 					update_post_meta($post_id, $meta_name, $term_id);
+					
+					$current_try = 0;
+					
+					$wanted_slug = sanitize_title($post->post_title);
+					
+					if($siblings) {
+						$wanted_slug = $this->get_free_slug($wanted_slug, wp_list_pluck($siblings, 'slug'));
+					}
+					
+					$possible_error = wp_update_term($term_id, 'dbm_relation', array('slug' => $wanted_slug));
+					
 					if(function_exists('update_field')) {
 						$term = get_term_by('id', $term_id, 'dbm_relation');
 						update_field('dbm_taxonomy_page', $post_id, $term);
