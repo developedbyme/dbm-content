@@ -240,6 +240,14 @@
 		}
 		
 		public function add_meta_query($field, $value, $compare = '=', $type = 'CHAR') {
+			$query = $this->create_meta_query_data($field, $value, $compare, $type);
+			
+			$this->add_meta_query_data($query);
+			
+			return $this;
+		}
+		
+		public function create_meta_query_data($field, $value, $compare = '=', $type = 'CHAR') {
 			$query = array(
 				'key' => $field,
 				'value' => $value,
@@ -247,10 +255,12 @@
 				'type' => $type,
 			);
 			
+			return $query;
+		}
+		
+		public function add_meta_query_data($query) {
 			$this->ensure_meta_query_exists();
 			$this->query_args['meta_query'][] = $query;
-			
-			return $this;
 		}
 		
 		public function get_query_args() {

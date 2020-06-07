@@ -159,6 +159,161 @@
 			return null;
 		}
 		
+		public function add_outgoing_relation_by_name($to_object_id, $type_path) {
+			$new_relation_id = dbm_create_object_relation($this->get_id(), $to_object_id, $type_path);
+			
+			return $new_relation_id;
+		}
+		
+		public function add_incoming_relation_by_name($from_object_id, $type_path) {
+			$new_relation_id = dbm_create_object_relation($from_object_id, $this->get_id(), $type_path);
+			
+			return $new_relation_id;
+		}
+		
+		public function get_object_relation_query_without_settings() {
+			return dbm_new_query('dbm_object_relation')->set_field('post_status', array('publish', 'private'));
+		}
+		
+		public function add_time_query(&$dbm_query, $time = -1) {
+			if($time !== false) {
+				if($time === -1) {
+					$time = time();
+				}
+				
+				$start_query = array('relation' => 'OR');
+				$start_query[] = $dbm_query->create_meta_query_data('startAt', -1, '=', 'numeric');
+				$start_query[] = $dbm_query->create_meta_query_data('startAt', $time, '<=', 'numeric');
+				
+				$end_query = array('relation' => 'OR');
+				$end_query[] = $dbm_query->create_meta_query_data('endAt', -1, '=', 'numeric');
+				$end_query[] = $dbm_query->create_meta_query_data('endAt', $time, '>', 'numeric');
+				
+				$dbm_query->add_meta_query_data($start_query);
+				$dbm_query->add_meta_query_data($end_query);
+			}
+			
+			return $dbm_query;
+		}
+		
+		public function get_object_relation_query($type_path, $time = -1) {
+			
+			$dbm_query = $this->get_object_relation_query_without_settings()->add_type_by_path('object-relation/'.$type_path);
+			$this->add_time_query($dbm_query, $time);
+			
+			return $dbm_query;
+		}
+		
+		public function filter_by_object_type($relation_ids, $object_field, $object_type) {
+			$return_array = array();
+			
+			$term = dbm_get_type_by_path($object_type);
+			
+			foreach($relation_ids as $relation_id) {
+				
+				$post_id = get_post_meta($relation_id, $object_field, true);
+				if(has_term($term->term_id, 'dbm_type', $post_id)) {
+					$return_array[] = $relation_id;
+				}
+			}
+			
+			return $return_array;
+		}
+		
+		public function get_outgoing_relations($type_path, $object_type, $time = -1) {
+			$ids = $this->get_object_relation_query($type_path)->add_meta_query('fromId', $this->get_id())->get_post_ids();
+			
+			$ids = $this->filter_by_object_type($ids, 'toId', $object_type);
+			
+			return $ids;
+		}
+		
+		public function get_single_outgoing_relations($type_path, $object_type, $time = -1) {
+			
+			$ids = $this->get_outgoing_relations($type_path, $object_type, $time);
+			$count = count($ids);
+			if($count > 0) {
+				if($count > 1) {
+					//METODO: error message
+				}
+				
+				return $ids[0];
+			}
+			//METODO: error message
+			
+			return null;
+		}
+		
+		public function get_all_outgoing_relations($time = -1) {
+			$dbm_query = $this->get_object_relation_query_without_settings()->add_meta_query('fromId', $this->get_id())->add_type_by_path('object-relation');
+			$this->add_time_query($dbm_query, $time);
+			
+			$relation_ids = $dbm_query->get_post_ids();
+			
+			return $this->group_object_relations($relation_ids);
+		}
+		
+		public function get_incoming_relations($type_path, $object_type, $time = -1) {
+			$ids = $this->get_object_relation_query($type_path)->add_meta_query('toId', $this->get_id())->get_post_ids();
+			
+			$ids = $this->filter_by_object_type($ids, 'fromId', $object_type);
+			
+			return $ids;
+		}
+		
+		public function get_single_incoming_relations($type_path, $object_type, $time = -1) {
+			$ids = $this->get_incoming_relations($type_path, $object_type, $time);
+			$count = count($ids);
+			if($count > 0) {
+				if($count > 1) {
+					//METODO: error message
+				}
+				
+				return $ids[0];
+			}
+			//METODO: error message
+			
+			return null;
+		}
+		
+		public function get_all_incoming_relations() {
+			
+			$dbm_query = $this->get_object_relation_query_without_settings()->add_meta_query('toId', $this->get_id())->add_type_by_path('object-relation');
+			$this->add_time_query($dbm_query, $time);
+			
+			$relation_ids = $dbm_query->get_post_ids();
+			
+			return $this->group_object_relations($relation_ids);
+		}
+		
+		protected function group_object_relations($relation_ids) {
+			$return_array = array();
+			
+			$object_relation_term = dbm_get_type_by_path('object-relation');
+			
+			$cut_length = strlen('object-relation/');
+			
+			foreach($relation_ids as $relation_id) {
+				$current_terms = wp_get_post_terms($relation_id, 'dbm_type');
+				
+				foreach($current_terms as $current_term) {
+					if(term_is_ancestor_of($object_relation_term, $current_term, 'dbm_type')) {
+						$path = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_full_term_slug($current_term, 'dbm_type');
+						
+						$path = substr($path, $cut_length);
+					
+						if(!isset($return_array[$path])) {
+							$return_array[$path] = array();
+						}
+					
+						$return_array[$path][] = $relation_id;
+					}
+				}
+			}
+			
+			return $return_array;
+		}
+		
 		public static function test_import() {
 			echo("Imported \DbmContent\DbmPost<br />");
 		}

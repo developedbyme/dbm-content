@@ -164,13 +164,48 @@
 		
 		$new_id = wp_insert_post($args);
 		
-		if(!$new_id) {
-			//METODO: error message
-			return $new_id;
+		if(is_wp_error($new_id)) {
+			throw(new \Exception('No post created '.$new_id->get_error_message()));
 		}
 		
 		$type_term = dbm_get_type(explode('/', $type_path));
 		wp_set_post_terms($new_id, array($type_term->term_id), 'dbm_type', false);
+		
+		return $new_id;
+	}
+	
+	function dbm_create_object_relation($from_object_id, $to_object_id, $type_path) {
+		
+		$type_term = dbm_get_type_by_path('object-relation/'.$type_path);
+		
+		if(!$type_term) {
+			throw(new \Exception('No type '.$type_path));
+		}
+		
+		$args = array(
+			'post_type' => 'dbm_object_relation',
+			'post_title' => $from_object_id.' '.($type_path).' '.$to_object_id,
+			'post_status' => 'draft'
+		);
+		
+		$new_id = wp_insert_post($args);
+		
+		if(is_wp_error($new_id)) {
+			throw(new \Exception('No post created '.$new_id->get_error_message()));
+		}
+		
+		update_post_meta($new_id, 'fromId', $from_object_id);
+		update_post_meta($new_id, 'toId', $to_object_id);
+		update_post_meta($new_id, 'startAt', -1);
+		update_post_meta($new_id, 'endAt', -1);
+		
+		$object_relation_term = dbm_get_type_by_path('object-relation');
+		wp_set_post_terms($new_id, array($object_relation_term->term_id, $type_term->term_id), 'dbm_type', false);
+		
+		$new_id = wp_update_post(array(
+			'ID' => $new_id,
+			'post_status' => 'private'
+		));
 		
 		return $new_id;
 	}

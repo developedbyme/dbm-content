@@ -499,6 +499,56 @@
 			return $encoded_data;
 		}
 		
+		public function encode_incomingRelations($encoded_data, $post_id, $data) {
+			$dbm_post = dbm_get_post($post_id);
+			
+			$dbm_post = dbm_get_post($post_id);
+			
+			$encoded_groups = array();
+			
+			$relation_groups = $dbm_post->get_all_incoming_relations();
+			foreach($relation_groups as $name => $ids) {
+				$encoded_group = array();
+				foreach($ids as $id) {
+					$encoded_group[] = $this->encode_relationLink(array('id' => $id), $id, $data);
+				}
+				$encoded_groups[$name] = $encoded_group;
+			}
+			
+			$encoded_data['incomingRelations'] = $encoded_groups;
+
+			
+			return $encoded_data;
+		}
+		
+		public function encode_outgoingRelations($encoded_data, $post_id, $data) {
+			$dbm_post = dbm_get_post($post_id);
+			
+			$encoded_groups = array();
+			
+			$relation_groups = $dbm_post->get_all_outgoing_relations();
+			foreach($relation_groups as $name => $ids) {
+				$encoded_group = array();
+				foreach($ids as $id) {
+					$encoded_group[] = $this->encode_relationLink(array('id' => $id), $id, $data);
+				}
+				$encoded_groups[$name] = $encoded_group;
+			}
+			
+			$encoded_data['outgoingRelations'] = $encoded_groups;
+			
+			return $encoded_data;
+		}
+		
+		public function encode_relationLink($encoded_data, $post_id, $data) {
+			$dbm_post = dbm_get_post($post_id);
+			
+			$encoded_data['from'] = wprr_encode_post_link(get_post_meta($post_id, 'fromId', true));
+			$encoded_data['to'] = wprr_encode_post_link(get_post_meta($post_id, 'toId', true));
+			
+			return $encoded_data;
+		}
+		
 		public static function test_import() {
 			echo("Imported \DbmContent\CustomRangeFilters<br />");
 		}

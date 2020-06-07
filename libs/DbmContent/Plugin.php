@@ -71,6 +71,11 @@
 			$current_custom_post_type->add_taxonomy('dbm_relation');
 			$this->add_custom_post_type($current_custom_post_type);
 			
+			$current_custom_post_type = new \DbmContent\Admin\CustomPostTypes\ObjectRelationCustomPostType();
+			$current_custom_post_type->add_taxonomy('dbm_type');
+			$current_custom_post_type->add_taxonomy('dbm_relation');
+			$this->add_custom_post_type($current_custom_post_type);
+			
 			$post_types_with_taxonomies = apply_filters('dbm_content/post_types_with_taxonomies', array('post', 'page', 'attachment'));
 			
 			foreach($post_types_with_taxonomies as $post_type) {
@@ -200,6 +205,9 @@
 			add_filter('wprr/range_query/languageTerm', array($custom_range_filters, 'query_languageTerm'), 10, 2);
 			
 			add_filter('wprr/range_encoding/editFields', array($custom_range_filters, 'encode_edit_fields'), 10, 3);
+			add_filter('wprr/range_encoding/incomingRelations', array($custom_range_filters, 'encode_incomingRelations'), 10, 3);
+			add_filter('wprr/range_encoding/outgoingRelations', array($custom_range_filters, 'encode_outgoingRelations'), 10, 3);
+			add_filter('wprr/range_encoding/relation', array($custom_range_filters, 'encode_relationLink'), 10, 3);
 			
 			add_filter('m_router_data/custom_range_query_dbm-relation-manager-items', array($custom_range_filters, 'query_relation_manager_items'), 10, 2);
 			add_filter('m_router_data/custom_range_encode_dbm-relation-manager-items', array($custom_range_filters, 'encode_relation_manager_items'), 10, 3);
