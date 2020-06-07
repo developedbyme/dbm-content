@@ -201,6 +201,7 @@
 			add_filter('wprr/range_query/byOwnedRelation', array($custom_range_filters, 'query_by_owned_relation'), 10, 2);
 			add_filter('wprr/range_query/byPostRelation', array($custom_range_filters, 'query_byPostRelation'), 10, 2);
 			add_filter('wprr/range_query/relationOwner', array($custom_range_filters, 'query_by_relation_owner'), 10, 2);
+			add_filter('wprr/range_query/objectRelation', array($custom_range_filters, 'query_objectRelation'), 10, 2);
 			
 			add_filter('wprr/range_query/languageTerm', array($custom_range_filters, 'query_languageTerm'), 10, 2);
 			

@@ -24,6 +24,8 @@
 			$this->register_hook_for_type('dbm/inAdminGrouping', 'hook_in_admin_grouping');
 			$this->register_hook_for_type('dbm/addTermFromOwner', 'hook_add_term_from_owner');
 			
+			$this->register_hook_for_type('dbm/addIncomingRelation', 'hook_addIncomingRelation');
+			$this->register_hook_for_type('dbm/addOutgoingRelation', 'hook_addOutgoingRelation');
 		}
 		
 		protected function get_relation_terms($data, $parent_path = null) {
@@ -101,6 +103,22 @@
 				
 				wp_add_object_terms($post_id, array($term_id), 'dbm_relation');
 			}
+		}
+		
+		public function hook_addIncomingRelation($data, $post_id) {
+			$related_id = $data['value'];
+			$type = $data['relationType'];
+			
+			$dbm_post = dbm_get_post($post_id);
+			$dbm_post->add_incoming_relation($related_id, $type);
+		}
+		
+		public function hook_addOutgoingRelation($data, $post_id) {
+			$related_id = $data['value'];
+			$type = $data['relationType'];
+			
+			$dbm_post = dbm_get_post($post_id);
+			$dbm_post->add_outgoing_relation($related_id, $type);
 		}
 		
 		public static function test_import() {

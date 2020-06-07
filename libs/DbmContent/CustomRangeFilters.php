@@ -308,6 +308,23 @@
 			return $query_args;
 		}
 		
+		public function query_objectRelation($query_args, $data) {
+			//echo("\DbmContent\CustomRangeFilters::query_objectRelation<br />");
+			
+			$ids = explode(',', $data['ids']);
+			$path = $data['objectRelation'];
+			
+			$post_ids = \DbmContent\DbmPost::object_relation_query_from_ids($ids, $path);
+			if(count($post_ids)) {
+				$query_args['post__in'] = $post_ids;
+			}
+			else {
+				$query_args['post__in'] = array(0);
+			}
+			
+			return $query_args;
+		}
+		
 		public function query_relation_manager_items($query_args, $data) {
 			//echo("\DbmContent\CustomRangeFilters::query_relation_manager_items<br />");
 			

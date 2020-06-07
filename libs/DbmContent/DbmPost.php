@@ -208,12 +208,13 @@
 			$return_array = array();
 			
 			$term = dbm_get_type_by_path($object_type);
-			
-			foreach($relation_ids as $relation_id) {
+			if($term) {
+				foreach($relation_ids as $relation_id) {
 				
-				$post_id = get_post_meta($relation_id, $object_field, true);
-				if(has_term($term->term_id, 'dbm_type', $post_id)) {
-					$return_array[] = $relation_id;
+					$post_id = get_post_meta($relation_id, $object_field, true);
+					if(has_term($term->term_id, 'dbm_type', $post_id)) {
+						$return_array[] = $relation_id;
+					}
 				}
 			}
 			
@@ -312,6 +313,46 @@
 			}
 			
 			return $return_array;
+		}
+		
+		public function object_relation_query($path) {
+			
+			$current_ids = array($this->get_id());
+			$current_ids = self::object_relation_query_from_ids($current_ids, $path);
+			
+			return $current_ids;
+		}
+		
+		static public function object_relation_query_from_ids($ids, $path) {
+			
+			$path_parts = explode(',', $path);
+			
+			$current_ids = $ids;
+			
+			foreach($path_parts as $path_part) {
+				$part_parts = explode(':', $path_part);
+				
+				$direction = $part_parts[0];
+				$type = $part_parts[1];
+				$object_type = $part_parts[2];
+				$time = (isset($part_parts[3])) ? (int)$part_parts[3] : -1;
+				
+				$check_function = $direction === 'in' ? 'get_incoming_relations' : 'get_outgoing_relations';
+				$meta_name = $direction === 'in' ? 'fromId' : 'toId';
+				
+				$new_ids = array();
+				foreach($current_ids as $current_id) {
+					$dbm_post = dbm_get_post($current_id);
+					$new_relation_ids = $dbm_post->$check_function($type, $object_type, $time);
+					foreach($new_relation_ids as $new_relation_id) {
+						$new_ids[] = (int)get_post_meta($new_relation_id, $meta_name, true);
+					}
+				}
+				
+				$current_ids = array_unique($new_ids);
+			}
+			
+			return $current_ids;
 		}
 		
 		public static function test_import() {
