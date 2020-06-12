@@ -210,6 +210,42 @@
 		return $new_id;
 	}
 	
+	function dbm_create_object_user_relation($from_object_id, $to_user_id, $type_path) {
+		
+		$type_term = dbm_get_type_by_path('object-user-relation/'.$type_path);
+		
+		if(!$type_term) {
+			throw(new \Exception('No type '.$type_path));
+		}
+		
+		$args = array(
+			'post_type' => 'dbm_object_relation',
+			'post_title' => $from_object_id.' '.($type_path).' '.$to_user_id,
+			'post_status' => 'draft'
+		);
+		
+		$new_id = wp_insert_post($args);
+		
+		if(is_wp_error($new_id)) {
+			throw(new \Exception('No post created '.$new_id->get_error_message()));
+		}
+		
+		update_post_meta($new_id, 'fromId', $from_object_id);
+		update_post_meta($new_id, 'toId', $to_user_id);
+		update_post_meta($new_id, 'startAt', -1);
+		update_post_meta($new_id, 'endAt', -1);
+		
+		$object_relation_term = dbm_get_type_by_path('object-user-relation');
+		wp_set_post_terms($new_id, array($object_relation_term->term_id, $type_term->term_id), 'dbm_type', false);
+		
+		$new_id = wp_update_post(array(
+			'ID' => $new_id,
+			'post_status' => 'private'
+		));
+		
+		return $new_id;
+	}
+	
 	function dbm_replace_relations($post_id, $parent_term, $new_term_ids) {
 		
 		if(!($parent_term instanceof \WP_Term)) {

@@ -26,6 +26,8 @@
 			
 			$this->register_hook_for_type('dbm/addIncomingRelation', 'hook_addIncomingRelation');
 			$this->register_hook_for_type('dbm/addOutgoingRelation', 'hook_addOutgoingRelation');
+			
+			$this->register_hook_for_type('dbm/addObjectUserRelation', 'hook_addObjectUserRelation');
 		}
 		
 		protected function get_relation_terms($data, $parent_path = null) {
@@ -119,6 +121,14 @@
 			
 			$dbm_post = dbm_get_post($post_id);
 			$dbm_post->add_outgoing_relation($related_id, $type);
+		}
+		
+		public function hook_addObjectUserRelation($data, $post_id) {
+			$related_id = $data['value'];
+			$type = $data['relationType'];
+			
+			$dbm_post = dbm_get_post($post_id);
+			$dbm_post->add_user_relation($related_id, $type);
 		}
 		
 		public static function test_import() {

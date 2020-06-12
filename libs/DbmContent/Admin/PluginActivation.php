@@ -117,6 +117,8 @@
 			if(taxonomy_exists('dbm_relation')) {
 				
 				$current_term_id = self::add_term('dbm_type:object-relation', 'Object relation');
+				$current_term_id = self::add_term('dbm_type:object-user-relation', 'Object user relation');
+				$current_term_id = self::add_term('dbm_type:object-user-relation/for', 'For');
 				
 				$current_term_id = self::add_term('dbm_relation:global-pages', 'Global pages');
 			

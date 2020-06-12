@@ -171,6 +171,12 @@
 			return $new_relation_id;
 		}
 		
+		public function add_user_relation($user_id, $type_path) {
+			$new_relation_id = dbm_create_object_user_relation($this->get_id(), $user_id, $type_path);
+			
+			return $new_relation_id;
+		}
+		
 		public function get_object_relation_query_without_settings() {
 			return dbm_new_query('dbm_object_relation')->set_field('post_status', array('publish', 'private'));
 		}
@@ -198,7 +204,7 @@
 		
 		public function get_object_relation_query($type_path, $time = -1) {
 			
-			$dbm_query = $this->get_object_relation_query_without_settings()->add_type_by_path('object-relation/'.$type_path);
+			$dbm_query = $this->get_object_relation_query_without_settings()->add_type_by_path('object-relation')->add_type_by_path('object-relation/'.$type_path);
 			$this->add_time_query($dbm_query, $time);
 			
 			return $dbm_query;
