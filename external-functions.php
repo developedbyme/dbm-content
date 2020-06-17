@@ -479,4 +479,41 @@
 		
 		return $id;
 	}
+	
+	function dbm_get_objects_by_user_relation($user_id, $relation_type, $object_type, $time = -1) {
+		$dbm_query = dbm_new_query('dbm_object_relation')->set_field('post_status', array('publish', 'private'));
+		$dbm_query->add_type_by_path('object-user-relation')->add_type_by_path('object-user-relation/'.$relation_type);
+		$dbm_query->add_meta_query('toId', $user_id);
+		//METODO: add time query
+		
+		$return_array = array();
+		$relation_ids = $dbm_query->get_post_ids();
+		
+		$term = dbm_get_type_by_path($object_type);
+		if($term) {
+			foreach($relation_ids as $relation_id) {
+			
+				$post_id = get_post_meta($relation_id, 'fromId', true);
+				if(has_term($term->term_id, 'dbm_type', $post_id)) {
+					$return_array[] = $post_id;
+				}
+			}
+		}
+		
+		return $return_array;
+	}
+	
+	function dbm_get_single_object_by_user_relation($user_id, $relation_type, $object_type, $time = -1) {
+		$ids = dbm_get_objects_by_user_relation($user_id, $relation_type, $object_type, $time);
+		$count = count($ids);
+		if($count > 0) {
+			if($count > 1) {
+				//METODO: error message
+			}
+			
+			return $ids[0];
+		}
+		//METODO: error message
+		return 0;
+	}
 ?>

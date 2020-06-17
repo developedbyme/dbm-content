@@ -202,6 +202,26 @@
 			return $dbm_query;
 		}
 		
+		public function get_user_relations_query($type_path, $time = -1) {
+			$dbm_query = $this->get_object_relation_query_without_settings()->add_type_by_path('object-user-relation')->add_type_by_path('object-user-relation/'.$type_path);
+			$this->add_time_query($dbm_query, $time);
+			$dbm_query->add_meta_query('fromId', $this->get_id());
+			
+			return $dbm_query;
+		}
+		
+		public function get_users_by_relation($type_path, $time = -1) {
+			$query = $this->get_user_relations_query($type_path, $time);
+			
+			$user_ids = array();
+			$relation_ids = $query->get_post_ids();
+			foreach($relation_ids as $relation_id) {
+				$user_ids[] = get_post_meta($relation_id, 'toId', true);
+			}
+			
+			return $user_ids;
+		}
+		
 		public function get_object_relation_query($type_path, $time = -1) {
 			
 			$dbm_query = $this->get_object_relation_query_without_settings()->add_type_by_path('object-relation')->add_type_by_path('object-relation/'.$type_path);
@@ -235,7 +255,7 @@
 			return $ids;
 		}
 		
-		public function get_single_outgoing_relations($type_path, $object_type, $time = -1) {
+		public function get_single_outgoing_relation($type_path, $object_type, $time = -1) {
 			
 			$ids = $this->get_outgoing_relations($type_path, $object_type, $time);
 			$count = count($ids);
@@ -268,7 +288,7 @@
 			return $ids;
 		}
 		
-		public function get_single_incoming_relations($type_path, $object_type, $time = -1) {
+		public function get_single_incoming_relation($type_path, $object_type, $time = -1) {
 			$ids = $this->get_incoming_relations($type_path, $object_type, $time);
 			$count = count($ids);
 			if($count > 0) {
