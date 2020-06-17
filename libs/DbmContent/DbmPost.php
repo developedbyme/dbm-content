@@ -72,7 +72,7 @@
 		
 		public function add_relation_by_name($path) {
 			
-			$term_ids = dbm_get_ids_from_terms(dbm_get_relation_by_path($path));
+			$term_ids = dbm_get_ids_from_terms(array(dbm_get_relation_by_path($path)));
 			wp_set_post_terms($this->get_id(), $term_ids, 'dbm_relation', true);
 			
 			return $this;
