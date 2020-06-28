@@ -209,6 +209,8 @@
 			add_filter('wprr/range_encoding/incomingRelations', array($custom_range_filters, 'encode_incomingRelations'), 10, 3);
 			add_filter('wprr/range_encoding/outgoingRelations', array($custom_range_filters, 'encode_outgoingRelations'), 10, 3);
 			add_filter('wprr/range_encoding/relation', array($custom_range_filters, 'encode_relationLink'), 10, 3);
+			add_filter('wprr/range_encoding/editObjectRelations', array($custom_range_filters, 'encode_editObjectRelations'), 10, 3);
+			add_filter('wprr/range_encoding/dbmTypes', array($custom_range_filters, 'encode_dbmTypes'), 10, 3);
 			
 			add_filter('m_router_data/custom_range_query_dbm-relation-manager-items', array($custom_range_filters, 'query_relation_manager_items'), 10, 2);
 			add_filter('m_router_data/custom_range_encode_dbm-relation-manager-items', array($custom_range_filters, 'encode_relation_manager_items'), 10, 3);

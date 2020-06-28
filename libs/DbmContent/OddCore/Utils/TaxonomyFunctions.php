@@ -132,6 +132,18 @@
 			return $return_string;
 		}
 		
+		public static function get_full_term_slugs_from_ids($ids, $taxonomy) {
+			$return_array = array();
+			
+			foreach($ids  as $id) {
+				$term = get_term_by('id', $id, $taxonomy);
+				
+				$return_array[] = self::get_full_term_slug($term, $taxonomy);
+			}
+			
+			return $return_array;
+		}
+		
 		public static function test_import() {
 			echo("Imported \OddCore\Utils\TaxonomyFunctions<br />");
 		}

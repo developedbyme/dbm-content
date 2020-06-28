@@ -109,6 +109,17 @@
 			return $this;
 		}
 		
+		public function get_types() {
+			$return_array = array();
+		
+			$current_terms = wp_get_post_terms($this->get_id(), 'dbm_type');
+			foreach($current_terms as $current_term) {
+				$return_array[] = $current_term->term_id;
+			}
+		
+			return $return_array;
+		}
+		
 		public function get_subtypes($path) {
 			$return_array = array();
 		
@@ -248,7 +259,7 @@
 		}
 		
 		public function get_outgoing_relations($type_path, $object_type, $time = -1) {
-			$ids = $this->get_object_relation_query($type_path)->add_meta_query('fromId', $this->get_id())->get_post_ids();
+			$ids = $this->get_object_relation_query($type_path, $time)->add_meta_query('fromId', $this->get_id())->get_post_ids();
 			
 			$ids = $this->filter_by_object_type($ids, 'toId', $object_type);
 			
@@ -280,8 +291,16 @@
 			return $this->group_object_relations($relation_ids);
 		}
 		
+		public function get_all_outgoing_relations_at_any_time() {
+			$dbm_query = $this->get_object_relation_query_without_settings()->add_meta_query('fromId', $this->get_id())->add_type_by_path('object-relation');
+			
+			$relation_ids = $dbm_query->get_post_ids();
+			
+			return $this->group_object_relations($relation_ids);
+		}
+		
 		public function get_incoming_relations($type_path, $object_type, $time = -1) {
-			$ids = $this->get_object_relation_query($type_path)->add_meta_query('toId', $this->get_id())->get_post_ids();
+			$ids = $this->get_object_relation_query($type_path, $time)->add_meta_query('toId', $this->get_id())->get_post_ids();
 			
 			$ids = $this->filter_by_object_type($ids, 'fromId', $object_type);
 			
@@ -303,10 +322,19 @@
 			return null;
 		}
 		
-		public function get_all_incoming_relations() {
+		public function get_all_incoming_relations($time = -1) {
 			
 			$dbm_query = $this->get_object_relation_query_without_settings()->add_meta_query('toId', $this->get_id())->add_type_by_path('object-relation');
 			$this->add_time_query($dbm_query, $time);
+			
+			$relation_ids = $dbm_query->get_post_ids();
+			
+			return $this->group_object_relations($relation_ids);
+		}
+		
+		public function get_all_incoming_relations_at_any_time() {
+			
+			$dbm_query = $this->get_object_relation_query_without_settings()->add_meta_query('toId', $this->get_id())->add_type_by_path('object-relation');
 			
 			$relation_ids = $dbm_query->get_post_ids();
 			

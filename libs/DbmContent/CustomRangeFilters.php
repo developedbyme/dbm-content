@@ -560,8 +560,63 @@
 		public function encode_relationLink($encoded_data, $post_id, $data) {
 			$dbm_post = dbm_get_post($post_id);
 			
-			$encoded_data['from'] = wprr_encode_post_link(get_post_meta($post_id, 'fromId', true));
-			$encoded_data['to'] = wprr_encode_post_link(get_post_meta($post_id, 'toId', true));
+			$encoded_data['from'] = wprr_encode_private_post_link(get_post_meta($post_id, 'fromId', true));
+			$encoded_data['to'] = wprr_encode_private_post_link(get_post_meta($post_id, 'toId', true));
+			
+			return $encoded_data;
+		}
+		
+		public function encode_editObjectRelations($encoded_data, $post_id, $data) {
+			global $DbmContentTransactionalCommunicationPlugin;
+			
+			$dbm_post = dbm_get_post($post_id);
+			
+			$incoming_relation_groups = $dbm_post->get_all_incoming_relations_at_any_time();
+			$incoming_groups = array();
+			foreach($incoming_relation_groups as $name => $ids) {
+				$encoded_group = array();
+				foreach($ids as $id) {
+					$encoded_object = $this->encode_relationLink(array('id' => $id), $id, $data);
+					
+					$encoded_object = $DbmContentTransactionalCommunicationPlugin->ranges->filter_encode_fields($encoded_object, $id, $data);
+					
+					$encoded_object['status'] = get_post_status($id);
+					$encoded_object['from'] = $this->encode_dbmTypes($encoded_object['from'], $encoded_object['from']['id'], $data);
+					
+					$encoded_group[] = $encoded_object;
+				}
+				$incoming_groups[$name] = $encoded_group;
+			}
+			
+			$outgoing_relation_groups = $dbm_post->get_all_outgoing_relations_at_any_time();
+			$outgoing_groups = array();
+			foreach($outgoing_relation_groups as $name => $ids) {
+				$encoded_group = array();
+				foreach($ids as $id) {
+					$encoded_object = $this->encode_relationLink(array('id' => $id), $id, $data);
+					
+					$encoded_object = $DbmContentTransactionalCommunicationPlugin->ranges->filter_encode_fields($encoded_object, $id, $data);
+					
+					$encoded_object['status'] = get_post_status($id);
+					$encoded_object['to'] = $this->encode_dbmTypes($encoded_object['to'], $encoded_object['to']['id'], $data);
+					
+					$encoded_group[] = $encoded_object;
+				}
+				$outgoing_groups[$name] = $encoded_group;
+			}
+			
+			$encoded_data['relations'] = array(
+				'incoming' => $incoming_groups,
+				'outgoing' => $outgoing_groups,
+			);
+			
+			return $encoded_data;
+		}
+		
+		public function encode_dbmTypes($encoded_data, $post_id, $data) {
+			$dbm_post = dbm_get_post($post_id);
+			$type_ids = $dbm_post->get_types();
+			$encoded_data['types'] = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_full_term_slugs_from_ids($type_ids, 'dbm_type');
 			
 			return $encoded_data;
 		}
