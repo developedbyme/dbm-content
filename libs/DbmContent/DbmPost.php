@@ -291,8 +291,12 @@
 			return $this->group_object_relations($relation_ids);
 		}
 		
-		public function get_all_outgoing_relations_at_any_time() {
+		public function get_all_outgoing_relations_at_any_time($include_drafts = false) {
 			$dbm_query = $this->get_object_relation_query_without_settings()->add_meta_query('fromId', $this->get_id())->add_type_by_path('object-relation');
+			
+			if($include_drafts) {
+				$dbm_query->set_field('post_status', array('draft', 'publish', 'private'));
+			}
 			
 			$relation_ids = $dbm_query->get_post_ids();
 			
@@ -332,9 +336,13 @@
 			return $this->group_object_relations($relation_ids);
 		}
 		
-		public function get_all_incoming_relations_at_any_time() {
+		public function get_all_incoming_relations_at_any_time($include_drafts = false) {
 			
 			$dbm_query = $this->get_object_relation_query_without_settings()->add_meta_query('toId', $this->get_id())->add_type_by_path('object-relation');
+			
+			if($include_drafts) {
+				$dbm_query->set_field('post_status', array('draft', 'publish', 'private'));
+			}
 			
 			$relation_ids = $dbm_query->get_post_ids();
 			

@@ -571,7 +571,7 @@
 			
 			$dbm_post = dbm_get_post($post_id);
 			
-			$incoming_relation_groups = $dbm_post->get_all_incoming_relations_at_any_time();
+			$incoming_relation_groups = $dbm_post->get_all_incoming_relations_at_any_time(true);
 			$incoming_groups = array();
 			foreach($incoming_relation_groups as $name => $ids) {
 				$encoded_group = array();
@@ -588,7 +588,7 @@
 				$incoming_groups[$name] = $encoded_group;
 			}
 			
-			$outgoing_relation_groups = $dbm_post->get_all_outgoing_relations_at_any_time();
+			$outgoing_relation_groups = $dbm_post->get_all_outgoing_relations_at_any_time(true);
 			$outgoing_groups = array();
 			foreach($outgoing_relation_groups as $name => $ids) {
 				$encoded_group = array();

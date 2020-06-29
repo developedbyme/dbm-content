@@ -13,7 +13,7 @@
 		}
 		
 		protected function register_hook_for_type($type, $hook_name) {
-			add_action('wprr/admin/change_post/'.$type, array($this, $hook_name), 10, 2);
+			add_action('wprr/admin/change_post/'.$type, array($this, $hook_name), 10, 3);
 		}
 		
 		public function register() {
@@ -57,7 +57,7 @@
 			return $terms;
 		}
 		
-		public function hook_set_relation($data, $post_id) {
+		public function hook_set_relation($data, $post_id, $logger) {
 			//echo("\DbmContent\ChangePostHooks::hook_set_relation<br />");
 			
 			$parent_slug = $data['path'];
@@ -68,7 +68,7 @@
 			dbm_replace_relations($post_id, $parent, $ids);
 		}
 		
-		public function hook_auto_dbm_content($data, $post_id) {
+		public function hook_auto_dbm_content($data, $post_id, $logger) {
 			
 			$post = get_post($post_id);
 			
@@ -77,7 +77,7 @@
 			do_action('dbm_content/parse_dbm_content', $dbm_content_object, $post_id, $post);
 		}
 		
-		public function hook_in_admin_grouping($data, $post_id) {
+		public function hook_in_admin_grouping($data, $post_id, $logger) {
 			
 			$path = 'admin-grouping/'.$data['value'];
 			
@@ -93,7 +93,7 @@
 			}
 		}
 		
-		public function hook_add_term_from_owner($data, $post_id) {
+		public function hook_add_term_from_owner($data, $post_id, $logger) {
 			//echo("\DbmContent\ChangePostHooks::hook_add_term_from_owner<br />");
 			
 			$owner_id = $data['value'];
@@ -107,28 +107,40 @@
 			}
 		}
 		
-		public function hook_addIncomingRelation($data, $post_id) {
+		public function hook_addIncomingRelation($data, $post_id, $logger) {
 			$related_id = $data['value'];
 			$type = $data['relationType'];
 			
-			$dbm_post = dbm_get_post($post_id);
-			$dbm_post->add_incoming_relation($related_id, $type);
+			$relation_id = dbm_create_draft_object_relation($related_id, $post_id, $type);
+			if(isset($data['makePrivate']) && $data['makePrivate']) {
+				$dbm_post = dbm_get_post($post_id);
+				$dbm_post->change_status('private');
+			}
+			
+			$logger->add_return_data('relationId', $relation_id);
 		}
 		
-		public function hook_addOutgoingRelation($data, $post_id) {
+		public function hook_addOutgoingRelation($data, $post_id, $logger) {
 			$related_id = $data['value'];
 			$type = $data['relationType'];
 			
-			$dbm_post = dbm_get_post($post_id);
-			$dbm_post->add_outgoing_relation($related_id, $type);
+			$relation_id = dbm_create_draft_object_relation($post_id, $related_id, $type);
+			if(isset($data['makePrivate']) && $data['makePrivate']) {
+				$dbm_post = dbm_get_post($post_id);
+				$dbm_post->change_status('private');
+			}
+			
+			$logger->add_return_data('relationId', $relation_id);
 		}
 		
-		public function hook_addObjectUserRelation($data, $post_id) {
+		public function hook_addObjectUserRelation($data, $post_id, $logger) {
 			$related_id = $data['value'];
 			$type = $data['relationType'];
 			
 			$dbm_post = dbm_get_post($post_id);
-			$dbm_post->add_user_relation($related_id, $type);
+			$relation_id = $dbm_post->add_user_relation($related_id, $type);
+			
+			$logger->add_return_data('relationId', $relation_id);
 		}
 		
 		public static function test_import() {
