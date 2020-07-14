@@ -113,7 +113,7 @@
 			
 			$relation_id = dbm_create_draft_object_relation($related_id, $post_id, $type);
 			if(isset($data['makePrivate']) && $data['makePrivate']) {
-				$dbm_post = dbm_get_post($post_id);
+				$dbm_post = dbm_get_post($relation_id);
 				$dbm_post->change_status('private');
 			}
 			
@@ -126,7 +126,7 @@
 			
 			$relation_id = dbm_create_draft_object_relation($post_id, $related_id, $type);
 			if(isset($data['makePrivate']) && $data['makePrivate']) {
-				$dbm_post = dbm_get_post($post_id);
+				$dbm_post = dbm_get_post($relation_id);
 				$dbm_post->change_status('private');
 			}
 			
