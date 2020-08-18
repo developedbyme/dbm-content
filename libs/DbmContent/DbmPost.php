@@ -32,6 +32,10 @@
 			return $this;
 		}
 		
+		public function get_status() {
+			return get_post_status($this->get_id());
+		}
+		
 		public function add_meta($field, $value) {
 			add_post_meta($this->get_id(), $field, $value);
 			
@@ -241,6 +245,52 @@
 			return $dbm_query;
 		}
 		
+		public function filter_by_connection_type($relations, $connection_type) {
+			$return_array = array();
+			
+			foreach($relations as $relation) {
+				if($relation['connectionType'] === $connection_type) {
+					$return_array[] = $relation;
+				}
+			}
+			
+			return $return_array;
+		}
+		
+		public function filter_by_time($relations, $time = -1) {
+			if($time === false) {
+				return $relation_ids;
+			}
+			
+			if($time === -1) {
+				$time = time();
+			}
+			
+			$return_array = array();
+			foreach($relations as $relation) {
+				
+				$start_at = $relation['startAt'];
+				$end_at = $relation['endAt'];
+				if(($start_at === -1 || $start_at <= $time) && ($end_at === -1 || $end_at > $time)) {
+					$return_array[] = $relation;
+				}
+			}
+			
+			return $return_array;
+		}
+		
+		public function filter_encoded_by_object_type($relations, $object_type) {
+			$return_array = array();
+			
+			foreach($relations as $relation) {
+				if(in_array($object_type, $relation['objectTypes'])) {
+					$return_array[] = $relation;
+				}
+			}
+			
+			return $return_array;
+		}
+		
 		public function filter_by_object_type($relation_ids, $object_field, $object_type) {
 			$return_array = array();
 			
@@ -258,12 +308,71 @@
 			return $return_array;
 		}
 		
+		public function get_outgoing_relation_ids() {
+			
+			$dbm_query = $this->get_object_relation_query_without_settings()->add_meta_query('fromId', $this->get_id())->add_type_by_path('object-relation');
+			$dbm_query->set_field('post_status', array('draft', 'publish', 'private'));
+			
+			$relation_ids = $dbm_query->get_post_ids();
+			
+			return $relation_ids;
+		}
+		
+		public function get_encoded_outgoing_relations() {
+			$cached_value = get_post_meta($this->get_id(), 'dbm/objectRelations/outgoing', true);
+			if($cached_value) {
+				return $cached_value;
+			}
+			
+			$encoded_relations = array();
+			
+			$this_id = $this->get_id();
+			$all_ids = $this->get_outgoing_relation_ids();
+			foreach($all_ids as $id) {
+				
+				$relation_post = dbm_get_post($id);
+				$to_id = (int)$relation_post->get_meta('toId');
+				$to_post = dbm_get_post($to_id);
+				
+				$current_object = array(
+					'id' => $id,
+					'fromId' => $this_id,
+					'toId' => $to_id,
+					'connectionType' => \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_slugs_from_ids($relation_post->get_subtypes('object-relation'), 'dbm_type')[0],
+					'objectTypes' => \DbmContent\OddCore\Utils\TaxonomyFunctions::get_full_term_slugs_from_ids($to_post->get_types(), 'dbm_type'),
+					'startAt' => (int)get_post_meta($id, 'startAt', true),
+					'endAt' => (int)get_post_meta($id, 'endAt', true),
+					'status' => $relation_post->get_status()
+				);
+				$encoded_relations[] = $current_object;
+			}
+			
+			update_post_meta($this->get_id(), 'dbm/objectRelations/outgoing', $encoded_relations);
+			
+			return $encoded_relations;
+		}
+		
 		public function get_outgoing_relations($type_path, $object_type, $time = -1) {
+			
+			$relations = $this->get_encoded_outgoing_relations();
+			$relations = $this->filter_by_connection_type($relations, $type_path);
+			$relations = $this->filter_by_time($relations, $time);
+			$relations = $this->filter_encoded_by_object_type($relations, $object_type);
+			
+			
+			//var_dump($relations);
+			
+			$ids = array_map(function($item) {return $item['id'];}, $relations);
+			
+			return $ids;
+			
+			/*
 			$ids = $this->get_object_relation_query($type_path, $time)->add_meta_query('fromId', $this->get_id())->get_post_ids();
 			
 			$ids = $this->filter_by_object_type($ids, 'toId', $object_type);
 			
 			return $ids;
+			*/
 		}
 		
 		public function get_single_outgoing_relation($type_path, $object_type, $time = -1) {

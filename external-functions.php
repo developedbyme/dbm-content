@@ -202,6 +202,9 @@
 		$object_relation_term = dbm_get_type_by_path('object-relation');
 		wp_set_post_terms($new_id, array($object_relation_term->term_id, $type_term->term_id), 'dbm_type', false);
 		
+		delete_post_meta($from_object_id, 'dbm/objectRelations/outgoing');
+		delete_post_meta($to_object_id, 'dbm/objectRelations/incoming');
+		
 		return $new_id;
 	}
 	
@@ -475,8 +478,16 @@
 		return $new_query;
 	}
 	
+	global $dbm_posts;
+	$dbm_posts = array();
+	
 	function dbm_get_post($id) {
+		global $dbm_posts;
+		if(isset($dbm_posts[$id])) {
+			return $dbm_posts[$id];
+		}
 		$new_post = new \DbmContent\DbmPost($id);
+		$dbm_posts[$id] = $new_post;
 		
 		return $new_post;
 	}
