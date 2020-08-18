@@ -279,11 +279,11 @@
 			return $return_array;
 		}
 		
-		public function filter_encoded_by_object_type($relations, $object_type) {
+		public function filter_encoded_by_object_type($relations, $field_name, $object_type) {
 			$return_array = array();
 			
 			foreach($relations as $relation) {
-				if(in_array($object_type, $relation['objectTypes'])) {
+				if(in_array($object_type, $relation[$field_name])) {
 					$return_array[] = $relation;
 				}
 			}
@@ -320,7 +320,7 @@
 		
 		public function get_encoded_outgoing_relations() {
 			$cached_value = get_post_meta($this->get_id(), 'dbm/objectRelations/outgoing', true);
-			if($cached_value) {
+			if($cached_value && false) {
 				return $cached_value;
 			}
 			
@@ -339,7 +339,8 @@
 					'fromId' => $this_id,
 					'toId' => $to_id,
 					'connectionType' => \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_slugs_from_ids($relation_post->get_subtypes('object-relation'), 'dbm_type')[0],
-					'objectTypes' => \DbmContent\OddCore\Utils\TaxonomyFunctions::get_full_term_slugs_from_ids($to_post->get_types(), 'dbm_type'),
+					'fromTypes' => \DbmContent\OddCore\Utils\TaxonomyFunctions::get_full_term_slugs_from_ids($this->get_types(), 'dbm_type'),
+					'toTypes' => \DbmContent\OddCore\Utils\TaxonomyFunctions::get_full_term_slugs_from_ids($to_post->get_types(), 'dbm_type'),
 					'startAt' => (int)get_post_meta($id, 'startAt', true),
 					'endAt' => (int)get_post_meta($id, 'endAt', true),
 					'status' => $relation_post->get_status()
@@ -357,10 +358,7 @@
 			$relations = $this->get_encoded_outgoing_relations();
 			$relations = $this->filter_by_connection_type($relations, $type_path);
 			$relations = $this->filter_by_time($relations, $time);
-			$relations = $this->filter_encoded_by_object_type($relations, $object_type);
-			
-			
-			//var_dump($relations);
+			$relations = $this->filter_encoded_by_object_type($relations, 'toTypes', $object_type);
 			
 			$ids = array_map(function($item) {return $item['id'];}, $relations);
 			
