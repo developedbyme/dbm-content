@@ -320,7 +320,7 @@
 		
 		public function get_encoded_outgoing_relations() {
 			$cached_value = get_post_meta($this->get_id(), 'dbm/objectRelations/outgoing', true);
-			if($cached_value && false) {
+			if($cached_value) {
 				return $cached_value;
 			}
 			
