@@ -118,6 +118,18 @@
 				
 				self::add_term('dbm_type:object-relation', 'Object relation');
 				self::add_term('dbm_type:object-relation/for', 'For');
+				self::add_term('dbm_type:object-relation/in', 'In');
+				self::add_term('dbm_type:object-relation/from', 'From');
+				self::add_term('dbm_type:object-relation/has', 'Has');
+				self::add_term('dbm_type:object-relation/part-of', 'Part of');
+				self::add_term('dbm_type:object-relation/version-of', 'Version of');
+				self::add_term('dbm_type:object-relation/latest-version-of', 'Latest version of');
+				self::add_term('dbm_type:object-relation/translation-of', 'Translation of');
+				self::add_term('dbm_type:object-relation/by', 'By');
+				self::add_term('dbm_type:object-relation/during', 'During');
+				self::add_term('dbm_type:object-relation/of', 'Of');
+				self::add_term('dbm_type:object-relation/at', 'At');
+				self::add_term('dbm_type:object-relation/owned-by', 'Owned by');
 				
 				self::add_term('dbm_type:object-user-relation', 'Object user relation');
 				self::add_term('dbm_type:object-user-relation/user-for', 'User for');

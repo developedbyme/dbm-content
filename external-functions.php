@@ -534,4 +534,10 @@
 		//METODO: error message
 		return 0;
 	}
+	
+	function dbm_setup_get_manager() {
+		$manager = new \DbmContent\Admin\Setup\SetupManager();
+		
+		return $manager;
+	}
 ?>
