@@ -129,8 +129,12 @@
 				self::add_term('dbm_type:object-relation/during', 'During');
 				self::add_term('dbm_type:object-relation/of', 'Of');
 				self::add_term('dbm_type:object-relation/at', 'At');
+				self::add_term('dbm_type:object-relation/following', 'Following');
+				self::add_term('dbm_type:object-relation/completed', 'Completed');
+				self::add_term('dbm_type:object-relation/skipped', 'Skipped');
 				self::add_term('dbm_type:object-relation/owned-by', 'Owned by');
 				self::add_term('dbm_type:object-relation/relation-order-by', 'Relation order by');
+				self::add_term('dbm_type:object-relation/number-sequence-for', 'Number sequence for');
 				
 				self::add_term('dbm_type:object-user-relation', 'Object user relation');
 				self::add_term('dbm_type:object-user-relation/user-for', 'User for');
@@ -161,6 +165,19 @@
 				$current_type = $setup_manager->create_data_type('relation-order')->set_name('Relation order');
 				$current_type->add_field("order")->set_type('json')->setup_meta_storage();
 				$current_type->add_field("forType")->setup_meta_storage();
+				
+				$current_type = $setup_manager->create_data_type('number-sequence')->set_name('Number sequence');
+				$current_type->add_field("prefix")->setup_meta_storage();
+				$current_type->add_field("suffix")->setup_meta_storage();
+				$current_type->add_field("padding")->set_type('number')->setup_meta_storage();
+				
+				$current_type = $setup_manager->create_data_type('sequence-number')->set_name('Sequence number');
+				$current_type->add_field("number")->setup_meta_storage();
+				$current_type->add_field("fullIdentifier")->setup_meta_storage();
+				
+				$current_type = $setup_manager->create_data_type('process')->set_name('Process');
+				
+				$current_type = $setup_manager->create_data_type('process-part')->set_name('Process part');
 				
 				$setup_manager->save_all();
 			}
