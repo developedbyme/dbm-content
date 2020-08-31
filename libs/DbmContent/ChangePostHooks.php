@@ -117,6 +117,9 @@
 				$dbm_post->change_status('private');
 			}
 			
+			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
+			delete_post_meta($related_id, 'dbm/objectRelations/outgoing');
+			
 			$logger->add_return_data('relationId', $relation_id);
 		}
 		
@@ -129,6 +132,9 @@
 				$dbm_post = dbm_get_post($relation_id);
 				$dbm_post->change_status('private');
 			}
+			
+			delete_post_meta($post_id, 'dbm/objectRelations/outgoing');
+			delete_post_meta($related_id, 'dbm/objectRelations/incoming');
 			
 			$logger->add_return_data('relationId', $relation_id);
 		}

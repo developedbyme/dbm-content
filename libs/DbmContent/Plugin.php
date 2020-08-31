@@ -338,6 +338,13 @@
 				do_action('dbm_content/parse_dbm_content', $dbm_content_object, $post_id, $post);
 			}
 			
+			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
+			delete_post_meta($post_id, 'dbm/objectRelations/outgoing');
+			
+			if($post->post_type === 'dbm_object_relation') {
+				delete_post_meta(get_post_meta($post_id, 'toId', true), 'dbm/objectRelations/incoming');
+				delete_post_meta(get_post_meta($post_id, 'fromId', true), 'dbm/objectRelations/outgoing');
+			}
 		}
 		
 		public function activation_setup() {

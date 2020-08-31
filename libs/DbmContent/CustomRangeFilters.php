@@ -571,6 +571,27 @@
 			
 			$dbm_post = dbm_get_post($post_id);
 			
+			$outgoing = $dbm_post->get_encoded_outgoing_relations();
+			
+			$encoded_orders = array();
+			$order_ids = $dbm_post->get_outgoing_relations('relation-order-by', 'relation-order');
+			foreach($order_ids as $order_id) {
+				$encoded_order = array(
+					'id' => $order_id,
+					'order' => get_post_meta($order_id, 'order', true),
+					'forType' => get_post_meta($order_id, 'forType', true)
+				);
+				$encoded_orders[] = $order_ids;
+			}
+			
+			$encoded_data['relations'] = array(
+				'incoming' => $dbm_post->get_encoded_incoming_relations(),
+				'outgoing' => $outgoing,
+				'orders' => $encoded_orders
+			);
+			
+			
+			/*
 			$incoming_relation_groups = $dbm_post->get_all_incoming_relations_at_any_time(true);
 			$incoming_groups = array();
 			foreach($incoming_relation_groups as $name => $ids) {
@@ -609,6 +630,7 @@
 				'incoming' => $incoming_groups,
 				'outgoing' => $outgoing_groups,
 			);
+			*/
 			
 			return $encoded_data;
 		}

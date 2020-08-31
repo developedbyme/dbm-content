@@ -130,6 +130,7 @@
 				self::add_term('dbm_type:object-relation/of', 'Of');
 				self::add_term('dbm_type:object-relation/at', 'At');
 				self::add_term('dbm_type:object-relation/owned-by', 'Owned by');
+				self::add_term('dbm_type:object-relation/relation-order-by', 'Relation order by');
 				
 				self::add_term('dbm_type:object-user-relation', 'Object user relation');
 				self::add_term('dbm_type:object-user-relation/user-for', 'User for');
@@ -154,6 +155,14 @@
 				$current_term_id = self::add_term('dbm_relation:menu-position/top-menu/default', 'Default top menu');
 				$current_term_id = self::add_term('dbm_relation:menu-position/footer-menu', 'Footer menu');
 				$current_term_id = self::add_term('dbm_relation:menu-position/footer-menu/default', 'Default footer menu');
+				
+				$setup_manager = dbm_setup_get_manager();
+				
+				$current_type = $setup_manager->create_data_type('relation-order')->set_name('Relation order');
+				$current_type->add_field("order")->set_type('json')->setup_meta_storage();
+				$current_type->add_field("forType")->setup_meta_storage();
+				
+				$setup_manager->save_all();
 			}
 		}
 		
