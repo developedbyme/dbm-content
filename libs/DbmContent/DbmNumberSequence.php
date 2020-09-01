@@ -56,8 +56,6 @@
 			$order_number->change_status('private');
 			$order_number->add_outgoing_relation_by_name($post_id, 'in');
 			
-			var_dump($sequence_number, $order_number);
-			
 			return $order_number;
 		}
 		
