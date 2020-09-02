@@ -150,10 +150,15 @@
 		);
 	}
 	
-	function dbm_create_data($name, $type_path, $grouping_path) {
+	function dbm_create_data($name, $type_path, $grouping_path = null) {
 		
-		$parent_grouping_term = dbm_get_type(explode('/', $grouping_path));
-		$parent_id = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_single_post_id_by_term($parent_grouping_term);
+		
+		$parent_id = 0;
+		
+		if($grouping_path) {
+			$parent_grouping_term = dbm_get_type(explode('/', $grouping_path));
+			$parent_id = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_single_post_id_by_term($parent_grouping_term);
+		}
 		
 		$args = array(
 			'post_type' => 'dbm_data',
@@ -488,6 +493,17 @@
 		}
 		$new_post = new \DbmContent\DbmPost($id);
 		$dbm_posts[$id] = $new_post;
+		
+		return $new_post;
+	}
+	
+	function dbm_get_number_sequence($id) {
+		
+		if(!get_post_meta($id, 'currentSequenceNumber', true)) {
+			update_post_meta($id, 'currentSequenceNumber', 0);
+		}
+		
+		$new_post = new \DbmContent\DbmNumberSequence($id);
 		
 		return $new_post;
 	}
