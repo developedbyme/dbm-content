@@ -64,6 +64,15 @@
 			return $this;
 		}
 		
+		public function setup_multiple_relation_type($parent_term) {
+			$this->set_type('multiple-relation');
+			
+			$this->set_meta('subtree', $parent_term);
+			
+			
+			return $this;
+		}
+		
 		public function setup_post_type($post_type, $selection) {
 			$this->set_type('post-relation');
 			$this->set_meta('postType', $post_type);
@@ -85,7 +94,7 @@
 		public function setup_multiple_relation_storage($parent_term, $use_slug = false) {
 			
 			$this->storage_type = 'multiple-relation';
-			$this->setup_relation_type($parent_term);
+			$this->setup_multiple_relation_type($parent_term);
 			$this->set_meta('dbmtc_relation_path', $parent_term);
 			$this->set_meta('dbmtc_relation_use_slug', $use_slug);
 			
