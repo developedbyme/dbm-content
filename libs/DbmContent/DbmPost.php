@@ -124,6 +124,16 @@
 			return $return_array;
 		}
 		
+		public function has_type_by_name($path) {
+			$term = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slugs(explode('/', $path), 'dbm_type');
+			if($term) {
+				$types = $this->get_types();
+				return in_array($term->term_id, $types);
+			}
+			
+			return false;
+		}
+		
 		public function get_subtypes($path) {
 			$return_array = array();
 		

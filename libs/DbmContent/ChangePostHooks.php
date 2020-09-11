@@ -27,6 +27,8 @@
 			$this->register_hook_for_type('dbm/addIncomingRelation', 'hook_addIncomingRelation');
 			$this->register_hook_for_type('dbm/addOutgoingRelation', 'hook_addOutgoingRelation');
 			
+			$this->register_hook_for_type('dbm/order', 'hook_order');
+			
 			$this->register_hook_for_type('dbm/addObjectUserRelation', 'hook_addObjectUserRelation');
 		}
 		
@@ -147,6 +149,39 @@
 			$relation_id = $dbm_post->add_user_relation($related_id, $type);
 			
 			$logger->add_return_data('relationId', $relation_id);
+		}
+		
+		public function hook_order($data, $post_id, $logger) {
+			$new_order = $data['value'];
+			$for_type = $data['forType'];
+			
+			$dbm_post = dbm_get_post($post_id);
+			
+			$has_updated = false;
+			$order_ids = $dbm_post->get_outgoing_relations('relation-order-by', 'relation-order');
+			foreach($order_ids as $order_id) {
+				$order_post_id = get_post_meta($order_id, 'toId', true);
+				$current_type = get_post_meta($order_post_id, 'forType', true);
+				
+				if($for_type === $current_type) {
+					update_post_meta($order_post_id, 'order', $new_order);
+					$has_updated = true;
+					$logger->add_return_data('orderId', $order_post_id);
+					break;
+				}
+			}
+			
+			if(!$has_updated) {
+				$order_id = dbm_create_data('Order '.$for_type.' for '.$post_id, 'relation-order', 'relation-orders');
+				update_post_meta($order_id, 'order', $new_order);
+				update_post_meta($order_id, 'forType', $for_type);
+				$dbm_post->add_outgoing_relation_by_name($order_id, 'relation-order-by');
+				
+				$dbm_order_post = dbm_get_post($order_id);
+				$dbm_order_post->change_status('private');
+				
+				$logger->add_return_data('orderId', $order_id);
+			}
 		}
 		
 		public static function test_import() {

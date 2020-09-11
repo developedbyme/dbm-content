@@ -576,12 +576,16 @@
 			$encoded_orders = array();
 			$order_ids = $dbm_post->get_outgoing_relations('relation-order-by', 'relation-order');
 			foreach($order_ids as $order_id) {
+				
+				$order_data_id = get_post_meta($order_id, 'toId', true);
+				
 				$encoded_order = array(
-					'id' => $order_id,
-					'order' => get_post_meta($order_id, 'order', true),
-					'forType' => get_post_meta($order_id, 'forType', true)
+					'id' => $order_data_id,
+					'order' => get_post_meta($order_data_id, 'order', true),
+					'forType' => get_post_meta($order_data_id, 'forType', true)
 				);
-				$encoded_orders[] = $order_ids;
+				
+				$encoded_orders[] = $encoded_order;
 			}
 			
 			$encoded_data['relations'] = array(
