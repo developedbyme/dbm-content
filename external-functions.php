@@ -320,6 +320,9 @@
 		$return_array = array();
 		
 		$parent_term = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slugs(explode('/', $relation_path), 'dbm_relation');
+		if(!$parent_term) {
+			return $return_array;
+		}
 		
 		$current_terms = wp_get_post_terms($post_id, 'dbm_relation');
 		foreach($current_terms as $current_term) {
