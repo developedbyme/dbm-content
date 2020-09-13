@@ -511,6 +511,27 @@
 		return $new_post;
 	}
 	
+	function dbm_get_process($id) {
+		
+		$new_process = new \DbmContent\Process\DbmProcess($id);
+		
+		return $new_process;
+	}
+	
+	function dbm_get_process_part($id) {
+		
+		$new_process_part = new \DbmContent\Process\DbmProcessPart($id);
+		
+		return $new_process_part;
+	}
+	
+	function dbm_get_process_for_item($id) {
+		
+		$new_process_for_item = new \DbmContent\Process\DbmProcessForItem($id);
+		
+		return $new_process_for_item;
+	}
+	
 	function dbm_get_global_page_id($slug) {
 		$id = dbm_new_query('page')->add_relation_by_path('global-pages/'.$slug)->get_post_id();
 		

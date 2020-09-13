@@ -132,6 +132,7 @@
 				self::add_term('dbm_type:object-relation/following', 'Following');
 				self::add_term('dbm_type:object-relation/completed', 'Completed');
 				self::add_term('dbm_type:object-relation/skipped', 'Skipped');
+				self::add_term('dbm_type:object-relation/started', 'Started');
 				self::add_term('dbm_type:object-relation/owned-by', 'Owned by');
 				self::add_term('dbm_type:object-relation/relation-order-by', 'Relation order by');
 				self::add_term('dbm_type:object-relation/number-sequence-for', 'Number sequence for');

@@ -572,6 +572,34 @@
 			return $current_ids;
 		}
 		
+		public function get_order($for_type) {
+			
+			$order_ids = $this->get_outgoing_relations('relation-order-by', 'relation-order');
+			
+			foreach($order_ids as $order_id) {
+				
+				$order_data_id = get_post_meta($order_id, 'toId', true);
+				$current_for_type = get_post_meta($order_data_id, 'forType', true);
+				
+				if($current_for_type === $for_type) {
+					return get_post_meta($order_data_id, 'order', true);
+				}
+			}
+			
+			return array();
+		}
+		
+		public function get_in_sorted_order($ids, $order_type) {
+			$order = $this->get_order($order_type);
+			
+			$sorted_ids = array_intersect($order, $ids);
+			$rest_ids = array_diff($ids, $sorted_ids);
+			
+			$return_array = array_merge($sorted_ids, $rest_ids);
+			
+			return $return_array;
+		}
+		
 		public static function test_import() {
 			echo("Imported \DbmContent\DbmPost<br />");
 		}
