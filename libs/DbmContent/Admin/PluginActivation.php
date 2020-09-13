@@ -136,6 +136,7 @@
 				self::add_term('dbm_type:object-relation/owned-by', 'Owned by');
 				self::add_term('dbm_type:object-relation/relation-order-by', 'Relation order by');
 				self::add_term('dbm_type:object-relation/number-sequence-for', 'Number sequence for');
+				self::add_term('dbm_type:object-relation/pointing-to', 'Pointing to');
 				
 				self::add_term('dbm_type:object-user-relation', 'Object user relation');
 				self::add_term('dbm_type:object-user-relation/user-for', 'User for');
