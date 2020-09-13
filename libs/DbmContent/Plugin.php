@@ -109,7 +109,7 @@
 			parent::register_hooks();
 			
 			add_action('dbm_content/parse_dbm_content', array($this, 'hook_parse_dbm_content'), 10, 3);
-			
+			add_action('dbmtc/internal_message/group_field_set', array($this, 'hook_dbmtc_internal_message_group_field_set'), 10, 5);
 		}
 		
 		public function mce_external_plugins( $plugin_array ){
@@ -344,6 +344,18 @@
 			if($post->post_type === 'dbm_object_relation') {
 				delete_post_meta(get_post_meta($post_id, 'toId', true), 'dbm/objectRelations/incoming');
 				delete_post_meta(get_post_meta($post_id, 'fromId', true), 'dbm/objectRelations/outgoing');
+			}
+		}
+		
+		public function hook_dbmtc_internal_message_group_field_set($group, $field, $value, $user_id, $message) {
+			
+			if($field === 'name') {
+				if($group->has_type_by_name('process') || $group->has_type_by_name('process-part')) {
+					wp_update_post(array(
+						'ID' => $group->get_id(),
+						'post_title' => $value
+					));
+				}
 			}
 		}
 		
