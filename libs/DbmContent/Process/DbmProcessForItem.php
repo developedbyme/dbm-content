@@ -42,8 +42,8 @@
 		public function get_current_part() {
 			$parts = $this->get_parts();
 			
-			$skipped_parts = $this->get_outgoing_relations('skipped', 'process-part');
-			$completed_parts = $this->get_outgoing_relations('completed', 'process-part');
+			$skipped_parts = $this->object_relation_query('out:skipped:process-part');
+			$completed_parts = $this->object_relation_query('out:completed:process-part');
 			
 			$ignored_array = array_merge($skipped_parts, $completed_parts);
 			
@@ -60,7 +60,7 @@
 			$current_part = $this->get_current_part();
 			
 			if($current_part) {
-				$started_parts = $this->get_outgoing_relations('started', 'process-part');
+				$started_parts = $this->object_relation_query('out:started:process-part');
 				if(!in_array($current_part->get_id(), $started_parts)) {
 					$this->start_part($current_part->get_id());
 				}
@@ -72,6 +72,12 @@
 		public function start_part($id) {
 			$this->add_outgoing_relation_by_name($id, 'started');
 			
+			$part = dbm_get_process_part($id);
+			$type = $part->get_type();
+			if($type) {
+				do_action('dbm_content/process/start_part/'.$type, $id, $this->get_id());
+			}
+			
 			do_action('dbm_content/process/start_part', $id, $this->get_id());
 			
 			return $this;
@@ -79,6 +85,12 @@
 		
 		public function skip_part($id, $start_next = true) {
 			$this->add_outgoing_relation_by_name($id, 'skipped');
+			
+			$part = dbm_get_process_part($id);
+			$type = $part->get_type();
+			if($type) {
+				do_action('dbm_content/process/skip_part/'.$type, $id, $this->get_id());
+			}
 			
 			do_action('dbm_content/process/skip_part', $id, $this->get_id());
 			
@@ -91,6 +103,12 @@
 		
 		public function complete_part($id, $start_next = true) {
 			$this->add_outgoing_relation_by_name($id, 'completed');
+			
+			$part = dbm_get_process_part($id);
+			$type = $part->get_type();
+			if($type) {
+				do_action('dbm_content/process/complete_part/'.$type, $id, $this->get_id());
+			}
 			
 			do_action('dbm_content/process/complete_part', $id, $this->get_id());
 			

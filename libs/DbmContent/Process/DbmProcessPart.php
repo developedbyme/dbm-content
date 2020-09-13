@@ -11,6 +11,10 @@
 			parent::__construct($id);
 		}
 		
+		public function get_type() {
+			return $this->get_meta('type');
+		}
+		
 		public static function test_import() {
 			echo("Imported \DbmContent\DbmProcessPart<br />");
 		}
