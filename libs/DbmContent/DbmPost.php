@@ -414,7 +414,9 @@
 			$relations = $this->get_encoded_outgoing_relations();
 			$relations = $this->filter_by_connection_type($relations, $type_path);
 			$relations = $this->filter_by_time($relations, $time);
-			$relations = $this->filter_encoded_by_object_type($relations, 'toTypes', $object_type);
+			if($object_type) {
+				$relations = $this->filter_encoded_by_object_type($relations, 'toTypes', $object_type);
+			}
 			
 			$ids = array_map(function($item) {return $item['id'];}, $relations);
 			
@@ -459,9 +461,14 @@
 		}
 		
 		public function get_incoming_relations($type_path, $object_type, $time = -1) {
-			$ids = $this->get_object_relation_query($type_path, $time)->add_meta_query('toId', $this->get_id())->get_post_ids();
+			$relations = $this->get_encoded_incoming_relations();
+			$relations = $this->filter_by_connection_type($relations, $type_path);
+			$relations = $this->filter_by_time($relations, $time);
+			if($object_type) {
+				$relations = $this->filter_encoded_by_object_type($relations, 'fromTypes', $object_type);
+			}
 			
-			$ids = $this->filter_by_object_type($ids, 'fromId', $object_type);
+			$ids = array_map(function($item) {return $item['id'];}, $relations);
 			
 			return $ids;
 		}
