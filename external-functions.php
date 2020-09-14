@@ -575,6 +575,25 @@
 		return 0;
 	}
 	
+	function dbm_get_global_item($identifier) {
+		$global_item_id = dbm_new_query('dbm_data')->set_field('post_status', array('publish', 'private'))->add_meta_query('identifier', $identifier)->get_post_id();
+		
+		$return_id = 0;
+		
+		if($global_item_id) {
+			$dbm_post = dbm_get_post($global_item_id);
+			
+			$outgoing_relation_id = $dbm_post->get_single_outgoing_relation('pointing-to', null);
+			$to_id = (int)get_post_meta($outgoing_relation_id, 'toId', true);
+			
+			if($to_id) {
+				$return_id = $to_id;
+			}
+		}
+		
+		return $return_id;
+	}
+	
 	function dbm_setup_get_manager() {
 		$manager = new \DbmContent\Admin\Setup\SetupManager();
 		

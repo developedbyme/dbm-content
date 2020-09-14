@@ -184,8 +184,12 @@
 				$current_type->add_field("name")->setup_meta_storage();
 				$current_type->add_field("description")->setup_meta_storage();
 				$current_type->add_field("type")->setup_meta_storage();
+				$current_type->add_field("identifier")->setup_meta_storage();
 				
 				$current_type = $setup_manager->create_data_type('global-item')->set_name('Global item');
+				$current_type->add_field("identifier")->setup_meta_storage();
+				
+				$current_type = $setup_manager->create_data_type('identifiable-item')->set_name('Identifiable item');
 				$current_type->add_field("identifier")->setup_meta_storage();
 				
 				$setup_manager->save_all();
