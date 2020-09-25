@@ -671,7 +671,7 @@
 				$current_encoded_object = apply_filters('wprr/range_encoding/fieldValues', $current_encoded_object, $part_id, $data);
 				$current_statuses = array();
 				foreach($statuses as $status_name => $status_group) {
-					if(!in_array($part_id, $status_group)) {
+					if(in_array($part_id, $status_group)) {
 						$current_statuses[] = $status_name;
 					}
 				}
