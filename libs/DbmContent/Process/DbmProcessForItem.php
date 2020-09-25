@@ -39,6 +39,16 @@
 			return $return_array;
 		}
 		
+		public function get_statuses() {
+			$return_array = array();
+			$names = array('skipped', 'completed', 'started');
+			foreach($names as $name) {
+				$return_array[$name] = $this->object_relation_query('out:'.$name.':process-part');
+			}
+			
+			return $return_array;
+		}
+		
 		public function get_current_part() {
 			$parts = $this->get_parts();
 			

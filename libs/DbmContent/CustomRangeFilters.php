@@ -7,6 +7,24 @@
 			//echo("\DbmContent\CustomRangeFilters::__construct<br />");
 		}
 		
+		public function encode_objects_as($ids, $types, $request_data = null) {
+			$return_array = array();
+			
+			$types = explode(',', $types);
+			
+			foreach($ids as $id) {
+				$encoded_object = array('id' => $id);
+				
+				foreach($types as $type) {
+					$encoded_object = apply_filters('wprr/range_encoding/'.$type, $encoded_object, $id, $request_data);
+				}
+				
+				$return_array[] = $encoded_object;
+			}
+			
+			return $return_array;
+		}
+		
 		protected function add_tax_query(&$query_args, $tax_query, $relation = 'AND') {
 			if(isset($query_args['tax_query'])) {
 				$combined_query = array(
@@ -635,6 +653,34 @@
 				'outgoing' => $outgoing_groups,
 			);
 			*/
+			
+			return $encoded_data;
+		}
+		
+		public function encode_processForItem($encoded_data, $post_id, $data) {
+			$encoded_parts = array();
+			
+			$process_for_item = dbm_get_process_for_item($post_id);
+			$parts = $process_for_item->get_parts();
+			$statuses = $process_for_item->get_statuses();
+			
+			foreach($parts as $part) {
+				$part_id = $part->get_id();
+				$current_encoded_object = array('id' => $part_id);
+				
+				$current_encoded_object = apply_filters('wprr/range_encoding/fieldValues', $current_encoded_object, $part_id, $data);
+				$current_statuses = array();
+				foreach($statuses as $status_name => $status_group) {
+					if(!in_array($part_id, $status_group)) {
+						$current_statuses[] = $status_name;
+					}
+				}
+				$current_encoded_object['statuses'] = $current_statuses;
+				
+				$encoded_parts[] = $current_encoded_object; 
+			}
+			
+			$encoded_data['processParts'] = $encoded_parts;
 			
 			return $encoded_data;
 		}
