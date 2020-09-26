@@ -140,6 +140,7 @@
 				
 				self::add_term('dbm_type:object-user-relation', 'Object user relation');
 				self::add_term('dbm_type:object-user-relation/user-for', 'User for');
+				self::add_term('dbm_type:object-user-relation/by', 'By');
 				
 				$current_term_id = self::add_term('dbm_relation:global-pages', 'Global pages');
 			

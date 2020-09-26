@@ -111,6 +111,13 @@
 			return $this;
 		}
 		
+		public function skip_part_by_indentifier($identifier, $start_next = true) {
+			$part = $this->get_part_by_identifier($identifier);
+			if($part) {
+				$this->skip_part($part->get_id(), $start_next);
+			}
+		}
+		
 		public function complete_part($id, $start_next = true) {
 			$this->add_outgoing_relation_by_name($id, 'completed');
 			
@@ -127,6 +134,24 @@
 			}
 			
 			return $this;
+		}
+		
+		public function get_part_by_identifier($identifier) {
+			$parts = $this->get_parts();
+			foreach($parts as $part) {
+				if($part->get_identifier() === $identifier) {
+					return $part;
+				}
+			}
+			
+			return null;
+		}
+		
+		public function complete_part_by_indentifier($identifier, $start_next = true) {
+			$part = $this->get_part_by_identifier($identifier);
+			if($part) {
+				$this->complete_part($part->get_id(), $start_next);
+			}
 		}
 		
 		public static function test_import() {

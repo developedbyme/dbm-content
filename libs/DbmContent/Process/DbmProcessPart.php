@@ -15,6 +15,10 @@
 			return $this->get_meta('type');
 		}
 		
+		public function get_identifier() {
+			return $this->get_meta('identifier');
+		}
+		
 		public static function test_import() {
 			echo("Imported \DbmContent\DbmProcessPart<br />");
 		}
