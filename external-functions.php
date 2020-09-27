@@ -594,6 +594,24 @@
 		return $return_id;
 	}
 	
+	function dbm_relation_ids($relation_ids, $key) {
+		$return_array = array();
+		
+		foreach($relation_ids as $relation_id) {
+			$return_array[] = (int)get_post_meta($relation_id, $key, true);
+		}
+		
+		return $return_array;
+	}
+	
+	function dbm_outgoing_relation_ids($relation_ids) {
+		return dbm_relation_ids($relation_ids, 'toId');
+	}
+	
+	function dbm_incoming_relation_ids($relation_ids) {
+		return dbm_relation_ids($relation_ids, 'fromId');
+	}
+	
 	function dbm_setup_get_manager() {
 		$manager = new \DbmContent\Admin\Setup\SetupManager();
 		

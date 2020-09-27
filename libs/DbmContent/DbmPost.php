@@ -202,6 +202,39 @@
 			return $new_relation_id;
 		}
 		
+		public function set_order($new_order, $for_type) {
+			
+			$return_order_id = 0;
+			
+			$has_updated = false;
+			$order_ids = $this->get_outgoing_relations('relation-order-by', 'relation-order');
+			foreach($order_ids as $order_id) {
+				$order_post_id = get_post_meta($order_id, 'toId', true);
+				$current_type = get_post_meta($order_post_id, 'forType', true);
+				
+				if($for_type === $current_type) {
+					update_post_meta($order_post_id, 'order', $new_order);
+					$has_updated = true;
+					$return_order_id = $order_post_id;
+					break;
+				}
+			}
+			
+			if(!$has_updated) {
+				$order_id = dbm_create_data('Order '.$for_type.' for '.$this->get_id(), 'relation-order', 'relation-orders');
+				update_post_meta($order_id, 'order', $new_order);
+				update_post_meta($order_id, 'forType', $for_type);
+				$this->add_outgoing_relation_by_name($order_id, 'relation-order-by');
+				
+				$dbm_order_post = dbm_get_post($order_id);
+				$dbm_order_post->change_status('private');
+				
+				$return_order_id = $order_id;
+			}
+			
+			return $return_order_id;
+		}
+		
 		public function get_object_relation_query_without_settings() {
 			return dbm_new_query('dbm_object_relation')->set_field('post_status', array('publish', 'private'));
 		}
