@@ -13,7 +13,7 @@
 		}
 		
 		protected function register_hook_for_type($type, $hook_name) {
-			add_action('wprr/admin/change_post/'.$type, array($this, $hook_name), 10, 2);
+			add_action('wprr/admin/change_post/'.$type, array($this, $hook_name), 10, 3);
 		}
 		
 		public function register() {
@@ -53,7 +53,7 @@
 			return $terms;
 		}
 		
-		public function hook_set_relation($data, $post_id) {
+		public function hook_set_relation($data, $post_id, $logger) {
 			//echo("\DbmContent\ChangePostHooks::hook_set_relation<br />");
 			
 			$parent_slug = $data['path'];
@@ -64,7 +64,7 @@
 			dbm_replace_relations($post_id, $parent, $ids);
 		}
 		
-		public function hook_auto_dbm_content($data, $post_id) {
+		public function hook_auto_dbm_content($data, $post_id, $logger) {
 			
 			$post = get_post($post_id);
 			
@@ -73,7 +73,7 @@
 			do_action('dbm_content/parse_dbm_content', $dbm_content_object, $post_id, $post);
 		}
 		
-		public function hook_in_admin_grouping($data, $post_id) {
+		public function hook_in_admin_grouping($data, $post_id, $logger) {
 			
 			$path = 'admin-grouping/'.$data['value'];
 			
@@ -87,9 +87,12 @@
 				
 				wp_update_post($args);
 			}
+			else {
+				$logger->add_log('No admin group '.$path);
+			}
 		}
 		
-		public function hook_add_term_from_owner($data, $post_id) {
+		public function hook_add_term_from_owner($data, $post_id, $logger) {
 			//echo("\DbmContent\ChangePostHooks::hook_add_term_from_owner<br />");
 			
 			$owner_id = $data['value'];
@@ -99,7 +102,15 @@
 				$meta_name = 'dbm_relation_term_'.$data['group'];
 				$term_id = (int)get_post_meta($owner_id, $meta_name, true);
 				
-				wp_add_object_terms($post_id, array($term_id), 'dbm_relation');
+				if($term_id) {
+					wp_add_object_terms($post_id, array($term_id), 'dbm_relation');
+				}
+				else {
+					$logger->add_log('No owned term for group '.$data['group']);
+				}
+			}
+			else {
+				$logger->add_log('No owner');
 			}
 		}
 		
