@@ -71,6 +71,11 @@
 			$current_custom_post_type->add_taxonomy('dbm_relation');
 			$this->add_custom_post_type($current_custom_post_type);
 			
+			$current_custom_post_type = new \DbmContent\Admin\CustomPostTypes\ObjectRelationCustomPostType();
+			$current_custom_post_type->add_taxonomy('dbm_type');
+			$current_custom_post_type->add_taxonomy('dbm_relation');
+			$this->add_custom_post_type($current_custom_post_type);
+			
 			$post_types_with_taxonomies = apply_filters('dbm_content/post_types_with_taxonomies', array('post', 'page', 'attachment'));
 			
 			foreach($post_types_with_taxonomies as $post_type) {
@@ -104,7 +109,7 @@
 			parent::register_hooks();
 			
 			add_action('dbm_content/parse_dbm_content', array($this, 'hook_parse_dbm_content'), 10, 3);
-			
+			add_action('dbmtc/internal_message/group_field_set', array($this, 'hook_dbmtc_internal_message_group_field_set'), 10, 5);
 		}
 		
 		public function mce_external_plugins( $plugin_array ){
@@ -196,10 +201,17 @@
 			add_filter('wprr/range_query/byOwnedRelation', array($custom_range_filters, 'query_by_owned_relation'), 10, 2);
 			add_filter('wprr/range_query/byPostRelation', array($custom_range_filters, 'query_byPostRelation'), 10, 2);
 			add_filter('wprr/range_query/relationOwner', array($custom_range_filters, 'query_by_relation_owner'), 10, 2);
+			add_filter('wprr/range_query/objectRelation', array($custom_range_filters, 'query_objectRelation'), 10, 2);
 			
 			add_filter('wprr/range_query/languageTerm', array($custom_range_filters, 'query_languageTerm'), 10, 2);
 			
 			add_filter('wprr/range_encoding/editFields', array($custom_range_filters, 'encode_edit_fields'), 10, 3);
+			add_filter('wprr/range_encoding/incomingRelations', array($custom_range_filters, 'encode_incomingRelations'), 10, 3);
+			add_filter('wprr/range_encoding/outgoingRelations', array($custom_range_filters, 'encode_outgoingRelations'), 10, 3);
+			add_filter('wprr/range_encoding/relation', array($custom_range_filters, 'encode_relationLink'), 10, 3);
+			add_filter('wprr/range_encoding/editObjectRelations', array($custom_range_filters, 'encode_editObjectRelations'), 10, 3);
+			add_filter('wprr/range_encoding/dbmTypes', array($custom_range_filters, 'encode_dbmTypes'), 10, 3);
+			add_filter('wprr/range_encoding/processForItem', array($custom_range_filters, 'encode_processForItem'), 10, 3);
 			
 			add_filter('m_router_data/custom_range_query_dbm-relation-manager-items', array($custom_range_filters, 'query_relation_manager_items'), 10, 2);
 			add_filter('m_router_data/custom_range_encode_dbm-relation-manager-items', array($custom_range_filters, 'encode_relation_manager_items'), 10, 3);
@@ -327,6 +339,25 @@
 				do_action('dbm_content/parse_dbm_content', $dbm_content_object, $post_id, $post);
 			}
 			
+			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
+			delete_post_meta($post_id, 'dbm/objectRelations/outgoing');
+			
+			if($post->post_type === 'dbm_object_relation') {
+				delete_post_meta(get_post_meta($post_id, 'toId', true), 'dbm/objectRelations/incoming');
+				delete_post_meta(get_post_meta($post_id, 'fromId', true), 'dbm/objectRelations/outgoing');
+			}
+		}
+		
+		public function hook_dbmtc_internal_message_group_field_set($group, $field, $value, $user_id, $message) {
+			
+			if($field === 'name') {
+				if($group->has_type_by_name('process') || $group->has_type_by_name('process-part')) {
+					wp_update_post(array(
+						'ID' => $group->get_id(),
+						'post_title' => $value
+					));
+				}
+			}
 		}
 		
 		public function activation_setup() {

@@ -150,10 +150,15 @@
 		);
 	}
 	
-	function dbm_create_data($name, $type_path, $grouping_path) {
+	function dbm_create_data($name, $type_path, $grouping_path = null) {
 		
-		$parent_grouping_term = dbm_get_type(explode('/', $grouping_path));
-		$parent_id = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_single_post_id_by_term($parent_grouping_term);
+		
+		$parent_id = 0;
+		
+		if($grouping_path) {
+			$parent_grouping_term = dbm_get_type(explode('/', $grouping_path));
+			$parent_id = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_single_post_id_by_term($parent_grouping_term);
+		}
 		
 		$args = array(
 			'post_type' => 'dbm_data',
@@ -164,13 +169,94 @@
 		
 		$new_id = wp_insert_post($args);
 		
-		if(!$new_id) {
-			//METODO: error message
-			return $new_id;
+		if(is_wp_error($new_id)) {
+			throw(new \Exception('No post created '.$new_id->get_error_message()));
 		}
 		
 		$type_term = dbm_get_type(explode('/', $type_path));
 		wp_set_post_terms($new_id, array($type_term->term_id), 'dbm_type', false);
+		
+		return $new_id;
+	}
+	
+	function dbm_create_draft_object_relation($from_object_id, $to_object_id, $type_path) {
+		
+		$type_term = dbm_get_type_by_path('object-relation/'.$type_path);
+		
+		if(!$type_term) {
+			throw(new \Exception('No type '.$type_path));
+		}
+		
+		$args = array(
+			'post_type' => 'dbm_object_relation',
+			'post_title' => $from_object_id.' '.($type_path).' '.$to_object_id,
+			'post_status' => 'draft'
+		);
+		
+		$new_id = wp_insert_post($args);
+		
+		if(is_wp_error($new_id)) {
+			throw(new \Exception('No post created '.$new_id->get_error_message()));
+		}
+		
+		update_post_meta($new_id, 'fromId', $from_object_id);
+		update_post_meta($new_id, 'toId', $to_object_id);
+		update_post_meta($new_id, 'startAt', -1);
+		update_post_meta($new_id, 'endAt', -1);
+		
+		$object_relation_term = dbm_get_type_by_path('object-relation');
+		wp_set_post_terms($new_id, array($object_relation_term->term_id, $type_term->term_id), 'dbm_type', false);
+		
+		delete_post_meta($from_object_id, 'dbm/objectRelations/outgoing');
+		delete_post_meta($to_object_id, 'dbm/objectRelations/incoming');
+		
+		return $new_id;
+	}
+	
+	function dbm_create_object_relation($from_object_id, $to_object_id, $type_path) {
+		
+		$new_id = dbm_create_draft_object_relation($from_object_id, $to_object_id, $type_path);
+		
+		$new_id = wp_update_post(array(
+			'ID' => $new_id,
+			'post_status' => 'private'
+		));
+		
+		return $new_id;
+	}
+	
+	function dbm_create_object_user_relation($from_object_id, $to_user_id, $type_path) {
+		
+		$type_term = dbm_get_type_by_path('object-user-relation/'.$type_path);
+		
+		if(!$type_term) {
+			throw(new \Exception('No type '.$type_path));
+		}
+		
+		$args = array(
+			'post_type' => 'dbm_object_relation',
+			'post_title' => $from_object_id.' '.($type_path).' '.$to_user_id,
+			'post_status' => 'draft'
+		);
+		
+		$new_id = wp_insert_post($args);
+		
+		if(is_wp_error($new_id)) {
+			throw(new \Exception('No post created '.$new_id->get_error_message()));
+		}
+		
+		update_post_meta($new_id, 'fromId', $from_object_id);
+		update_post_meta($new_id, 'toId', $to_user_id);
+		update_post_meta($new_id, 'startAt', -1);
+		update_post_meta($new_id, 'endAt', -1);
+		
+		$object_relation_term = dbm_get_type_by_path('object-user-relation');
+		wp_set_post_terms($new_id, array($object_relation_term->term_id, $type_term->term_id), 'dbm_type', false);
+		
+		$new_id = wp_update_post(array(
+			'ID' => $new_id,
+			'post_status' => 'private'
+		));
 		
 		return $new_id;
 	}
@@ -234,6 +320,9 @@
 		$return_array = array();
 		
 		$parent_term = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slugs(explode('/', $relation_path), 'dbm_relation');
+		if(!$parent_term) {
+			return $return_array;
+		}
 		
 		$current_terms = wp_get_post_terms($post_id, 'dbm_relation');
 		foreach($current_terms as $current_term) {
@@ -397,15 +486,135 @@
 		return $new_query;
 	}
 	
+	global $dbm_posts;
+	$dbm_posts = array();
+	
 	function dbm_get_post($id) {
+		global $dbm_posts;
+		if(isset($dbm_posts[$id])) {
+			return $dbm_posts[$id];
+		}
 		$new_post = new \DbmContent\DbmPost($id);
+		$dbm_posts[$id] = $new_post;
 		
 		return $new_post;
+	}
+	
+	function dbm_get_number_sequence($id) {
+		
+		if(!get_post_meta($id, 'currentSequenceNumber', true)) {
+			update_post_meta($id, 'currentSequenceNumber', 0);
+		}
+		
+		$new_post = new \DbmContent\DbmNumberSequence($id);
+		
+		return $new_post;
+	}
+	
+	function dbm_get_process($id) {
+		
+		$new_process = new \DbmContent\Process\DbmProcess($id);
+		
+		return $new_process;
+	}
+	
+	function dbm_get_process_part($id) {
+		
+		$new_process_part = new \DbmContent\Process\DbmProcessPart($id);
+		
+		return $new_process_part;
+	}
+	
+	function dbm_get_process_for_item($id) {
+		
+		$new_process_for_item = new \DbmContent\Process\DbmProcessForItem($id);
+		
+		return $new_process_for_item;
 	}
 	
 	function dbm_get_global_page_id($slug) {
 		$id = dbm_new_query('page')->add_relation_by_path('global-pages/'.$slug)->get_post_id();
 		
 		return $id;
+	}
+	
+	function dbm_get_objects_by_user_relation($user_id, $relation_type, $object_type, $time = -1) {
+		$dbm_query = dbm_new_query('dbm_object_relation')->set_field('post_status', array('publish', 'private'));
+		$dbm_query->add_type_by_path('object-user-relation')->add_type_by_path('object-user-relation/'.$relation_type);
+		$dbm_query->add_meta_query('toId', $user_id);
+		//METODO: add time query
+		
+		$return_array = array();
+		$relation_ids = $dbm_query->get_post_ids();
+		
+		$term = dbm_get_type_by_path($object_type);
+		if($term) {
+			foreach($relation_ids as $relation_id) {
+			
+				$post_id = get_post_meta($relation_id, 'fromId', true);
+				if(has_term($term->term_id, 'dbm_type', $post_id)) {
+					$return_array[] = $post_id;
+				}
+			}
+		}
+		
+		return $return_array;
+	}
+	
+	function dbm_get_single_object_by_user_relation($user_id, $relation_type, $object_type, $time = -1) {
+		$ids = dbm_get_objects_by_user_relation($user_id, $relation_type, $object_type, $time);
+		$count = count($ids);
+		if($count > 0) {
+			if($count > 1) {
+				//METODO: error message
+			}
+			
+			return $ids[0];
+		}
+		//METODO: error message
+		return 0;
+	}
+	
+	function dbm_get_global_item($identifier) {
+		$global_item_id = dbm_new_query('dbm_data')->set_field('post_status', array('publish', 'private'))->add_meta_query('identifier', $identifier)->get_post_id();
+		
+		$return_id = 0;
+		
+		if($global_item_id) {
+			$dbm_post = dbm_get_post($global_item_id);
+			
+			$outgoing_relation_id = $dbm_post->get_single_outgoing_relation('pointing-to', null);
+			$to_id = (int)get_post_meta($outgoing_relation_id, 'toId', true);
+			
+			if($to_id) {
+				$return_id = $to_id;
+			}
+		}
+		
+		return $return_id;
+	}
+	
+	function dbm_relation_ids($relation_ids, $key) {
+		$return_array = array();
+		
+		foreach($relation_ids as $relation_id) {
+			$return_array[] = (int)get_post_meta($relation_id, $key, true);
+		}
+		
+		return $return_array;
+	}
+	
+	function dbm_outgoing_relation_ids($relation_ids) {
+		return dbm_relation_ids($relation_ids, 'toId');
+	}
+	
+	function dbm_incoming_relation_ids($relation_ids) {
+		return dbm_relation_ids($relation_ids, 'fromId');
+	}
+	
+	function dbm_setup_get_manager() {
+		$manager = new \DbmContent\Admin\Setup\SetupManager();
+		
+		return $manager;
 	}
 ?>

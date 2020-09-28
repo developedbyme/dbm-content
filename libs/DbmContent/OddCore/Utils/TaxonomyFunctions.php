@@ -127,9 +127,33 @@
 			$return_string = $term->slug;
 			if($term->parent !== 0) {
 				$parent_term = get_term_by('id', $term->parent, $taxonomy);
-				$return_string = self::get_full_term_slug($parent_term, $taxonomy).$return_string;
+				$return_string = self::get_full_term_slug($parent_term, $taxonomy).'/'.$return_string;
 			}
 			return $return_string;
+		}
+		
+		public static function get_full_term_slugs_from_ids($ids, $taxonomy) {
+			$return_array = array();
+			
+			foreach($ids  as $id) {
+				$term = get_term_by('id', $id, $taxonomy);
+				
+				$return_array[] = self::get_full_term_slug($term, $taxonomy);
+			}
+			
+			return $return_array;
+		}
+		
+		public static function get_term_slugs_from_ids($ids, $taxonomy) {
+			$return_array = array();
+			
+			foreach($ids as $id) {
+				$term = get_term_by('id', $id, $taxonomy);
+				
+				$return_array[] = $term->slug;
+			}
+			
+			return $return_array;
 		}
 		
 		public static function test_import() {

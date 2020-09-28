@@ -12,18 +12,36 @@
 			
 		}
 		
-		protected function register_hook_for_type($type, $hook_name) {
-			add_action('wprr/admin/change_post/'.$type, array($this, $hook_name), 10, 3);
+		protected function register_hook_for_type($type, $hook_name = null) {
+			
+			if(!$hook_name) {
+				$hook_type = $type;
+				$hook_type = implode('_', explode('/', $hook_type));
+				$hook_name = 'change_'.$hook_type;
+			}
+			
+			add_action('wprr/admin/change_post/dbm/'.$type, array($this, $hook_name), 10, 3);
 		}
 		
 		public function register() {
 			//echo("\DbmContent\ChangePostHooks::register<br />");
 			
-			$this->register_hook_for_type('dbm/relation', 'hook_set_relation');
-			$this->register_hook_for_type('dbm/autoDbmContent', 'hook_auto_dbm_content');
-			$this->register_hook_for_type('dbm/inAdminGrouping', 'hook_in_admin_grouping');
-			$this->register_hook_for_type('dbm/addTermFromOwner', 'hook_add_term_from_owner');
+			$this->register_hook_for_type('relation', 'hook_set_relation');
+			$this->register_hook_for_type('autoDbmContent', 'hook_auto_dbm_content');
+			$this->register_hook_for_type('inAdminGrouping', 'hook_in_admin_grouping');
+			$this->register_hook_for_type('addTermFromOwner', 'hook_add_term_from_owner');
 			
+			$this->register_hook_for_type('addIncomingRelation', 'hook_addIncomingRelation');
+			$this->register_hook_for_type('addOutgoingRelation', 'hook_addOutgoingRelation');
+			
+			$this->register_hook_for_type('order', 'hook_order');
+			
+			$this->register_hook_for_type('addObjectUserRelation', 'hook_addObjectUserRelation');
+			
+			$this->register_hook_for_type('process/skipPart');
+			$this->register_hook_for_type('process/skipPart/byIdentifier');
+			$this->register_hook_for_type('process/completePart');
+			$this->register_hook_for_type('process/completePart/byIdentifier');
 		}
 		
 		protected function get_relation_terms($data, $parent_path = null) {
@@ -112,6 +130,113 @@
 			else {
 				$logger->add_log('No owner');
 			}
+		}
+		
+		public function hook_addIncomingRelation($data, $post_id, $logger) {
+			$related_id = $data['value'];
+			$type = $data['relationType'];
+			
+			$relation_id = dbm_create_draft_object_relation($related_id, $post_id, $type);
+			if(isset($data['makePrivate']) && $data['makePrivate']) {
+				$dbm_post = dbm_get_post($relation_id);
+				$dbm_post->change_status('private');
+			}
+			
+			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
+			delete_post_meta($related_id, 'dbm/objectRelations/outgoing');
+			
+			$logger->add_return_data('relationId', $relation_id);
+		}
+		
+		public function hook_addOutgoingRelation($data, $post_id, $logger) {
+			$related_id = $data['value'];
+			$type = $data['relationType'];
+			
+			$relation_id = dbm_create_draft_object_relation($post_id, $related_id, $type);
+			if(isset($data['makePrivate']) && $data['makePrivate']) {
+				$dbm_post = dbm_get_post($relation_id);
+				$dbm_post->change_status('private');
+			}
+			
+			delete_post_meta($post_id, 'dbm/objectRelations/outgoing');
+			delete_post_meta($related_id, 'dbm/objectRelations/incoming');
+			
+			$logger->add_return_data('relationId', $relation_id);
+		}
+		
+		public function hook_addObjectUserRelation($data, $post_id, $logger) {
+			$related_id = $data['value'];
+			$type = $data['relationType'];
+			
+			$dbm_post = dbm_get_post($post_id);
+			$relation_id = $dbm_post->add_user_relation($related_id, $type);
+			
+			$logger->add_return_data('relationId', $relation_id);
+		}
+		
+		public function hook_order($data, $post_id, $logger) {
+			$new_order = $data['value'];
+			$for_type = $data['forType'];
+			
+			$dbm_post = dbm_get_post($post_id);
+			
+			$has_updated = false;
+			$order_ids = $dbm_post->get_outgoing_relations('relation-order-by', 'relation-order');
+			foreach($order_ids as $order_id) {
+				$order_post_id = get_post_meta($order_id, 'toId', true);
+				$current_type = get_post_meta($order_post_id, 'forType', true);
+				
+				if($for_type === $current_type) {
+					update_post_meta($order_post_id, 'order', $new_order);
+					$has_updated = true;
+					$logger->add_return_data('orderId', $order_post_id);
+					break;
+				}
+			}
+			
+			if(!$has_updated) {
+				$order_id = dbm_create_data('Order '.$for_type.' for '.$post_id, 'relation-order', 'relation-orders');
+				update_post_meta($order_id, 'order', $new_order);
+				update_post_meta($order_id, 'forType', $for_type);
+				$dbm_post->add_outgoing_relation_by_name($order_id, 'relation-order-by');
+				
+				$dbm_order_post = dbm_get_post($order_id);
+				$dbm_order_post->change_status('private');
+				
+				$logger->add_return_data('orderId', $order_id);
+			}
+		}
+		
+		public function change_process_skipPart($data, $post_id, $logger) {
+			//echo("change_process_skipPart");
+			
+			$part_id = $data['value'];
+			
+			dbm_get_process_for_item($post_id)->skip_part($part_id);
+		}
+		
+		public function change_process_skipPart_byIdentifier($data, $post_id, $logger) {
+			//echo("change_process_skipPart_byIdentifier");
+			
+			$part_identifier = $data['value'];
+			
+			dbm_get_process_for_item($post_id)->skip_part_by_identifier($part_identifier);
+		}
+		
+		public function change_process_completePart($data, $post_id, $logger) {
+			//echo("change_process_completePart");
+			
+			$part_id = $data['value'];
+			
+			dbm_get_process_for_item($post_id)->complete_part($part_id);
+		}
+		
+		public function change_process_completePart_byIdentifier($data, $post_id, $logger) {
+			//echo("change_process_completePart_byIdentifier");
+			
+			$part_identifier = $data['value'];
+			
+			dbm_get_process_for_item($post_id)->complete_part_by_identifier($part_identifier);
 		}
 		
 		public static function test_import() {

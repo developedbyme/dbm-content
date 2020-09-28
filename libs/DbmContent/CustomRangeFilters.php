@@ -7,6 +7,24 @@
 			//echo("\DbmContent\CustomRangeFilters::__construct<br />");
 		}
 		
+		public function encode_objects_as($ids, $types, $request_data = null) {
+			$return_array = array();
+			
+			$types = explode(',', $types);
+			
+			foreach($ids as $id) {
+				$encoded_object = array('id' => $id);
+				
+				foreach($types as $type) {
+					$encoded_object = apply_filters('wprr/range_encoding/'.$type, $encoded_object, $id, $request_data);
+				}
+				
+				$return_array[] = $encoded_object;
+			}
+			
+			return $return_array;
+		}
+		
 		protected function add_tax_query(&$query_args, $tax_query, $relation = 'AND') {
 			if(isset($query_args['tax_query'])) {
 				$combined_query = array(
@@ -308,6 +326,23 @@
 			return $query_args;
 		}
 		
+		public function query_objectRelation($query_args, $data) {
+			//echo("\DbmContent\CustomRangeFilters::query_objectRelation<br />");
+			
+			$ids = explode(',', $data['ids']);
+			$path = $data['objectRelation'];
+			
+			$post_ids = \DbmContent\DbmPost::object_relation_query_from_ids($ids, $path);
+			if(count($post_ids)) {
+				$query_args['post__in'] = $post_ids;
+			}
+			else {
+				$query_args['post__in'] = array(0);
+			}
+			
+			return $query_args;
+		}
+		
 		public function query_relation_manager_items($query_args, $data) {
 			//echo("\DbmContent\CustomRangeFilters::query_relation_manager_items<br />");
 			
@@ -495,6 +530,165 @@
 				$current_type = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_full_term_slug(get_term_by('id', $type_id, 'dbm_type'), 'dbm_type');
 				$encoded_data = apply_filters('wprr/edit_fields/dbm/type/'.$current_type, $encoded_data, $post_id, $data);
 			}
+			
+			return $encoded_data;
+		}
+		
+		public function encode_incomingRelations($encoded_data, $post_id, $data) {
+			$dbm_post = dbm_get_post($post_id);
+			
+			$dbm_post = dbm_get_post($post_id);
+			
+			$encoded_groups = array();
+			
+			$relation_groups = $dbm_post->get_all_incoming_relations();
+			foreach($relation_groups as $name => $ids) {
+				$encoded_group = array();
+				foreach($ids as $id) {
+					$encoded_group[] = $this->encode_relationLink(array('id' => $id), $id, $data);
+				}
+				$encoded_groups[$name] = $encoded_group;
+			}
+			
+			$encoded_data['incomingRelations'] = $encoded_groups;
+
+			
+			return $encoded_data;
+		}
+		
+		public function encode_outgoingRelations($encoded_data, $post_id, $data) {
+			$dbm_post = dbm_get_post($post_id);
+			
+			$encoded_groups = array();
+			
+			$relation_groups = $dbm_post->get_all_outgoing_relations();
+			foreach($relation_groups as $name => $ids) {
+				$encoded_group = array();
+				foreach($ids as $id) {
+					$encoded_group[] = $this->encode_relationLink(array('id' => $id), $id, $data);
+				}
+				$encoded_groups[$name] = $encoded_group;
+			}
+			
+			$encoded_data['outgoingRelations'] = $encoded_groups;
+			
+			return $encoded_data;
+		}
+		
+		public function encode_relationLink($encoded_data, $post_id, $data) {
+			$dbm_post = dbm_get_post($post_id);
+			
+			$encoded_data['from'] = wprr_encode_private_post_link(get_post_meta($post_id, 'fromId', true));
+			$encoded_data['to'] = wprr_encode_private_post_link(get_post_meta($post_id, 'toId', true));
+			
+			return $encoded_data;
+		}
+		
+		public function encode_editObjectRelations($encoded_data, $post_id, $data) {
+			global $DbmContentTransactionalCommunicationPlugin;
+			
+			$dbm_post = dbm_get_post($post_id);
+			
+			$outgoing = $dbm_post->get_encoded_outgoing_relations();
+			
+			$encoded_orders = array();
+			$order_ids = $dbm_post->get_outgoing_relations('relation-order-by', 'relation-order');
+			foreach($order_ids as $order_id) {
+				
+				$order_data_id = get_post_meta($order_id, 'toId', true);
+				
+				$encoded_order = array(
+					'id' => $order_data_id,
+					'order' => get_post_meta($order_data_id, 'order', true),
+					'forType' => get_post_meta($order_data_id, 'forType', true)
+				);
+				
+				$encoded_orders[] = $encoded_order;
+			}
+			
+			$encoded_data['relations'] = array(
+				'incoming' => $dbm_post->get_encoded_incoming_relations(),
+				'outgoing' => $outgoing,
+				'orders' => $encoded_orders
+			);
+			
+			
+			/*
+			$incoming_relation_groups = $dbm_post->get_all_incoming_relations_at_any_time(true);
+			$incoming_groups = array();
+			foreach($incoming_relation_groups as $name => $ids) {
+				$encoded_group = array();
+				foreach($ids as $id) {
+					$encoded_object = $this->encode_relationLink(array('id' => $id), $id, $data);
+					
+					$encoded_object = $DbmContentTransactionalCommunicationPlugin->ranges->filter_encode_fields($encoded_object, $id, $data);
+					
+					$encoded_object['status'] = get_post_status($id);
+					$encoded_object['from'] = $this->encode_dbmTypes($encoded_object['from'], $encoded_object['from']['id'], $data);
+					
+					$encoded_group[] = $encoded_object;
+				}
+				$incoming_groups[$name] = $encoded_group;
+			}
+			
+			$outgoing_relation_groups = $dbm_post->get_all_outgoing_relations_at_any_time(true);
+			$outgoing_groups = array();
+			foreach($outgoing_relation_groups as $name => $ids) {
+				$encoded_group = array();
+				foreach($ids as $id) {
+					$encoded_object = $this->encode_relationLink(array('id' => $id), $id, $data);
+					
+					$encoded_object = $DbmContentTransactionalCommunicationPlugin->ranges->filter_encode_fields($encoded_object, $id, $data);
+					
+					$encoded_object['status'] = get_post_status($id);
+					$encoded_object['to'] = $this->encode_dbmTypes($encoded_object['to'], $encoded_object['to']['id'], $data);
+					
+					$encoded_group[] = $encoded_object;
+				}
+				$outgoing_groups[$name] = $encoded_group;
+			}
+			
+			$encoded_data['relations'] = array(
+				'incoming' => $incoming_groups,
+				'outgoing' => $outgoing_groups,
+			);
+			*/
+			
+			return $encoded_data;
+		}
+		
+		public function encode_processForItem($encoded_data, $post_id, $data) {
+			$encoded_parts = array();
+			
+			$process_for_item = dbm_get_process_for_item($post_id);
+			$parts = $process_for_item->get_parts();
+			$statuses = $process_for_item->get_statuses();
+			
+			foreach($parts as $part) {
+				$part_id = $part->get_id();
+				$current_encoded_object = array('id' => $part_id);
+				
+				$current_encoded_object = apply_filters('wprr/range_encoding/fieldValues', $current_encoded_object, $part_id, $data);
+				$current_statuses = array();
+				foreach($statuses as $status_name => $status_group) {
+					if(in_array($part_id, $status_group)) {
+						$current_statuses[] = $status_name;
+					}
+				}
+				$current_encoded_object['statuses'] = $current_statuses;
+				
+				$encoded_parts[] = $current_encoded_object; 
+			}
+			
+			$encoded_data['processParts'] = $encoded_parts;
+			
+			return $encoded_data;
+		}
+		
+		public function encode_dbmTypes($encoded_data, $post_id, $data) {
+			$dbm_post = dbm_get_post($post_id);
+			$type_ids = $dbm_post->get_types();
+			$encoded_data['types'] = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_full_term_slugs_from_ids($type_ids, 'dbm_type');
 			
 			return $encoded_data;
 		}
