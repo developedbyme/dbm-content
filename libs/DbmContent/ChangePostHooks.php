@@ -105,6 +105,9 @@
 				
 				wp_update_post($args);
 			}
+			else {
+				$logger->add_log('No admin group '.$path);
+			}
 		}
 		
 		public function hook_add_term_from_owner($data, $post_id, $logger) {
@@ -117,7 +120,15 @@
 				$meta_name = 'dbm_relation_term_'.$data['group'];
 				$term_id = (int)get_post_meta($owner_id, $meta_name, true);
 				
-				wp_add_object_terms($post_id, array($term_id), 'dbm_relation');
+				if($term_id) {
+					wp_add_object_terms($post_id, array($term_id), 'dbm_relation');
+				}
+				else {
+					$logger->add_log('No owned term for group '.$data['group']);
+				}
+			}
+			else {
+				$logger->add_log('No owner');
 			}
 		}
 		
