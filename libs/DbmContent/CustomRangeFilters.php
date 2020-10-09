@@ -343,6 +343,26 @@
 			return $query_args;
 		}
 		
+		public function query_globalItem($query_args, $data) {
+			//echo("\DbmContent\CustomRangeFilters::query_globalItem<br />");
+			
+			$identifier = $data['identifier'];
+			
+			$global_item_id = dbm_new_query('dbm_data')->set_argument('post_status', array('publish', 'private'))->add_type_by_path('global-item')->add_meta_query('identifier', $identifier)->get_post_id();
+			
+			$global_item_post = dbm_get_post($global_item_id);
+			
+			$relations = $global_item_post->get_encoded_outgoing_relations_by_type('pointing-to', null);
+			if(count($relations)) {
+				$query_args['post__in'] = $global_item_post->resolve_outgoing_relations($relations);
+			}
+			else {
+				$query_args['post__in'] = array(0);
+			}
+			
+			return $query_args;
+		}
+		
 		public function query_relation_manager_items($query_args, $data) {
 			//echo("\DbmContent\CustomRangeFilters::query_relation_manager_items<br />");
 			

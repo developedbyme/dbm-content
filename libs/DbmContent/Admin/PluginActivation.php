@@ -137,6 +137,7 @@
 				self::add_term('dbm_type:object-relation/relation-order-by', 'Relation order by');
 				self::add_term('dbm_type:object-relation/number-sequence-for', 'Number sequence for');
 				self::add_term('dbm_type:object-relation/pointing-to', 'Pointing to');
+				self::add_term('dbm_type:object-relation/available-at', 'Available at');
 				
 				self::add_term('dbm_type:object-user-relation', 'Object user relation');
 				self::add_term('dbm_type:object-user-relation/user-for', 'User for');
@@ -154,7 +155,10 @@
 						$current_term_id = self::add_term('dbm_relation:languages/'.$language['code'], $language['translated_name']);
 					}
 				}
-			
+				
+				$current_term_id = self::add_term('dbm_relation:content-section-type', 'Content section type');
+				$current_term_id = self::add_term('dbm_relation:content-section-type/text', 'Text');
+				
 				$current_term_id = self::add_term('dbm_relation:menu-position', 'Menu position');
 				$current_term_id = self::add_term('dbm_relation:menu-position/side-menu', 'Side menu');
 				$current_term_id = self::add_term('dbm_relation:menu-position/side-menu/default', 'Default side menu');
@@ -192,6 +196,23 @@
 				
 				$current_type = $setup_manager->create_data_type('identifiable-item')->set_name('Identifiable item');
 				$current_type->add_field("identifier")->setup_meta_storage();
+				
+				$current_type = $setup_manager->create_data_type('content-section')->set_name('Content section');
+				$current_type->add_field("name")->setup_meta_storage();
+				$current_type->add_field("title")->setup_meta_storage();
+				$current_type->add_field("content")->setup_meta_storage();
+				$current_type->add_field("type")->setup_single_relation_storage('content-section-type');
+				
+				$current_type = $setup_manager->create_data_type('content-template')->set_name('Content template');
+				$current_type->add_field("name")->setup_meta_storage();
+				$current_type->add_field("title")->setup_meta_storage();
+				$current_type->add_field("content")->setup_meta_storage();
+				$current_type->add_field("type")->setup_single_relation_storage('content-section-type');
+				
+				$current_type = $setup_manager->create_data_type('template-position')->set_name('Template position');
+				$current_type->add_field("name")->setup_meta_storage();
+				$current_type->add_field("identifier")->setup_meta_storage();
+				$current_type->add_field("description")->setup_meta_storage();
 				
 				$setup_manager->save_all();
 			}

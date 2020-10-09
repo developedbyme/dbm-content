@@ -202,6 +202,7 @@
 			add_filter('wprr/range_query/byPostRelation', array($custom_range_filters, 'query_byPostRelation'), 10, 2);
 			add_filter('wprr/range_query/relationOwner', array($custom_range_filters, 'query_by_relation_owner'), 10, 2);
 			add_filter('wprr/range_query/objectRelation', array($custom_range_filters, 'query_objectRelation'), 10, 2);
+			add_filter('wprr/range_query/globalItem', array($custom_range_filters, 'query_globalItem'), 10, 2);
 			
 			add_filter('wprr/range_query/languageTerm', array($custom_range_filters, 'query_languageTerm'), 10, 2);
 			
@@ -351,7 +352,13 @@
 		public function hook_dbmtc_internal_message_group_field_set($group, $field, $value, $user_id, $message) {
 			
 			if($field === 'name') {
-				if($group->has_type_by_name('process') || $group->has_type_by_name('process-part')) {
+				if(
+					$group->has_type_by_name('process') ||
+					$group->has_type_by_name('process-part') ||
+					$group->has_type_by_name('content-section') ||
+					$group->has_type_by_name('template-position') ||
+					$group->has_type_by_name('content-template')
+				) {
 					wp_update_post(array(
 						'ID' => $group->get_id(),
 						'post_title' => $value

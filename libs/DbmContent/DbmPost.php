@@ -460,6 +460,23 @@
 			return $encoded_relations;
 		}
 		
+		public function get_encoded_outgoing_relations_by_type($type_path, $object_type, $time = -1) {
+			$relations = $this->get_encoded_outgoing_relations();
+			$relations = $this->filter_by_connection_type($relations, $type_path);
+			$relations = $this->filter_by_time($relations, $time);
+			if($object_type) {
+				$relations = $this->filter_encoded_by_object_type($relations, 'toTypes', $object_type);
+			}
+			
+			return $relations;
+		}
+		
+		public function resolve_outgoing_relations($relations) {
+			$ids = array_map(function($item) {return $item['toId'];}, $relations);
+			
+			return $ids;
+		}
+		
 		public function get_filtered_encoded_outgoing_relations($type_path, $object_type, $ids, $time = -1) {
 			$relations = $this->get_encoded_outgoing_relations();
 			$relations = $this->filter_by_connection_type($relations, $type_path);
