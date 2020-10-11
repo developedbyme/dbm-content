@@ -34,6 +34,12 @@
 			$this->register_hook_for_type('addIncomingRelation', 'hook_addIncomingRelation');
 			$this->register_hook_for_type('addOutgoingRelation', 'hook_addOutgoingRelation');
 			
+			$this->register_hook_for_type('endIncomingRelations');
+			$this->register_hook_for_type('endOutgoingRelations');
+			
+			$this->register_hook_for_type('replaceIncomingRelation');
+			$this->register_hook_for_type('replaceOutgoingRelation');
+			
 			$this->register_hook_for_type('order', 'hook_order');
 			
 			$this->register_hook_for_type('addObjectUserRelation', 'hook_addObjectUserRelation');
@@ -160,6 +166,123 @@
 			
 			delete_post_meta($post_id, 'dbm/objectRelations/outgoing');
 			delete_post_meta($related_id, 'dbm/objectRelations/incoming');
+			
+			$logger->add_return_data('relationId', $relation_id);
+		}
+		
+		public function change_endIncomingRelations($data, $post_id, $logger) {
+			$type = $data['relationType'];
+			$object_type = $data['objectType'];
+			
+			$post = dbm_get_post($post_id);
+			$current_time = time();
+			
+			$has_relation = false;
+			$existing_relations = $post->get_encoded_incoming_relations_by_type($type, $object_type);
+			foreach($existing_relations as $existing_relation) {
+				$existing_relation_id = $existing_relation["id"];
+				$existing_relation_group = dbmtc_get_group($existing_relation_id);
+				
+				$existing_relation_group->set_field('endAt', $current_time, 'Ending incoming relations');
+			}
+			
+			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
+			delete_post_meta($related_id, 'dbm/objectRelations/outgoing');
+			
+		}
+		
+		public function change_endOutgoingRelations($data, $post_id, $logger) {
+			$type = $data['relationType'];
+			$object_type = $data['objectType'];
+			
+			$post = dbm_get_post($post_id);
+			$current_time = time();
+			
+			$has_relation = false;
+			$existing_relations = $post->get_encoded_outgoing_relations_by_type($type, $object_type);
+			foreach($existing_relations as $existing_relation) {
+				$existing_relation_id = $existing_relation["id"];
+				$existing_relation_group = dbmtc_get_group($existing_relation_id);
+				
+				$existing_relation_group->set_field('endAt', $current_time, 'Replacement of outgoing relation');
+			}
+			
+			delete_post_meta($related_id, 'dbm/objectRelations/incoming');
+			delete_post_meta($post_id, 'dbm/objectRelations/outgoing');
+		}
+		
+		public function change_replaceIncomingRelation($data, $post_id, $logger) {
+			$related_id = $data['value'];
+			$type = $data['relationType'];
+			$object_type = $data['objectType'];
+			
+			$post = dbm_get_post($post_id);
+			$current_time = time();
+			
+			$has_relation = false;
+			$existing_relations = $post->get_encoded_incoming_relations_by_type($type, $object_type);
+			foreach($existing_relations as $existing_relation) {
+				$existing_relation_id = $existing_relation["id"];
+				$existing_relation_group = dbmtc_get_group($existing_relation_id);
+				if($existing_relation["fromId"] == $related_id) {
+					if((int)$existing_relation_group->get_field_value('endAt') !== -1) {
+						$existing_relation_group->set_field('endAt', -1, 'Replacement of incoming relation');
+					}
+					$relation_id = $existing_relation_id;
+					$has_relation = true;
+				}
+				else {
+					$existing_relation_group->set_field('endAt', $current_time, 'Replacement of incoming relation');
+				}
+			}
+			
+			if(!$has_relation) {
+				$relation_id = dbm_create_draft_object_relation($related_id, $post_id, $type);
+				$dbm_post = dbmtc_get_group($relation_id);
+				$dbm_post->change_status('private');
+				$dbm_post->set_field('startAt', $current_time, 'Replacement of incoming relation');
+			}
+			
+			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
+			delete_post_meta($related_id, 'dbm/objectRelations/outgoing');
+			
+			$logger->add_return_data('relationId', $relation_id);
+		}
+		
+		public function change_replaceOutgoingRelation($data, $post_id, $logger) {
+			$related_id = $data['value'];
+			$type = $data['relationType'];
+			$object_type = $data['objectType'];
+			
+			$post = dbm_get_post($post_id);
+			$current_time = time();
+			
+			$has_relation = false;
+			$existing_relations = $post->get_encoded_outgoing_relations_by_type($type, $object_type);
+			foreach($existing_relations as $existing_relation) {
+				$existing_relation_id = $existing_relation["id"];
+				$existing_relation_group = dbmtc_get_group($existing_relation_id);
+				if($existing_relation["toId"] == $related_id) {
+					if((int)$existing_relation_group->get_field_value('endAt') !== -1) {
+						$existing_relation_group->set_field('endAt', -1, 'Replacement of outgoing relation');
+					}
+					$relation_id = $existing_relation_id;
+					$has_relation = true;
+				}
+				else {
+					$existing_relation_group->set_field('endAt', $current_time, 'Replacement of outgoing relation');
+				}
+			}
+			
+			if(!$has_relation) {
+				$relation_id = dbm_create_draft_object_relation($post_id, $related_id, $type);
+				$dbm_post = dbmtc_get_group($relation_id);
+				$dbm_post->change_status('private');
+				$dbm_post->set_field('startAt', $current_time, 'Replacement of outgoing relation');
+			}
+			
+			delete_post_meta($related_id, 'dbm/objectRelations/incoming');
+			delete_post_meta($post_id, 'dbm/objectRelations/outgoing');
 			
 			$logger->add_return_data('relationId', $relation_id);
 		}

@@ -441,6 +441,17 @@
 			return $filtered_relations;
 		}
 		
+		public function get_encoded_incoming_relations_by_type($type_path, $object_type, $time = -1) {
+			$relations = $this->get_encoded_incoming_relations();
+			$relations = $this->filter_by_connection_type($relations, $type_path);
+			$relations = $this->filter_by_time($relations, $time);
+			if($object_type) {
+				$relations = $this->filter_encoded_by_object_type($relations, 'fromTypes', $object_type);
+			}
+			
+			return $relations;
+		}
+		
 		public function get_encoded_outgoing_relations() {
 			$cached_value = get_post_meta($this->get_id(), 'dbm/objectRelations/outgoing', true);
 			if($cached_value) {
