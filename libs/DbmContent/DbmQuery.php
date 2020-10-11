@@ -50,6 +50,16 @@
 			return $this;
 		}
 		
+		public function include_private() {
+			if($this->query_args['post_status']) {
+				$this->query_args['post_status'] = array('publish');
+			}
+			
+			$this->query_args['post_status'][] = 'private';
+			
+			return $this;
+		}
+		
 		public function set_field($field_name, $value) {
 			$this->query_args[$field_name] = $value;
 			

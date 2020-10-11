@@ -32,8 +32,24 @@
 			return $this;
 		}
 		
+		public function publish() {
+			$this->change_status('publish');
+			
+			return $this;
+		}
+		
+		public function make_private() {
+			$this->change_status('private');
+			
+			return $this;
+		}
+		
 		public function get_status() {
 			return get_post_status($this->get_id());
+		}
+		
+		public function get_permalink() {
+			return get_the_permalink($this->get_id());
 		}
 		
 		public function add_meta($field, $value) {
