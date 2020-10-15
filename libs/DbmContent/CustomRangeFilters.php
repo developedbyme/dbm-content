@@ -348,7 +348,7 @@
 			
 			$identifier = $data['identifier'];
 			
-			$query_args['post__in'] = array(dbm_get_global_item($global_item_id));
+			$query_args['post__in'] = array(dbm_get_global_item($identifier));
 			
 			return $query_args;
 		}
