@@ -51,7 +51,7 @@
 		}
 		
 		public function include_draft() {
-			if($this->query_args['post_status']) {
+			if(!isset($this->query_args['post_status'])) {
 				$this->query_args['post_status'] = array('publish');
 			}
 			
@@ -61,7 +61,7 @@
 		}
 		
 		public function include_private() {
-			if($this->query_args['post_status']) {
+			if(!isset($this->query_args['post_status'])) {
 				$this->query_args['post_status'] = array('publish');
 			}
 			
