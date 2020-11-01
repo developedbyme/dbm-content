@@ -50,12 +50,31 @@
 			return $this;
 		}
 		
+		public function include_draft() {
+			if(!isset($this->query_args['post_status'])) {
+				$this->query_args['post_status'] = array('publish');
+			}
+			
+			$this->query_args['post_status'][] = 'draft';
+			
+			return $this;
+		}
+		
 		public function include_private() {
-			if($this->query_args['post_status']) {
+			if(!isset($this->query_args['post_status'])) {
 				$this->query_args['post_status'] = array('publish');
 			}
 			
 			$this->query_args['post_status'][] = 'private';
+			
+			return $this;
+		}
+		
+		public function include_only($ids) {
+			if(!$ids || empty($ids)) {
+				$this->query_args['post__in'] = array(0);
+			}
+			$this->query_args['post__in'] = $ids;
 			
 			return $this;
 		}

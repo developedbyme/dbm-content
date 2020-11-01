@@ -167,54 +167,57 @@
 				$current_term_id = self::add_term('dbm_relation:menu-position/footer-menu', 'Footer menu');
 				$current_term_id = self::add_term('dbm_relation:menu-position/footer-menu/default', 'Default footer menu');
 				
-				$setup_manager = dbm_setup_get_manager();
 				
-				$current_type = $setup_manager->create_data_type('relation-order')->set_name('Relation order');
-				$current_type->add_field("order")->set_type('json')->setup_meta_storage();
-				$current_type->add_field("forType")->setup_meta_storage();
+				if(function_exists('dbmtc_setup_field_template')) {
+					$setup_manager = dbm_setup_get_manager();
 				
-				$current_type = $setup_manager->create_data_type('number-sequence')->set_name('Number sequence');
-				$current_type->add_field("prefix")->setup_meta_storage();
-				$current_type->add_field("suffix")->setup_meta_storage();
-				$current_type->add_field("padding")->set_type('number')->setup_meta_storage();
+					$current_type = $setup_manager->create_data_type('relation-order')->set_name('Relation order');
+					$current_type->add_field("order")->set_type('json')->setup_meta_storage();
+					$current_type->add_field("forType")->setup_meta_storage();
 				
-				$current_type = $setup_manager->create_data_type('sequence-number')->set_name('Sequence number');
-				$current_type->add_field("number")->setup_meta_storage();
-				$current_type->add_field("fullIdentifier")->setup_meta_storage();
+					$current_type = $setup_manager->create_data_type('number-sequence')->set_name('Number sequence');
+					$current_type->add_field("prefix")->setup_meta_storage();
+					$current_type->add_field("suffix")->setup_meta_storage();
+					$current_type->add_field("padding")->set_type('number')->setup_meta_storage();
 				
-				$current_type = $setup_manager->create_data_type('process')->set_name('Process');
-				$current_type->add_field("name")->setup_meta_storage();
+					$current_type = $setup_manager->create_data_type('sequence-number')->set_name('Sequence number');
+					$current_type->add_field("number")->setup_meta_storage();
+					$current_type->add_field("fullIdentifier")->setup_meta_storage();
 				
-				$current_type = $setup_manager->create_data_type('process-part')->set_name('Process part');
-				$current_type->add_field("name")->setup_meta_storage();
-				$current_type->add_field("description")->setup_meta_storage();
-				$current_type->add_field("type")->setup_meta_storage();
-				$current_type->add_field("identifier")->setup_meta_storage();
+					$current_type = $setup_manager->create_data_type('process')->set_name('Process');
+					$current_type->add_field("name")->setup_meta_storage();
 				
-				$current_type = $setup_manager->create_data_type('global-item')->set_name('Global item');
-				$current_type->add_field("identifier")->setup_meta_storage();
+					$current_type = $setup_manager->create_data_type('process-part')->set_name('Process part');
+					$current_type->add_field("name")->setup_meta_storage();
+					$current_type->add_field("description")->setup_meta_storage();
+					$current_type->add_field("type")->setup_meta_storage();
+					$current_type->add_field("identifier")->setup_meta_storage();
 				
-				$current_type = $setup_manager->create_data_type('identifiable-item')->set_name('Identifiable item');
-				$current_type->add_field("identifier")->setup_meta_storage();
+					$current_type = $setup_manager->create_data_type('global-item')->set_name('Global item');
+					$current_type->add_field("identifier")->setup_meta_storage();
 				
-				$current_type = $setup_manager->create_data_type('content-section')->set_name('Content section');
-				$current_type->add_field("name")->setup_meta_storage();
-				$current_type->add_field("title")->setup_meta_storage();
-				$current_type->add_field("content")->setup_meta_storage();
-				$current_type->add_field("type")->setup_single_relation_storage('content-section-type');
+					$current_type = $setup_manager->create_data_type('identifiable-item')->set_name('Identifiable item');
+					$current_type->add_field("identifier")->setup_meta_storage();
 				
-				$current_type = $setup_manager->create_data_type('content-template')->set_name('Content template');
-				$current_type->add_field("name")->setup_meta_storage();
-				$current_type->add_field("title")->setup_meta_storage();
-				$current_type->add_field("content")->setup_meta_storage();
-				$current_type->add_field("type")->setup_single_relation_storage('content-section-type');
+					$current_type = $setup_manager->create_data_type('content-section')->set_name('Content section');
+					$current_type->add_field("name")->setup_meta_storage();
+					$current_type->add_field("title")->setup_meta_storage();
+					$current_type->add_field("content")->setup_meta_storage();
+					$current_type->add_field("type")->setup_single_relation_storage('content-section-type');
 				
-				$current_type = $setup_manager->create_data_type('template-position')->set_name('Template position');
-				$current_type->add_field("name")->setup_meta_storage();
-				$current_type->add_field("identifier")->setup_meta_storage();
-				$current_type->add_field("description")->setup_meta_storage();
+					$current_type = $setup_manager->create_data_type('content-template')->set_name('Content template');
+					$current_type->add_field("name")->setup_meta_storage();
+					$current_type->add_field("title")->setup_meta_storage();
+					$current_type->add_field("content")->setup_meta_storage();
+					$current_type->add_field("type")->setup_single_relation_storage('content-section-type');
 				
-				$setup_manager->save_all();
+					$current_type = $setup_manager->create_data_type('template-position')->set_name('Template position');
+					$current_type->add_field("name")->setup_meta_storage();
+					$current_type->add_field("identifier")->setup_meta_storage();
+					$current_type->add_field("description")->setup_meta_storage();
+				
+					$setup_manager->save_all();
+				}
 			}
 		}
 		

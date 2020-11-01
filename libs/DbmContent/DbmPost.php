@@ -546,6 +546,12 @@
 			return $ids;
 		}
 		
+		public function resolve_incoming_relations($relations) {
+			$ids = array_map(function($item) {return $item['fromId'];}, $relations);
+			
+			return $ids;
+		}
+		
 		public function get_filtered_encoded_outgoing_relations($type_path, $object_type, $ids, $time = -1) {
 			$relations = $this->get_encoded_outgoing_relations();
 			$relations = $this->filter_by_connection_type($relations, $type_path);
@@ -758,6 +764,24 @@
 			$rest_ids = array_diff($ids, $sorted_ids);
 			
 			$return_array = array_merge($sorted_ids, $rest_ids);
+			
+			return $return_array;
+		}
+		
+		public function resolve_incoming_relations_by_id($relation_ids) {
+			$return_array = array();
+			foreach($relation_ids as $relation_id) {
+				$return_array[] = (int)get_post_meta($relation_id, 'fromId', true);
+			}
+			
+			return $return_array;
+		}
+		
+		public function resolve_outgoing_relations_by_id($relation_ids) {
+			$return_array = array();
+			foreach($relation_ids as $relation_id) {
+				$return_array[] = (int)get_post_meta($relation_id, 'toId', true);
+			}
 			
 			return $return_array;
 		}
