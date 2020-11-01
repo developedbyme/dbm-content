@@ -299,6 +299,8 @@
 				$dbm_post->change_status('private');
 			}
 			
+			delete_post_meta($post_id, 'dbm/userRelations');
+			
 			$logger->add_return_data('relationId', $relation_id);
 		}
 		

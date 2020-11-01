@@ -215,6 +215,8 @@
 		public function add_user_relation($user_id, $type_path) {
 			$new_relation_id = dbm_create_object_user_relation($this->get_id(), $user_id, $type_path);
 			
+			delete_post_meta($this->get_id(), 'dbm/userRelations');
+			
 			return $new_relation_id;
 		}
 		
@@ -333,7 +335,7 @@
 				$encoded_relations[] = $current_object;
 			}
 			
-			//update_post_meta($this->get_id(), 'dbm/userRelations', $encoded_relations);
+			update_post_meta($this->get_id(), 'dbm/userRelations', $encoded_relations);
 			
 			return $encoded_relations;
 		}
