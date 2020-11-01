@@ -292,7 +292,12 @@
 			$type = $data['relationType'];
 			
 			$dbm_post = dbm_get_post($post_id);
-			$relation_id = $dbm_post->add_user_relation($related_id, $type);
+			$relation_id = dbm_create_draft_object_user_relation($post_id, $related_id, $type);
+			
+			if(isset($data['makePrivate']) && $data['makePrivate']) {
+				$dbm_post = dbm_get_post($relation_id);
+				$dbm_post->change_status('private');
+			}
 			
 			$logger->add_return_data('relationId', $relation_id);
 		}

@@ -296,6 +296,48 @@
 			return $user_ids;
 		}
 		
+		public function get_user_relation_ids() {
+			$dbm_query = $this->get_object_relation_query_without_settings()->add_meta_query('fromId', $this->get_id())->add_type_by_path('object-user-relation');
+			$dbm_query->set_field('post_status', array('publish', 'private'));
+			
+			$relation_ids = $dbm_query->get_post_ids();
+			
+			return $relation_ids;
+		}
+		
+		public function get_encoded_user_relations() {
+			$cached_value = get_post_meta($this->get_id(), 'dbm/userRelations', true);
+			if($cached_value) {
+				return $cached_value;
+			}
+			
+			$encoded_relations = array();
+			
+			$this_id = $this->get_id();
+			$all_ids = $this->get_user_relation_ids();
+			foreach($all_ids as $id) {
+				
+				$relation_post = dbm_get_post($id);
+				$to_id = (int)$relation_post->get_meta('toId');
+				
+				$current_object = array(
+					'id' => $id,
+					'fromId' => $this_id,
+					'toId' => $to_id,
+					'connectionType' => \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_slugs_from_ids($relation_post->get_subtypes('object-user-relation'), 'dbm_type')[0],
+					'fromTypes' => \DbmContent\OddCore\Utils\TaxonomyFunctions::get_full_term_slugs_from_ids($this->get_types(), 'dbm_type'),
+					'startAt' => (int)get_post_meta($id, 'startAt', true),
+					'endAt' => (int)get_post_meta($id, 'endAt', true),
+					'status' => $relation_post->get_status()
+				);
+				$encoded_relations[] = $current_object;
+			}
+			
+			//update_post_meta($this->get_id(), 'dbm/userRelations', $encoded_relations);
+			
+			return $encoded_relations;
+		}
+		
 		public function get_object_relation_query($type_path, $time = -1) {
 			
 			$dbm_query = $this->get_object_relation_query_without_settings()->add_type_by_path('object-relation')->add_type_by_path('object-relation/'.$type_path);

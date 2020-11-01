@@ -616,10 +616,13 @@
 				$encoded_orders[] = $encoded_order;
 			}
 			
+			$user_relations = $dbm_post->get_encoded_user_relations();
+			
 			$encoded_data['relations'] = array(
 				'incoming' => $dbm_post->get_encoded_incoming_relations(),
 				'outgoing' => $outgoing,
-				'orders' => $encoded_orders
+				'orders' => $encoded_orders,
+				'userRelations' => $user_relations
 			);
 			
 			

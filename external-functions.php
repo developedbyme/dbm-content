@@ -225,7 +225,7 @@
 		return $new_id;
 	}
 	
-	function dbm_create_object_user_relation($from_object_id, $to_user_id, $type_path) {
+	function dbm_create_draft_object_user_relation($from_object_id, $to_user_id, $type_path) {
 		
 		$type_term = dbm_get_type_by_path('object-user-relation/'.$type_path);
 		
@@ -252,6 +252,13 @@
 		
 		$object_relation_term = dbm_get_type_by_path('object-user-relation');
 		wp_set_post_terms($new_id, array($object_relation_term->term_id, $type_term->term_id), 'dbm_type', false);
+		
+		return $new_id;
+	}
+	
+	function dbm_create_object_user_relation($from_object_id, $to_user_id, $type_path) {
+		
+		$new_id = dbm_create_draft_object_user_relation($from_object_id, $to_user_id, $type_path);
 		
 		$new_id = wp_update_post(array(
 			'ID' => $new_id,
