@@ -298,6 +298,16 @@
 			return $user_ids;
 		}
 		
+		public function get_single_user_by_relation($type_path, $time = -1) {
+			$user_ids = $this->get_users_by_relation($type_path, $time);
+			
+			if(!empty($user_ids)) {
+				return $user_ids[0];
+			}
+			
+			return 0;
+		}
+		
 		public function get_user_relation_ids() {
 			$dbm_query = $this->get_object_relation_query_without_settings()->add_meta_query('fromId', $this->get_id())->add_type_by_path('object-user-relation');
 			$dbm_query->set_field('post_status', array('publish', 'private'));
