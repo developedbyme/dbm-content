@@ -222,6 +222,9 @@
 			'post_status' => 'private'
 		));
 		
+		delete_post_meta($from_object_id, 'dbm/objectRelations/outgoing');
+		delete_post_meta($to_object_id, 'dbm/objectRelations/incoming');
+		
 		return $new_id;
 	}
 	

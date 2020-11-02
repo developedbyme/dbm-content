@@ -215,6 +215,8 @@
 					$current_type->add_field("name")->setup_meta_storage();
 					$current_type->add_field("identifier")->setup_meta_storage();
 					$current_type->add_field("description")->setup_meta_storage();
+					
+					$current_type = $setup_manager->create_data_type('instance')->set_name('Instance');
 				
 					$setup_manager->save_all();
 				}

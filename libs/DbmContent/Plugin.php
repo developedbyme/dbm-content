@@ -365,6 +365,14 @@
 					));
 				}
 			}
+			
+			if($group->has_type_by_name('object-relation')) {
+				delete_post_meta($group->get_meta('toId'), 'dbm/objectRelations/incoming');
+				delete_post_meta($group->get_meta('fromId'), 'dbm/objectRelations/outgoing');
+			}
+			else if($group->has_type_by_name('object-user-relation')) {
+				delete_post_meta($group->get_meta('fromId'), 'dbm/userRelations');
+			}
 		}
 		
 		public function activation_setup() {
