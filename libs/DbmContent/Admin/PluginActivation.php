@@ -129,6 +129,7 @@
 				self::add_term('dbm_type:object-relation/during', 'During');
 				self::add_term('dbm_type:object-relation/of', 'Of');
 				self::add_term('dbm_type:object-relation/at', 'At');
+				self::add_term('dbm_type:object-relation/to', 'To');
 				self::add_term('dbm_type:object-relation/following', 'Following');
 				self::add_term('dbm_type:object-relation/completed', 'Completed');
 				self::add_term('dbm_type:object-relation/skipped', 'Skipped');
