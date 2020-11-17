@@ -50,22 +50,24 @@
 			return $this;
 		}
 		
-		public function include_draft() {
+		public function include_post_status($post_status) {
 			if(!isset($this->query_args['post_status'])) {
 				$this->query_args['post_status'] = array('publish');
 			}
 			
-			$this->query_args['post_status'][] = 'draft';
+			$this->query_args['post_status'][] = $post_status;
+			
+			return $this;
+		}
+		
+		public function include_draft() {
+			$this->include_post_status('draft');
 			
 			return $this;
 		}
 		
 		public function include_private() {
-			if(!isset($this->query_args['post_status'])) {
-				$this->query_args['post_status'] = array('publish');
-			}
-			
-			$this->query_args['post_status'][] = 'private';
+			$this->include_post_status('private');
 			
 			return $this;
 		}
@@ -74,7 +76,9 @@
 			if(!$ids || empty($ids)) {
 				$this->query_args['post__in'] = array(0);
 			}
-			$this->query_args['post__in'] = $ids;
+			else {
+				$this->query_args['post__in'] = $ids;
+			}
 			
 			return $this;
 		}
