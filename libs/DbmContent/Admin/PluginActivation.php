@@ -199,6 +199,9 @@
 				
 					$current_type = $setup_manager->create_data_type('identifiable-item')->set_name('Identifiable item');
 					$current_type->add_field("identifier")->setup_meta_storage();
+					
+					$current_type = $setup_manager->create_data_type('named-item')->set_name('Named item');
+					$current_type->add_field("name")->setup_meta_storage();
 				
 					$current_type = $setup_manager->create_data_type('content-section')->set_name('Content section');
 					$current_type->add_field("name")->setup_meta_storage();
@@ -218,7 +221,13 @@
 					$current_type->add_field("description")->setup_meta_storage();
 					
 					$current_type = $setup_manager->create_data_type('instance')->set_name('Instance');
-				
+					
+					$current_type = $setup_manager->create_data_type('type')->set_name('Type');
+					$current_type->add_field("name")->setup_meta_storage();
+					$current_type->add_field("identifier")->setup_meta_storage();
+					
+					$current_type = $setup_manager->create_data_type('product')->set_name('Product');
+					
 					$setup_manager->save_all();
 				}
 			}

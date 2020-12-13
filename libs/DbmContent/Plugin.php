@@ -357,7 +357,9 @@
 					$group->has_type_by_name('process-part') ||
 					$group->has_type_by_name('content-section') ||
 					$group->has_type_by_name('template-position') ||
-					$group->has_type_by_name('content-template')
+					$group->has_type_by_name('content-template') ||
+					$group->has_type_by_name('type') ||
+					$group->has_type_by_name('named-item')
 				) {
 					wp_update_post(array(
 						'ID' => $group->get_id(),
