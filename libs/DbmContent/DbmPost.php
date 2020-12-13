@@ -372,7 +372,7 @@
 		
 		public function filter_by_time($relations, $time = -1) {
 			if($time === false) {
-				return $relation_ids;
+				return $relations;
 			}
 			
 			if($time === -1) {
