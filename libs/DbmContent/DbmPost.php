@@ -720,6 +720,16 @@
 			return $current_ids;
 		}
 		
+		public function get_single_object_relation_field_value($path, $field_name) {
+			$ids = $this->object_relation_query($path);
+			if(empty($ids)) {
+				return null;
+			}
+			
+			$post = dbmtc_get_group($ids[0]);
+			return $post->get_field_value($field_name);
+		}
+		
 		static public function object_relation_query_from_ids($ids, $path) {
 			
 			$path_parts = explode(',', $path);
