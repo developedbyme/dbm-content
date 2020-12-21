@@ -278,21 +278,15 @@
 			return $dbm_query;
 		}
 		
-		public function get_user_relations_query($type_path, $time = -1) {
-			$dbm_query = $this->get_object_relation_query_without_settings()->add_type_by_path('object-user-relation')->add_type_by_path('object-user-relation/'.$type_path);
-			$this->add_time_query($dbm_query, $time);
-			$dbm_query->add_meta_query('fromId', $this->get_id());
-			
-			return $dbm_query;
-		}
-		
 		public function get_users_by_relation($type_path, $time = -1) {
-			$query = $this->get_user_relations_query($type_path, $time);
 			
 			$user_ids = array();
-			$relation_ids = $query->get_post_ids();
-			foreach($relation_ids as $relation_id) {
-				$user_ids[] = get_post_meta($relation_id, 'toId', true);
+			$relations = $this->get_encoded_user_relations();
+			$relations = $this->filter_by_connection_type($relations, $type_path);
+			$relations = $this->filter_by_time($relations, $time);
+			
+			foreach($relations as $relation) {
+				$user_ids[] = $relation['toId'];
 			}
 			
 			return $user_ids;
