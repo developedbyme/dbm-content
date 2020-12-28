@@ -48,6 +48,10 @@
 			$this->register_hook_for_type('process/skipPart/byIdentifier');
 			$this->register_hook_for_type('process/completePart');
 			$this->register_hook_for_type('process/completePart/byIdentifier');
+			
+			$this->register_hook_for_type('clearCache');
+			$this->register_hook_for_type('createUserFromItem');
+			
 		}
 		
 		protected function get_relation_terms($data, $parent_path = null) {
@@ -368,6 +372,62 @@
 			
 			dbm_get_process_for_item($post_id)->complete_part_by_identifier($part_identifier);
 		}
+		
+		public function change_clearCache($data, $post_id, $logger) {
+			//echo("change_clearCache");
+			
+			$post = dbm_get_post($post_id);
+			$post->clear_cache();
+		}
+		
+		public function change_createUserFromItem($data, $post_id, $logger) {
+			//echo("change_createUserFromItem");
+			
+			$post = dbmtc_get_group($post_id);
+			
+			$existing_relation = $post->get_single_user_by_relation('user-for');
+			if(!$existing_relation) {
+				
+				//METODO: check that we are ok to add a user
+				
+				$email = $post->get_field_value('email'); //METODO: apply filters
+				 //METODO: this function can throw
+				
+				if($email) {
+					$user = dbmtc_get_user($email);
+					if($user) {
+						$post->add_user_relation($user->ID, 'user-for');
+						$logger->add_return_data('userId', $user->ID);
+					}
+					else {
+						$user_id = wp_create_user($email, wp_generate_password(), $email);
+						
+						$post->add_user_relation($user_id, 'user-for');
+						
+						$name = $post->get_field_value('name'); //METODO: this function can throw
+						
+						if($name) {
+							wp_update_user(array(
+								'ID' => $user_id,
+								'first_name' => $name['firstName'],
+								'last_name' => $name['lastName'],
+								'display_name' => $name['firstName'].' '.$name['lastName'],
+							));
+						}
+						
+						//METODO: add setup hook
+						
+						$logger->add_return_data('userId', $user_id);
+					}
+				}
+				
+				
+			}
+			else {
+				$logger->add_return_data('userId', $existing_relation);
+			}
+		}
+		
 		
 		public static function test_import() {
 			echo("Imported \DbmContent\ChangePostHooks<br />");

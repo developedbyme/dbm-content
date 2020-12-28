@@ -802,6 +802,16 @@
 			return $return_array;
 		}
 		
+		public function clear_cache() {
+			
+			delete_post_meta($this->get_id(), 'dbm/userRelations');
+			delete_post_meta($this->get_id(), 'dbm/objectRelations/incoming');
+			delete_post_meta($this->get_id(), 'dbm/objectRelations/outgoing');
+			
+			return $this;
+			
+		}
+		
 		public static function test_import() {
 			echo("Imported \DbmContent\DbmPost<br />");
 		}
