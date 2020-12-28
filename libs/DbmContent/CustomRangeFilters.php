@@ -706,6 +706,13 @@
 			return $encoded_data;
 		}
 		
+		public function encode_currentSequenceNumber($encoded_data, $post_id, $data) {
+			
+			$encoded_data["currentSequenceNumber"] = (int)get_post_meta($post_id, 'currentSequenceNumber', true);
+			
+			return $encoded_data;
+		}
+		
 		public static function test_import() {
 			echo("Imported \DbmContent\CustomRangeFilters<br />");
 		}
