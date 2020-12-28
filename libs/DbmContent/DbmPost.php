@@ -735,22 +735,41 @@
 				
 				$direction = $part_parts[0];
 				$type = $part_parts[1];
-				$object_type = $part_parts[2];
-				$time = (isset($part_parts[3])) ? (int)$part_parts[3] : -1;
 				
-				$check_function = $direction === 'in' ? 'get_incoming_relations' : 'get_outgoing_relations';
-				$meta_name = $direction === 'in' ? 'fromId' : 'toId';
+				if($direction === 'user') {
+					$time = (isset($part_parts[2])) ? (int)$part_parts[2] : -1;
 				
-				$new_ids = array();
-				foreach($current_ids as $current_id) {
-					$dbm_post = dbm_get_post($current_id);
-					$new_relation_ids = $dbm_post->$check_function($type, $object_type, $time);
-					foreach($new_relation_ids as $new_relation_id) {
-						$new_ids[] = (int)get_post_meta($new_relation_id, $meta_name, true);
+					$new_ids = array();
+					foreach($current_ids as $current_id) {
+						$dbm_post = dbm_get_post($current_id);
+						$new_relation_ids = $dbm_post->get_users_by_relation($type, $time);
+						foreach($new_relation_ids as $new_relation_id) {
+							$new_ids[] = (int)$new_relation_id;
+						}
 					}
+					
+					return array_unique($new_ids);
+					//METODO: go on from user
 				}
+				else {
+					
+					$object_type = $part_parts[2];
+					$time = (isset($part_parts[3])) ? (int)$part_parts[3] : -1;
 				
-				$current_ids = array_unique($new_ids);
+					$check_function = $direction === 'in' ? 'get_incoming_relations' : 'get_outgoing_relations';
+					$meta_name = $direction === 'in' ? 'fromId' : 'toId';
+				
+					$new_ids = array();
+					foreach($current_ids as $current_id) {
+						$dbm_post = dbm_get_post($current_id);
+						$new_relation_ids = $dbm_post->$check_function($type, $object_type, $time);
+						foreach($new_relation_ids as $new_relation_id) {
+							$new_ids[] = (int)get_post_meta($new_relation_id, $meta_name, true);
+						}
+					}
+				
+					$current_ids = array_unique($new_ids);
+				}
 			}
 			
 			return $current_ids;
