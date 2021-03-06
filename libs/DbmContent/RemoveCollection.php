@@ -48,7 +48,7 @@
 			//$trash_log_post->update_meta('clearCache', $cached_items);
 			
 			foreach($this->items as $remove_id) {
-				wp_trash_post($remove_id);
+				wp_delete_post($remove_id, true);
 			}
 			
 			foreach($cached_items as $cached_item_id) {
