@@ -110,6 +110,8 @@
 			
 			add_action('dbm_content/parse_dbm_content', array($this, 'hook_parse_dbm_content'), 10, 3);
 			add_action('dbmtc/internal_message/group_field_set', array($this, 'hook_dbmtc_internal_message_group_field_set'), 10, 5);
+			
+			add_action('dbm_content/clear_post_cache', array($this, 'hook_clear_post_cache'), 10, 1);
 		}
 		
 		public function mce_external_plugins( $plugin_array ){
@@ -125,6 +127,14 @@
 				$return_string = $this->get_full_term_slug($parent_term, $taxonomy).'/'.$return_string;
 			}
 			return $return_string;
+		}
+		
+		public function hook_clear_post_cache($post_id) {
+			//echo("hook_clear_post_cache");
+			//var_dump($post_id);
+			
+			$post = dbm_get_post($post_id);
+			$post->clear_cache();
 		}
 		
 		public function hook_parse_dbm_content($dbm_content, $post_id, $post) {
@@ -329,9 +339,11 @@
 			if(wp_is_post_revision($post_id)) {
 				return;
 			}
-
-			remove_action('save_post', array($this, 'hook_save_post'));
-
+			
+			if(in_array($post_id, $this->save_hooks_triggered)) {
+				return;
+			}
+			
 			parent::hook_save_post($post_id, $post, $update);
 			
 			if(isset($_POST['dbm_content'])) {
@@ -347,6 +359,15 @@
 			if($post->post_type === 'dbm_object_relation') {
 				delete_post_meta(get_post_meta($post_id, 'toId', true), 'dbm/objectRelations/incoming');
 				delete_post_meta(get_post_meta($post_id, 'fromId', true), 'dbm/objectRelations/outgoing');
+			}
+			
+			if($post->post_status === 'trash') {
+				if(!dbm_has_post_type($post_id, 'trash-log')) {
+					global $dbm_skip_trash_cleanup;
+					if(!$dbm_skip_trash_cleanup) {
+						dbm_trash_item($post_id);
+					}
+				}
 			}
 		}
 		

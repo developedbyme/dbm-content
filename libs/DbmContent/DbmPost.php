@@ -831,6 +831,75 @@
 			
 		}
 		
+		public function get_remove_items(&$remove_collection) {
+			
+			if($remove_collection->has_processed($this->get_id())) {
+				return $remove_collection;
+			}
+			
+			$remove_collection->add_item($this->get_id());
+			
+			$grouped_outgoing = $this->get_all_outgoing_relations_at_any_time(true);
+			
+			foreach($grouped_outgoing as $outgoing_ids) {
+				foreach($outgoing_ids as $id) {
+					$relation_post = dbm_get_object_relation($id);
+					$relation_post->get_remove_items($remove_collection);
+				
+					$relatated_id = (int)get_post_meta($id, 'toId', true);
+					$remove_collection->clear_cache($relatated_id);
+				}
+			}
+			
+			
+			$grouped_incoming = $this->get_all_incoming_relations_at_any_time(true);
+			
+			foreach($grouped_incoming as $incoming_ids) {
+				foreach($incoming_ids as $id) {
+					$relation_post = dbm_get_object_relation($id);
+					$relation_post->get_remove_items($remove_collection);
+				
+					$relatated_id = (int)get_post_meta($id, 'fromId', true);
+					$remove_collection->clear_cache($relatated_id);
+				}
+			}
+			
+			$user_relation_ids = $this->get_user_relation_ids();
+			foreach($user_relation_ids as $user_relation_id) {
+				$user_relation_post = dbm_get_object_relation($user_relation_id);
+				$user_relation_post->get_remove_items($remove_collection);
+			}
+			
+			if(isset($grouped_incoming['field-for'])) {
+				$field_relation_ids = $grouped_incoming['field-for'];
+				foreach($field_relation_ids as $field_relation_id) {
+					$field_id = (int)get_post_meta($field_relation_id, 'fromId', true);
+					$field_post = dbm_get_post($field_id);
+					$field_post->get_remove_items($remove_collection);
+				}
+			}
+			
+			if(isset($grouped_incoming['message-in'])) {
+				$message_relation_ids = $grouped_incoming['message-in'];
+				foreach($message_relation_ids as $message_relation_id) {
+					$message_id = (int)get_post_meta($message_relation_id, 'fromId', true);
+					$message_post = dbm_get_post($message_id);
+					$message_post->get_remove_items($remove_collection);
+				}
+			}
+			
+			if(isset($grouped_outgoing['relation-order-by'])) {
+				$order_relation_ids = $grouped_outgoing['relation-order-by'];
+				foreach($order_relation_ids as $order_relation_id) {
+					$order_id = (int)get_post_meta($order_relation_id, 'toId', true);
+					$order_post = dbm_get_post($order_id);
+					$order_post->get_remove_items($remove_collection);
+				}
+			}
+			
+			return $remove_collection;
+		}
+		
 		public static function test_import() {
 			echo("Imported \DbmContent\DbmPost<br />");
 		}

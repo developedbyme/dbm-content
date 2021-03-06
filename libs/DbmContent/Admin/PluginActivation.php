@@ -116,6 +116,8 @@
 			
 			if(taxonomy_exists('dbm_relation')) {
 				
+				self::add_term('dbm_type:trash-log', 'Trash log');
+				
 				self::add_term('dbm_type:object-relation', 'Object relation');
 				self::add_term('dbm_type:object-relation/for', 'For');
 				self::add_term('dbm_type:object-relation/in', 'In');

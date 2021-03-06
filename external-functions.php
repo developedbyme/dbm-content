@@ -510,6 +510,20 @@
 		return $new_post;
 	}
 	
+	global $dbm_object_relations;
+	$dbm_object_relations = array();
+	
+	function dbm_get_object_relation($id) {
+		global $dbm_object_relations;
+		if(isset($dbm_object_relations[$id])) {
+			return $dbm_object_relations[$id];
+		}
+		$new_post = new \DbmContent\DbmObjectRelation($id);
+		$dbm_object_relations[$id] = $new_post;
+		
+		return $new_post;
+	}
+	
 	function dbm_get_number_sequence($id) {
 		
 		if(!get_post_meta($id, 'currentSequenceNumber', true)) {
@@ -626,5 +640,21 @@
 		$manager = new \DbmContent\Admin\Setup\SetupManager();
 		
 		return $manager;
+	}
+	
+	function dbm_trash_item($id) {
+		$post = dbm_get_post($id);
+		
+		$remove_collection = new \DbmContent\RemoveCollection();
+		
+		$remove_collection->set_origin_id($id);
+		$post->get_remove_items($remove_collection);
+		
+		$remove_collection->perform_remove_all();
+	}
+	
+	function dbm_clear_post_cache($post_id) {
+		$action_name = 'dbm_content/clear_post_cache';
+		do_action($action_name, $post_id);
 	}
 ?>
