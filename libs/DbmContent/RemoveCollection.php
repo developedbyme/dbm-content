@@ -40,12 +40,12 @@
 			
 			$title = 'Removal of '.$remove_id.':'.get_the_title($remove_id);
 			
-			$trash_log_id = dbm_create_data($title, 'trash-log');
-			$trash_log_post = dbm_get_post($trash_log_id);
+			//$trash_log_id = dbm_create_data($title, 'trash-log');
+			//$trash_log_post = dbm_get_post($trash_log_id);
 			
-			$trash_log_post->update_meta('origin', $this->origin_id);
-			$trash_log_post->update_meta('removedItems', $this->items);
-			$trash_log_post->update_meta('clearCache', $cached_items);
+			//$trash_log_post->update_meta('origin', $this->origin_id);
+			//$trash_log_post->update_meta('removedItems', $this->items);
+			//$trash_log_post->update_meta('clearCache', $cached_items);
 			
 			foreach($this->items as $remove_id) {
 				wp_trash_post($remove_id);
@@ -55,7 +55,7 @@
 				dbm_clear_post_cache($cached_item_id);
 			}
 			
-			$trash_log_post->make_private();
+			//$trash_log_post->make_private();
 			
 			$dbm_skip_trash_cleanup = $previous_setting;
 		}
