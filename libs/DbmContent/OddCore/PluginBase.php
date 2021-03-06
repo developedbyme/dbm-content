@@ -16,6 +16,8 @@
 
 		public $javascript_files = array();
 		public $css_files = array(); //METODO
+		
+		protected $save_hooks_triggered = array();
 
 		function __construct() {
 			//echo("\DbmContent\OddCore\PluginBase::__construct<br />");
@@ -418,8 +420,12 @@
 			if(wp_is_post_revision($post_id)) {
 				return;
 			}
+			
+			if(in_array($post_id, $this->save_hooks_triggered)) {
+				return;
+			}
 
-			remove_action('save_post', array($this, 'hook_save_post'));
+			$this->save_hooks_triggered[] = $post_id;
 
 			$custom_post_types = $this->get_custom_post_types();
 
