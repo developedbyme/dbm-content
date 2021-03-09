@@ -230,6 +230,12 @@
 					
 					$current_type = $setup_manager->create_data_type('product')->set_name('Product');
 					
+					$current_type = $setup_manager->create_data_type('post-type')->set_name('Post type');
+					$post_types = get_post_types();
+					foreach($post_types as $post_type) {
+						$current_type = $setup_manager->create_data_type('post-type/'.$post_type)->set_name($post_type);
+					}
+					
 					$setup_manager->save_all();
 				}
 			}

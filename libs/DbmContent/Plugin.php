@@ -369,6 +369,9 @@
 					}
 				}
 			}
+			else {
+				dbm_add_post_type($post_id, 'post-type/'.$post->post_type);
+			}
 		}
 		
 		public function hook_dbmtc_internal_message_group_field_set($group, $field, $value, $user_id, $message) {
