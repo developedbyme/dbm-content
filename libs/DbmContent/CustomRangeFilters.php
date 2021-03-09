@@ -154,7 +154,21 @@
 				$type_ids = $this->get_type_ids($data);
 				
 				if(!empty($type_ids)) {
-					$dbm_query->add_type_ids($type_ids);
+					
+					$operator = 'AND';
+					if(isset($data['typeMatch'])) {
+						switch($data['typeMatch']) {
+							case "all":
+								//MENOTE: do nothing
+								break;
+							case "any":
+								$operator = 'IN';
+								break;
+						}
+						
+					}
+					
+					$dbm_query->add_type_ids($type_ids, $operator);
 					$has_query = true;
 				}
 				else {
