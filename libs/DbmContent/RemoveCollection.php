@@ -34,28 +34,28 @@
 			$previous_setting = $dbm_skip_trash_cleanup;
 			$dbm_skip_trash_cleanup = true;
 			
-			$cached_items = array_diff($this->cache_items, $this->items);
+			$cached_items = array_values(array_diff($this->cache_items, $this->items));
 			
 			$remove_id  = $this->origin_id;
 			
 			$title = 'Removal of '.$remove_id.':'.get_the_title($remove_id);
 			
-			//$trash_log_id = dbm_create_data($title, 'trash-log');
-			//$trash_log_post = dbm_get_post($trash_log_id);
+			$trash_log_id = dbm_create_data($title, 'trash-log');
+			$trash_log_post = dbm_get_post($trash_log_id);
 			
-			//$trash_log_post->update_meta('origin', $this->origin_id);
-			//$trash_log_post->update_meta('removedItems', $this->items);
-			//$trash_log_post->update_meta('clearCache', $cached_items);
+			$trash_log_post->update_meta('origin', $this->origin_id);
+			$trash_log_post->update_meta('removedItems', $this->items);
+			$trash_log_post->update_meta('clearCache', $cached_items);
 			
 			foreach($this->items as $remove_id) {
-				wp_delete_post($remove_id, true);
+				wp_trash_post($remove_id);
 			}
 			
 			foreach($cached_items as $cached_item_id) {
 				dbm_clear_post_cache($cached_item_id);
 			}
 			
-			//$trash_log_post->make_private();
+			$trash_log_post->make_private();
 			
 			$dbm_skip_trash_cleanup = $previous_setting;
 		}
