@@ -23,6 +23,10 @@
 			return apply_filters('the_content', get_post_field('post_content', $this->get_id()));
 		}
 		
+		public function get_post_type() {
+			return get_post_type($this->id);
+		}
+		
 		public function change_status($status) {
 			wp_update_post(array(
 				'ID' => $this->get_id(),

@@ -438,7 +438,48 @@
 				}
 			}
 			
+			$dbm_post = dbm_get_post($post_id);
+			
+			if($dbm_post->get_post_type() === 'page') {
+				if(!isset($add_ons["pageSettings"])) {
+					$add_ons["pageSettings"] = array();
+				}
+				
+				$page_setting_ids = $dbm_post->object_relation_query('in:for:settings/page-settings');
+				
+				foreach($page_setting_ids as $page_setting_id) {
+					$add_ons["pageSettings"][] = $this->encode_pageSettings(array('id' => $page_setting_id), $page_setting_id, null);
+				}
+			}
+			
+			
 			return $add_ons;
+		}
+		
+		public function encode_pageSettings($encoded_data, $post_id, $data) {
+			
+			$group = dbmtc_get_group($post_id);
+			
+			try {
+				$encoded_data['data'] = $group->get_field_value('data');
+			}
+			catch(\exception $the_exception) {
+				
+			}
+			
+			$encoded_data['headerType'] = $group->get_single_object_relation_field_value("in:for:type/header-type", "identifier");
+			$encoded_data['heroType'] = $group->get_single_object_relation_field_value("in:for:type/hero-type", "identifier");
+			$encoded_data['footerType'] = $group->get_single_object_relation_field_value("in:for:type/footer-type", "identifier");
+			
+			$page_setting_ids = $group->object_relation_query('out:based-on:settings/page-settings');
+			
+			$encoded_data['basedOn'] = array();
+			
+			foreach($page_setting_ids as $page_setting_id) {
+				$encoded_data['basedOn'][] = $this->encode_pageSettings(array('id' => $page_setting_id), $page_setting_id, null);
+			}
+			
+			return $encoded_data;
 		}
 		
 		public function encode_term($return_data, $term_id, $term) {

@@ -141,6 +141,7 @@
 				self::add_term('dbm_type:object-relation/number-sequence-for', 'Number sequence for');
 				self::add_term('dbm_type:object-relation/pointing-to', 'Pointing to');
 				self::add_term('dbm_type:object-relation/available-at', 'Available at');
+				self::add_term('dbm_type:object-relation/based-on', 'Based on');
 				
 				self::add_term('dbm_type:object-user-relation', 'Object user relation');
 				self::add_term('dbm_type:object-user-relation/user-for', 'User for');
@@ -228,6 +229,10 @@
 					$current_type->add_field("name")->setup_meta_storage();
 					$current_type->add_field("identifier")->setup_meta_storage();
 					
+					$current_type = $setup_manager->create_data_type('type/header-type')->set_name('Header type');
+					$current_type = $setup_manager->create_data_type('type/footer-type')->set_name('Footer type');
+					$current_type = $setup_manager->create_data_type('type/hero-type')->set_name('Hero type');
+					
 					$current_type = $setup_manager->create_data_type('product')->set_name('Product');
 					
 					$current_type = $setup_manager->create_data_type('post-type')->set_name('Post type');
@@ -235,6 +240,16 @@
 					foreach($post_types as $post_type) {
 						$current_type = $setup_manager->create_data_type('post-type/'.$post_type)->set_name($post_type);
 					}
+					
+					$current_type = $setup_manager->create_data_type('settings')->set_name('Settings');
+					$current_type->add_field("data")->set_type('json')->setup_meta_storage();
+					
+					$current_type = $setup_manager->create_data_type('settings/page-settings')->set_name('Page settings');
+					
+					$current_type = $setup_manager->create_data_type('settings/data-source')->set_name('Data source');
+					$current_type->add_field("dataName")->setup_meta_storage();
+					
+					$current_type = $setup_manager->create_data_type('settings/data-source/loaded-data-source')->set_name('Loaded data source');
 					
 					$setup_manager->save_all();
 				}
