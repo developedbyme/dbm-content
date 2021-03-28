@@ -450,10 +450,37 @@
 				foreach($page_setting_ids as $page_setting_id) {
 					$add_ons["pageSettings"][] = $this->encode_pageSettings(array('id' => $page_setting_id), $page_setting_id, null);
 				}
+				
+				
+				if(!isset($add_ons["dataSources"])) {
+					$add_ons["dataSources"] = array();
+				}
+				
+				$data_source_ids = $dbm_post->object_relation_query('in:for:settings/data-source');
+				
+				foreach($data_source_ids as $data_source_id) {
+					$add_ons["dataSources"][] = $this->encode_dataSource(array('id' => $data_source_id), $data_source_id, null);
+				}
 			}
 			
 			
 			return $add_ons;
+		}
+		
+		public function encode_dataSource($encoded_data, $post_id, $data) {
+			
+			$group = dbmtc_get_group($post_id);
+			
+			try {
+				$encoded_data['sourceType'] = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_slugs_from_ids($group->get_subtypes('settings/data-source'), 'dbm_type')[0];
+				$encoded_data['dataName'] = $group->get_field_value('dataName');
+				$encoded_data['data'] = $group->get_field_value('data');
+			}
+			catch(\exception $the_exception) {
+				
+			}
+			
+			return $encoded_data;
 		}
 		
 		public function encode_pageSettings($encoded_data, $post_id, $data) {
