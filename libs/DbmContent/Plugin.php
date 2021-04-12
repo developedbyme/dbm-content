@@ -241,7 +241,9 @@
 			
 			add_filter('dbm_content/get_menu_positions', array($this, 'filter_add_menu_position'), 10, 1);
 			
-			add_filter( 'mce_external_plugins', array($this, 'mce_external_plugins'), 10, 1 );
+			add_filter( 'mce_external_plugins', array($this, 'mce_external_plugins'), 10, 1);
+			
+			add_filter('wprr/admin/create_post/apply_data_type', array($this, 'filter_create_post_apply_data_type'), 10, 3);
 		}
 		
 		public function filter_add_menu_position($menu_positions) {
@@ -400,6 +402,10 @@
 			else if($group->has_type_by_name('object-user-relation')) {
 				delete_post_meta($group->get_meta('fromId'), 'dbm/userRelations');
 			}
+		}
+		
+		public function filter_create_post_apply_data_type($post_id, $data_type, $data) {
+			dbm_add_post_type($post_id, $data_type);
 		}
 		
 		public function activation_setup() {
