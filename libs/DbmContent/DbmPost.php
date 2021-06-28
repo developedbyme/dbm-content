@@ -764,6 +764,18 @@
 			return $current_ids;
 		}
 		
+		public function get_incoming_objects_in_order($relation_type, $data_type, $order) {
+			$relation_ids = $this->get_incoming_relations($relation_type, $data_type);
+			$relation_ids = $this->get_in_sorted_order($relation_ids, $order);
+			return $this->resolve_incoming_relations_by_id($relation_ids);
+		}
+		
+		public function get_outgoing_objects_in_order($relation_type, $data_type, $order) {
+			$relation_ids = $this->get_outgoing_relations($relation_type, $data_type);
+			$relation_ids = $this->get_in_sorted_order($relation_ids, $order);
+			return $this->resolve_outgoing_relations_by_id($relation_ids);
+		}
+		
 		public function get_single_object_relation_field_value($path, $field_name) {
 			$ids = $this->object_relation_query($path);
 			if(empty($ids)) {
