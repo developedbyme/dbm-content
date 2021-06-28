@@ -205,6 +205,9 @@
 					
 					$current_type = $setup_manager->create_data_type('named-item')->set_name('Named item');
 					$current_type->add_field("name")->setup_meta_storage();
+					
+					$current_type = $setup_manager->create_data_type('description-item')->set_name('Description item');
+					$current_type->add_field("description")->setup_meta_storage();
 				
 					$current_type = $setup_manager->create_data_type('content-section')->set_name('Content section');
 					$current_type->add_field("name")->setup_meta_storage();
@@ -225,6 +228,11 @@
 					
 					$current_type = $setup_manager->create_data_type('instance')->set_name('Instance');
 					
+					$current_type = $setup_manager->create_data_type('group')->set_name('Group');
+					
+					$current_type = $setup_manager->create_data_type('representation')->set_name('Representation');
+					$current_type->add_field("url")->setup_meta_storage();
+					
 					$current_type = $setup_manager->create_data_type('type')->set_name('Type');
 					$current_type->add_field("name")->setup_meta_storage();
 					$current_type->add_field("identifier")->setup_meta_storage();
@@ -232,6 +240,12 @@
 					$current_type = $setup_manager->create_data_type('type/header-type')->set_name('Header type');
 					$current_type = $setup_manager->create_data_type('type/footer-type')->set_name('Footer type');
 					$current_type = $setup_manager->create_data_type('type/hero-type')->set_name('Hero type');
+					
+					$current_type = $setup_manager->create_data_type('type/representation-type')->set_name('Representation type');
+					
+					$current_type = $setup_manager->create_data_type('type/timezone')->set_name('Timezone');
+					$current_type = $setup_manager->create_data_type('type/language')->set_name('Language');
+					$current_type = $setup_manager->create_data_type('type/currency')->set_name('Currency');
 					
 					$current_type = $setup_manager->create_data_type('product')->set_name('Product');
 					
@@ -250,6 +264,7 @@
 					$current_type->add_field("dataName")->setup_meta_storage();
 					
 					$current_type = $setup_manager->create_data_type('settings/data-source/loaded-data-source')->set_name('Loaded data source');
+					$current_type = $setup_manager->create_data_type('settings/data-source/static-data-source')->set_name('Static data source');
 					
 					$setup_manager->save_all();
 				}

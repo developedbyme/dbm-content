@@ -228,6 +228,48 @@
 			return $new_relation_id;
 		}
 		
+		public function end_outgoing_relations_to_type($type_path, $object_type) {
+			//var_dump('end_outgoing_relations_to_type');
+			$relations = $this->get_encoded_outgoing_relations_by_type($type_path, $object_type, false);
+			
+			$current_time = time();
+			
+			foreach($relations as $relation) {
+				if($relation['endAt'] === -1 || $relation['endAt'] > $current_time) {
+					$dbm_post = dbm_get_post($relation['id']);
+					$dbm_post->update_meta('endAt', $current_time);
+					$dbm_post->clear_cache();
+					
+					$dbm_to_post = dbm_get_post($relation['toId']);
+					$dbm_to_post->clear_cache();
+				}
+			}
+			$this->clear_cache();
+			
+			return $this;
+		}
+		
+		public function end_incoming_relations_from_type($type_path, $object_type) {
+			//var_dump('end_incoming_relations_from_type');
+			$relations = $this->get_encoded_incoming_relations_by_type($type_path, $object_type, false);
+			
+			$current_time = time();
+			
+			foreach($relations as $relation) {
+				if($relation['endAt'] === -1 || $relation['endAt'] > $current_time) {
+					$dbm_post = dbm_get_post($relation['id']);
+					$dbm_post->update_meta('endAt', $current_time);
+					$dbm_post->clear_cache();
+					
+					$dbm_from_post = dbm_get_post($relation['fromId']);
+					$dbm_from_post->clear_cache();
+				}
+			}
+			$this->clear_cache();
+			
+			return $this;
+		}
+		
 		public function set_order($new_order, $for_type) {
 			
 			$return_order_id = 0;
@@ -811,6 +853,50 @@
 			return $return_array;
 		}
 		
+		public function get_all_ids_from_hierarchy($hierarchy_items) {
+			$return_array = array();
+			foreach($hierarchy_items as $hierarchy_item) {
+				$return_array[] = $hierarchy_item["id"];
+				$return_array = array_merge($return_array, $this->get_all_ids_from_hierarchy($hierarchy_item["children"]));
+			}
+			
+			return $return_array;
+		}
+		
+		public function filter_out_missing_hierarchy_items(&$hierarchy_items, $exisiting_ids) {
+			$length = count($hierarchy_items);
+			for($i = 0; $i < $length; $i++) {
+				$current_id = $hierarchy_items[i]["id"];
+				if(!in_array($current_id, $exisiting_ids)) {
+					unset($hierarchy_items[i]);
+				}
+				else {
+					$this->filter_out_missing_hierarchy_items($hierarchy_items[i]["children"], $exisiting_ids);
+				}
+			}
+		}
+		
+		public function get_in_sorted_in_hierarchy_order($ids, $order_type) {
+			//var_dump("get_in_sorted_in_hierarchy_order");
+			//var_dump($ids, $order_type);
+			
+			$hierarchy_items = $this->get_order($order_type);
+			$this->filter_out_missing_hierarchy_items($hierarchy_items, $ids);
+			
+			$order_ids = $this->get_all_ids_from_hierarchy($hierarchy_items);
+			
+			$sorted_ids = array_intersect($order_ids, $ids);
+			$rest_ids = array_diff($ids, $sorted_ids);
+			
+			if(!empty($rest_ids)) {
+				foreach($rest_ids as $rest_id) {
+					$hierarchy_items[] = array('id' => $rest_id, 'children' => array());
+				}
+			}
+			
+			return $hierarchy_items;
+		}
+		
 		public function resolve_incoming_relations_by_id($relation_ids) {
 			$return_array = array();
 			foreach($relation_ids as $relation_id) {
@@ -824,6 +910,35 @@
 			$return_array = array();
 			foreach($relation_ids as $relation_id) {
 				$return_array[] = (int)get_post_meta($relation_id, 'toId', true);
+			}
+			
+			return $return_array;
+		}
+		
+		public function resolve_incoming_hierarch_relations($hierarchy_items) {
+			$return_array = array();
+			
+			foreach($hierarchy_items as $hierarchy_item) {
+				$encoded_item = array();
+				$encoded_item['id'] = (int)get_post_meta($hierarchy_item['id'], 'fromId', true);
+				$encoded_item['children'] = $this->resolve_incoming_hierarch_relations($hierarchy_item['children']);
+				
+				$return_array[] = $encoded_item;
+			}
+			
+			return $return_array;
+		}
+		
+		
+		public function resolve_outgoing_hierarch_relations($hierarchy_items) {
+			$return_array = array();
+			
+			foreach($hierarchy_items as $hierarchy_item) {
+				$encoded_item = array();
+				$encoded_item['id'] = (int)get_post_meta($hierarchy_item['id'], 'toId', true);
+				$encoded_item['children'] = $this->resolve_outgoing_hierarch_relations($hierarchy_item['children']);
+				
+				$return_array[] = $encoded_item;
 			}
 			
 			return $return_array;
