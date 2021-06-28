@@ -27,6 +27,10 @@
 			return get_post_type($this->id);
 		}
 		
+		public function exists() {
+			return get_post_status($this->id) !== false;
+		}
+		
 		public function change_status($status) {
 			wp_update_post(array(
 				'ID' => $this->get_id(),
