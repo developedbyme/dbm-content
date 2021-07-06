@@ -657,4 +657,24 @@
 		$action_name = 'dbm_content/clear_post_cache';
 		do_action($action_name, $post_id);
 	}
+	
+	global $dbm_content_identifiable_items;
+	$dbm_content_identifiable_items = array();
+	
+	function dbm_get_identifiable_data($type, $identifier) {
+		global $dbm_content_identifiable_items;
+		
+		if(isset($dbm_content_identifiable_items[$type][$identifier])) {
+			return $dbm_content_identifiable_items[$type][$identifier];
+		}
+		
+		if(!isset($dbm_content_identifiable_items[$type])) {
+			$dbm_content_identifiable_items[$type] = array();
+		}
+		
+		$post_id = dbm_new_query('dbm_data')->include_private()->add_type_by_path($type)->add_meta_query('identifier', $identifier)->get_post_id();
+		$dbm_content_identifiable_items[$type] = $post_id;
+		
+		return $post_id;
+	}
 ?>
