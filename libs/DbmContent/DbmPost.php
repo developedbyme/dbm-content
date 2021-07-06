@@ -228,16 +228,18 @@
 			return $new_relation_id;
 		}
 		
-		public function end_outgoing_relations_to_type($type_path, $object_type) {
+		public function end_outgoing_relations_to_type($type_path, $object_type, $at_time = -1) {
 			//var_dump('end_outgoing_relations_to_type');
 			$relations = $this->get_encoded_outgoing_relations_by_type($type_path, $object_type, false);
 			
-			$current_time = time();
+			if($at_time === -1) {
+				$at_time = time();
+			}
 			
 			foreach($relations as $relation) {
-				if($relation['endAt'] === -1 || $relation['endAt'] > $current_time) {
+				if($relation['endAt'] === -1 || $relation['endAt'] > $at_time) {
 					$dbm_post = dbm_get_post($relation['id']);
-					$dbm_post->update_meta('endAt', $current_time);
+					$dbm_post->update_meta('endAt', $at_time);
 					$dbm_post->clear_cache();
 					
 					$dbm_to_post = dbm_get_post($relation['toId']);
@@ -249,16 +251,18 @@
 			return $this;
 		}
 		
-		public function end_incoming_relations_from_type($type_path, $object_type) {
+		public function end_incoming_relations_from_type($type_path, $object_type, $at_time = -1) {
 			//var_dump('end_incoming_relations_from_type');
 			$relations = $this->get_encoded_incoming_relations_by_type($type_path, $object_type, false);
 			
-			$current_time = time();
+			if($at_time === -1) {
+				$at_time = time();
+			}
 			
 			foreach($relations as $relation) {
-				if($relation['endAt'] === -1 || $relation['endAt'] > $current_time) {
+				if($relation['endAt'] === -1 || $relation['endAt'] > $at_time) {
 					$dbm_post = dbm_get_post($relation['id']);
-					$dbm_post->update_meta('endAt', $current_time);
+					$dbm_post->update_meta('endAt', $at_time);
 					$dbm_post->clear_cache();
 					
 					$dbm_from_post = dbm_get_post($relation['fromId']);
