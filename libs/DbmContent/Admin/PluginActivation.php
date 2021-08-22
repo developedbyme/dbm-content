@@ -208,6 +208,14 @@
 					
 					$current_type = $setup_manager->create_data_type('description-item')->set_name('Description item');
 					$current_type->add_field("description")->setup_meta_storage();
+					
+					$current_type = $setup_manager->create_data_type('value-item')->set_name('Value item');
+					$current_type->add_field("value")->set_type('json')->setup_meta_storage();
+					
+					$current_type = $setup_manager->create_data_type('file-value-item')->set_name('File value item');
+					$current_type->add_field("value")->set_type('file')->setup_meta_storage();
+					
+					$current_type = $setup_manager->create_data_type('object-property')->set_name('Object property');
 				
 					$current_type = $setup_manager->create_data_type('content-section')->set_name('Content section');
 					$current_type->add_field("name")->setup_meta_storage();

@@ -676,6 +676,19 @@
 			return $encoded_data;
 		}
 		
+		public function encode_relationType($encoded_data, $post_id, $data) {
+			$dbm_post = dbm_get_post($post_id);
+			
+			$types = $dbm_post->get_subtypes('object-relation');
+			
+			if(!empty($types)) {
+				$encoded_data['type'] = wprr_encode_term_by_id($types[0], 'dbm_type');
+			}
+			
+			
+			return $encoded_data;
+		}
+		
 		public function encode_editObjectRelations($encoded_data, $post_id, $data) {
 			global $DbmContentTransactionalCommunicationPlugin;
 			

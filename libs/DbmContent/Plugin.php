@@ -220,6 +220,9 @@
 			add_filter('wprr/range_encoding/incomingRelations', array($custom_range_filters, 'encode_incomingRelations'), 10, 3);
 			add_filter('wprr/range_encoding/outgoingRelations', array($custom_range_filters, 'encode_outgoingRelations'), 10, 3);
 			add_filter('wprr/range_encoding/relation', array($custom_range_filters, 'encode_relationLink'), 10, 3);
+			add_filter('wprr/range_encoding/relation', array($custom_range_filters, 'encode_relationType'), 10, 3);
+			add_filter('wprr/range_encoding/relationLink', array($custom_range_filters, 'encode_relationLink'), 10, 3);
+			add_filter('wprr/range_encoding/relationType', array($custom_range_filters, 'encode_relationType'), 10, 3);
 			add_filter('wprr/range_encoding/editObjectRelations', array($custom_range_filters, 'encode_editObjectRelations'), 10, 3);
 			add_filter('wprr/range_encoding/dbmTypes', array($custom_range_filters, 'encode_dbmTypes'), 10, 3);
 			add_filter('wprr/range_encoding/processForItem', array($custom_range_filters, 'encode_processForItem'), 10, 3);
