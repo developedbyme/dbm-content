@@ -227,6 +227,7 @@
 			add_filter('wprr/range_encoding/dbmTypes', array($custom_range_filters, 'encode_dbmTypes'), 10, 3);
 			add_filter('wprr/range_encoding/processForItem', array($custom_range_filters, 'encode_processForItem'), 10, 3);
 			add_filter('wprr/range_encoding/currentSequenceNumber', array($custom_range_filters, 'encode_currentSequenceNumber'), 10, 3);
+			add_filter('wprr/range_encoding/image', array($custom_range_filters, 'encode_image'), 10, 3);
 			
 			add_filter('m_router_data/custom_range_query_dbm-relation-manager-items', array($custom_range_filters, 'query_relation_manager_items'), 10, 2);
 			add_filter('m_router_data/custom_range_encode_dbm-relation-manager-items', array($custom_range_filters, 'encode_relation_manager_items'), 10, 3);
