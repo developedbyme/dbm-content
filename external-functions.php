@@ -566,10 +566,27 @@
 		$dbm_query = dbm_new_query('dbm_object_relation')->set_field('post_status', array('publish', 'private'));
 		$dbm_query->add_type_by_path('object-user-relation')->add_type_by_path('object-user-relation/'.$relation_type);
 		$dbm_query->add_meta_query('toId', $user_id);
-		//METODO: add time query
 		
 		$return_array = array();
 		$relation_ids = $dbm_query->get_post_ids();
+		
+		if($time !== false) {
+			if($time === -1) {
+				$time = time();
+			}
+			
+			$filtered_ids = array();
+			
+			foreach($relation_ids as $relation_id) {
+				$start_at = (int)get_post_meta($relation_id, 'startAt', true);
+				$end_at = (int)get_post_meta($relation_id, 'endAt', true);
+				if(($start_at === -1 || $start_at <= $time) && ($end_at === -1 || $end_at > $time)) {
+					$return_array[] = $relation_id;
+				}
+			}
+			
+			$relation_ids = $filtered_ids;
+		}
 		
 		$term = dbm_get_type_by_path($object_type);
 		if($term) {
