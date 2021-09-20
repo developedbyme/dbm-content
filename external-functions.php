@@ -581,7 +581,7 @@
 				$start_at = (int)get_post_meta($relation_id, 'startAt', true);
 				$end_at = (int)get_post_meta($relation_id, 'endAt', true);
 				if(($start_at === -1 || $start_at <= $time) && ($end_at === -1 || $end_at > $time)) {
-					$return_array[] = $relation_id;
+					$filtered_ids[] = $relation_id;
 				}
 			}
 			
