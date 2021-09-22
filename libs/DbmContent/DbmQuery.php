@@ -1,5 +1,8 @@
 <?php
 	namespace DbmContent;
+	
+	global $dbm_term_cache;
+	$dbm_term_cache = array();
 
 	class DbmQuery {
 
@@ -281,16 +284,24 @@
 		}
 		
 		public function include_by_term_id($term_id) {
-			global $wpdb;
+			global $dbm_term_cache;
 			
-			$statement = "SELECT object_id FROM {$wpdb->prefix}term_relationships WHERE term_taxonomy_id = %d";
-			$safe_statement = $wpdb->prepare($statement, $term_id);
+			if(isset($dbm_term_cache[$term_id])) {
+				$this->include_only($dbm_term_cache[$term_id]);
+			}
+			else {
+				global $wpdb;
 			
-			$results = $wpdb->get_results($safe_statement, ARRAY_N);
+				$statement = "SELECT object_id FROM {$wpdb->prefix}term_relationships WHERE term_taxonomy_id = %d";
+				$safe_statement = $wpdb->prepare($statement, $term_id);
 			
-			$ids = array_column($results, 0);
+				$results = $wpdb->get_results($safe_statement, ARRAY_N);
 			
-			$this->include_only($ids);
+				$ids = array_column($results, 0);
+				$dbm_term_cache[$term_id] = $ids;
+			
+				$this->include_only($ids);
+			}
 			
 			return $this;
 			
