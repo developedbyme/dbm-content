@@ -77,7 +77,12 @@
 				$this->query_args['post__in'] = array(0);
 			}
 			else {
-				$this->query_args['post__in'] = $ids;
+				if(isset($this->query_args['post__in']) && $this->query_args['post__in'] && !empty($this->query_args['post__in'])) {
+					$this->query_args['post__in'] = array_intersect($this->query_args['post__in'], $ids);
+				}
+				else {
+					$this->query_args['post__in'] = $ids;
+				}
 			}
 			
 			return $this;
@@ -170,6 +175,21 @@
 			return $this;
 		}
 		
+		public function include_relations_from_post($post_id, $relation_path) {
+			$term_ids = dbm_get_post_relation($post_id, $relation_path);
+			
+			if(empty($term_ids)) {
+				$this->add_error("Post {$post_id} doesn't have any relation {$relation_path}");
+				return $this;
+			}
+			
+			foreach($term_ids as $term_id) {
+				$this->include_by_term_id($term_id);
+			}
+			
+			return $this;
+		}
+		
 		public function add_any_relations_from_post($post_id, $relation_path) {
 			//echo("\DbmContent\DbmQuery::add_any_relations_from_post<br />");
 			
@@ -242,6 +262,40 @@
 			return $this;
 		}
 		
+		public function include_only_type($path) {
+			if(!isset($path)) {
+				//METODO: error message
+				$this->include_only(array(0));
+				return $this;
+			}
+			
+			$term = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slug_path($path, 'dbm_type');
+			if(!$term) {
+				$this->include_only(array(0));
+				return $this;
+			}
+			
+			$this->include_by_term_id($term->term_id);
+			
+			return $this;
+		}
+		
+		public function include_by_term_id($term_id) {
+			global $wpdb;
+			
+			$statement = "SELECT object_id FROM {$wpdb->prefix}term_relationships WHERE term_taxonomy_id = %d";
+			$safe_statement = $wpdb->prepare($statement, $term_id);
+			
+			$results = $wpdb->get_results($safe_statement, ARRAY_N);
+			
+			$ids = array_column($results, 0);
+			
+			$this->include_only($ids);
+			
+			return $this;
+			
+		}
+		
 		public function add_type_by_path($path) {
 			if(!isset($path)) {
 				//METODO: error message
@@ -305,6 +359,18 @@
 			var_dump($this->query_args);
 			
 			return $this;
+		}
+		
+		public function get_database_query() {
+			
+			$query_args = $this->get_query_args();
+			$query_args['fields'] = 'ids';
+			$query_args['posts_per_page'] = -1;
+			$query_args['suppress_filters'] = $this->suppress_filters;
+			
+			$query = new \WP_Query($query_args);
+			
+			return $query->request;
 		}
 		
 		public function get_post_ids() {
