@@ -808,6 +808,17 @@
 			return $encoded_data;
 		}
 		
+		public function encode_image($encoded_data, $post_id, $data) {
+			
+			$post = dbmtc_get_group($post_id);
+			
+			$encoded_data["url"] = $post->get_field_value('value')['url'];
+			$encoded_data["title"] = $post->get_field_value('title');
+			$encoded_data["description"] = $post->get_field_value('description');
+			
+			return $encoded_data;
+		}
+		
 		public static function test_import() {
 			echo("Imported \DbmContent\CustomRangeFilters<br />");
 		}
