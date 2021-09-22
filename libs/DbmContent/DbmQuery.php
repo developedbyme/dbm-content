@@ -81,7 +81,14 @@
 			}
 			else {
 				if(isset($this->query_args['post__in']) && $this->query_args['post__in'] && !empty($this->query_args['post__in'])) {
-					$this->query_args['post__in'] = array_intersect($this->query_args['post__in'], $ids);
+					$intersected_array = array_intersect($this->query_args['post__in'], $ids);
+					
+					if(!empty($intersected_array)) {
+						$this->query_args['post__in'] = $intersected_array;
+					}
+					else {
+						$this->query_args['post__in'] = array(0);
+					}
 				}
 				else {
 					$this->query_args['post__in'] = $ids;
