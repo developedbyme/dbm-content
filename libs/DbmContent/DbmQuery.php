@@ -290,6 +290,24 @@
 			return $this;
 		}
 		
+		public function include_only_relation($path) {
+			if(!isset($path)) {
+				//METODO: error message
+				$this->include_only(array(0));
+				return $this;
+			}
+			
+			$term = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slug_path($path, 'dbm_relation');
+			if(!$term) {
+				$this->include_only(array(0));
+				return $this;
+			}
+			
+			$this->include_by_term_id($term->term_id);
+			
+			return $this;
+		}
+		
 		public function include_by_term_id($term_id) {
 			global $dbm_term_cache;
 			
