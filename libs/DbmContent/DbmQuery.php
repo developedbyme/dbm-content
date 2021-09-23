@@ -19,8 +19,7 @@
 			$this->errors[] = $message;
 			$this->has_error = true;
 			
-			$tax_query = DbmQuery::create_no_term_tax_query('dbm_relation');
-			$this->add_query($tax_query);
+			$this->include_only(array());
 			
 			return $this;
 		}
