@@ -80,7 +80,7 @@
 					$intersected_array = array_intersect($this->query_args['post__in'], $ids);
 					
 					if(!empty($intersected_array)) {
-						$this->query_args['post__in'] = $intersected_array;
+						$this->query_args['post__in'] = array_values($intersected_array);
 					}
 					else {
 						$this->query_args['post__in'] = array(0);
