@@ -421,6 +421,14 @@
 			return $id;
 		}
 		
+		public function get_included_ids() {
+			return $this->query_args['post__in'];
+		}
+		
+		public function get_included_id() {
+			return $this->query_args['post__in'][0];
+		}
+		
 		public function get_post_id_if_exists() {
 			
 			if($this->has_error) {
