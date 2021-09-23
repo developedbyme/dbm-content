@@ -142,6 +142,28 @@
 			return $query_args;
 		}
 		
+		protected function combine_post_ids($post_ids_groups, $operator = 'all') {
+			
+			$post_ids = array();
+			
+			switch($operator) {
+				case "all":
+					$post_ids = array_pop($post_ids_groups);
+					foreach($post_ids_groups as $post_ids_group) {
+						$post_ids = array_intersect($post_ids, $post_ids_group);
+					}
+					break;
+				case "any":
+					foreach($post_ids_groups as $post_ids_group) {
+						$post_ids = array_merge($post_ids, $post_ids_group);
+					}
+					$post_ids = array_unique($post_ids);
+					break;
+			}
+			
+			return $post_ids;
+		}
+		
 		public function query_relations($query_args, $data) {
 			//echo("\DbmContent\CustomRangeFilters::query_relations<br />");
 			
@@ -155,25 +177,25 @@
 				
 				if(!empty($type_ids)) {
 					
-					$operator = 'AND';
-					if(isset($data['typeMatch'])) {
-						switch($data['typeMatch']) {
-							case "all":
-								//MENOTE: do nothing
-								break;
-							case "any":
-								$operator = 'IN';
-								break;
-						}
-						
+					$type_post_ids_groups = array();
+					
+					foreach($type_ids as $type_id) {
+						$type_post_ids_groups[] = dbm_get_post_ids_for_term_id($type_id);
 					}
 					
-					$dbm_query->add_type_ids($type_ids, $operator);
+					$operator = 'all';
+					if(isset($data['typeMatch'])) {
+						$operator = $data['typeMatch'];
+					}
+					
+					$post_ids = $this->combine_post_ids($type_post_ids_groups, $operator);
+					$dbm_query->include_only($post_ids);
+					
 					$has_query = true;
 				}
 				else {
-					$query_args['post__in'] = array(0);
-					return $query_args;
+					$dbm_query->include_only(array(0));
+					return $dbm_query->get_query_args();
 				}
 				
 			}
@@ -182,39 +204,41 @@
 				$relation_ids = $this->get_relation_ids($data);
 				
 				if(!empty($relation_ids)) {
-					$operator = 'AND';
-					if(isset($data['relationMatch'])) {
-						switch($data['relationMatch']) {
-							case "all":
-								//MENOTE: do nothing
-								break;
-							case "any":
-								$operator = 'IN';
-								break;
-						}
-						
+					
+					$post_ids_groups = array();
+					
+					foreach($relation_ids as $relation_id) {
+						$post_ids_groups[] = dbm_get_post_ids_for_term_id($relation_id);
 					}
 					
-					$dbm_query->add_relation_ids($relation_ids, $operator);
+					$operator = 'all';
+					if(isset($data['relationMatch'])) {
+						$operator = $data['relationMatch'];
+					}
+					
+					$post_ids = $this->combine_post_ids($post_ids_groups, $operator);
+					$dbm_query->include_only($post_ids);
+					
 					$has_query = true;
 				}
 				else {
-					$query_args['post__in'] = array(0);
-					return $query_args;
+					$dbm_query->include_only(array(0));
+					return $dbm_query->get_query_args();
 				}
 			}
 			
-			$query_args = $dbm_query->get_query_args();
-			
 			if(!$has_query) {
-				$query_args['post__in'] = array(0);
+				$dbm_query->include_only(array(0));
 			}
 			
-			return $query_args;
+			return $dbm_query->get_query_args();
 		}
 		
 		public function query_by_owned_relation($query_args, $data) {
 			$has_query = false;
+			
+			$dbm_query = dbm_new_query($query_args);
+			
 			if(isset($data['ownedRelation'])) {
 				
 				$term_ids = array();
@@ -235,27 +259,31 @@
 				if(!empty($term_ids)) {
 					$has_query = true;
 					
-					$current_tax_query = array(
-						'taxonomy' => 'dbm_relation',
-						'field' => 'id',
-						'terms' => $term_ids,
-						'include_children' => false
-					);
+					$post_ids_groups = array();
 					
-					$this->add_tax_query($query_args, $current_tax_query);
+					foreach($term_ids as $term_id) {
+						$post_ids_groups[] = dbm_get_post_ids_for_term_id($term_id);
+					}
+					
+					$post_ids = $this->combine_post_ids($post_ids_groups, 'all');
+					$dbm_query->include_only($post_ids);
+					
 				}
 				
 			}
 			
 			if(!$has_query) {
-				$query_args['post__in'] = array(0);
+				$dbm_query->include_only(array(0));
 			}
 			
-			return $query_args;
+			return $dbm_query->get_query_args();
 		}
 		
 		public function query_byPostRelation($query_args, $data) {
 			$has_query = false;
+			
+			$dbm_query = dbm_new_query($query_args);
+			
 			if(isset($data['postRelation'])) {
 				
 				$term_ids = array();
@@ -272,32 +300,35 @@
 				if(!empty($term_ids)) {
 					$has_query = true;
 					
-					$current_tax_query = array(
-						'taxonomy' => 'dbm_relation',
-						'field' => 'id',
-						'terms' => $term_ids,
-						'include_children' => false
-					);
+					$post_ids_groups = array();
 					
-					$this->add_tax_query($query_args, $current_tax_query);
+					foreach($term_ids as $term_id) {
+						$post_ids_groups[] = dbm_get_post_ids_for_term_id($term_id);
+					}
+					
+					$post_ids = $this->combine_post_ids($post_ids_groups, 'all');
+					$dbm_query->include_only($post_ids);
 				}
 				
 			}
 			
 			if(!$has_query) {
-				$query_args['post__in'] = array(0);
+				$dbm_query->include_only(array(0));
 			}
 			
-			return $query_args;
+			return $dbm_query->get_query_args();
 		}
 		
 		
 		
 		public function query_by_relation_owner($query_args, $data) {
 			$has_query = false;
+			
+			$dbm_query = dbm_new_query($query_args);
+			
 			if(isset($data['relationGroup']) && isset($data['from'])) {
 				
-				$relation_ids = $this->get_relation_ids($data, 'relationGroup', 'relationGroupField');
+				$relation_ids = $this->get_relation_ids($data, 'relationGroup', 'slugPath');
 				$group_term_id = $relation_ids[0];
 				
 				$post_id = (int)$data['from'];
@@ -313,31 +344,27 @@
 				}
 				
 				$type_ids = $this->get_type_ids($data);
+				$dbm_query->include_by_term_ids($type_ids);
 				
-				$current_tax_query = array(
-					'taxonomy' => 'dbm_type',
-					'field' => 'id',
-					'terms' => $type_ids,
-					'include_children' => false
-				);
-				$this->add_tax_query($query_args, $current_tax_query);
-				
-				$current_tax_query = array(
-					'taxonomy' => 'dbm_relation',
-					'field' => 'id',
-					'terms' => $term_ids,
-					'include_children' => false
-				);
-				$this->add_tax_query($query_args, $current_tax_query);
-				
-				$has_query = true;
+				if(!empty($term_ids)) {
+					$has_query = true;
+					
+					$post_ids_groups = array();
+					
+					foreach($term_ids as $term_id) {
+						$post_ids_groups[] = dbm_get_post_ids_for_term_id($term_id);
+					}
+					
+					$post_ids = $this->combine_post_ids($post_ids_groups, 'all');
+					$dbm_query->include_only($post_ids);
+				}
 			}
 			
 			if(!$has_query) {
-				$query_args['post__in'] = array(0);
+				$dbm_query->include_only(array(0));
 			}
 			
-			return $query_args;
+			return $dbm_query->get_query_args();
 		}
 		
 		public function query_objectRelation($query_args, $data) {

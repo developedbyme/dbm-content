@@ -694,4 +694,25 @@
 		
 		return $post_id;
 	}
+	
+	global $dbm_term_cache;
+	$dbm_term_cache = array();
+	
+	function dbm_get_post_ids_for_term_id($term_id) {
+		global $dbm_term_cache;
+		
+		if(!isset($dbm_term_cache[$term_id])) {
+			global $wpdb;
+	
+			$statement = "SELECT object_id FROM {$wpdb->prefix}term_relationships WHERE term_taxonomy_id = %d";
+			$safe_statement = $wpdb->prepare($statement, $term_id);
+	
+			$results = $wpdb->get_results($safe_statement, ARRAY_N);
+	
+			$ids = array_map('intval', array_column($results, 0));
+			$dbm_term_cache[$term_id] = $ids;
+		}
+
+		return $dbm_term_cache[$term_id];
+	}
 ?>
