@@ -76,6 +76,20 @@
 			return get_post_meta($this->get_id(), $field, true);
 		}
 		
+		public function get_enum_identifier($type) {
+			$type_id = dbm_new_query('dbm_data')->include_private()->include_only_type('type/enum-type')->add_meta_query('identifier', $type)->get_post_id();
+			if($type_id) {
+				$enum_ids = $this->object_relation_query('in:for:enum');
+				foreach($enum_ids as $enum_id) {
+					$enum_post = dbmtc_get_group($enum_id);
+					if(in_array($type_id, $enum_post->object_relation_query('in:for:type/enum-type'))) {
+						return $enum_post->get_field_value('identifier');
+					}
+				}
+			}
+			return null;
+		}
+		
 		public function add_type($id) {
 			
 			wp_set_post_terms($this->get_id(), array($id), 'dbm_type', true);
@@ -208,14 +222,20 @@
 			return null;
 		}
 		
-		public function add_outgoing_relation_by_name($to_object_id, $type_path) {
+		public function add_outgoing_relation_by_name($to_object_id, $type_path, $start_time = -1) {
 			$new_relation_id = dbm_create_object_relation($this->get_id(), $to_object_id, $type_path);
+			$dbm_post = dbm_get_post($new_relation_id);
+			$dbm_post->update_meta('startAt', $start_time);
+			$dbm_post->clear_cache();
 			
 			return $new_relation_id;
 		}
 		
-		public function add_incoming_relation_by_name($from_object_id, $type_path) {
+		public function add_incoming_relation_by_name($from_object_id, $type_path, $start_time = -1) {
 			$new_relation_id = dbm_create_object_relation($from_object_id, $this->get_id(), $type_path);
+			$dbm_post = dbm_get_post($new_relation_id);
+			$dbm_post->update_meta('startAt', $start_time);
+			$dbm_post->clear_cache();
 			
 			return $new_relation_id;
 		}

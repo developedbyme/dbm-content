@@ -243,6 +243,7 @@
 					$current_type = $setup_manager->create_data_type('instance')->set_name('Instance');
 					
 					$current_type = $setup_manager->create_data_type('group')->set_name('Group');
+					$current_type = $setup_manager->create_data_type('enum')->set_name('Enum');
 					
 					$current_type = $setup_manager->create_data_type('representation')->set_name('Representation');
 					$current_type->add_field("url")->setup_meta_storage();
@@ -256,6 +257,8 @@
 					$current_type = $setup_manager->create_data_type('type/hero-type')->set_name('Hero type');
 					
 					$current_type = $setup_manager->create_data_type('type/representation-type')->set_name('Representation type');
+					
+					$current_type = $setup_manager->create_data_type('type/enum-type')->set_name('Enum type');
 					
 					$current_type = $setup_manager->create_data_type('type/timezone')->set_name('Timezone');
 					$current_type = $setup_manager->create_data_type('type/language')->set_name('Language');
