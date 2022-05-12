@@ -34,6 +34,8 @@
 			$this->register_hook_for_type('addIncomingRelation', 'hook_addIncomingRelation');
 			$this->register_hook_for_type('addOutgoingRelation', 'hook_addOutgoingRelation');
 			
+			$this->register_hook_for_type('addTypeRelation');
+			
 			$this->register_hook_for_type('endIncomingRelations');
 			$this->register_hook_for_type('endOutgoingRelations');
 			
@@ -170,6 +172,23 @@
 			
 			delete_post_meta($post_id, 'dbm/objectRelations/outgoing');
 			delete_post_meta($related_id, 'dbm/objectRelations/incoming');
+			
+			$logger->add_return_data('relationId', $relation_id);
+		}
+		
+		public function change_addTypeRelation($data, $post_id, $logger) {
+			//var_dump("change_addTypeRelation");
+			$type_name = $data['value'];
+			$type = $data['type'];
+			
+			$related_id = dbmtc_get_or_create_type($type, $type_name);
+			
+			$relation_id = dbm_create_draft_object_relation($related_id, $post_id, 'for');
+			$dbm_post = dbm_get_post($relation_id);
+			$dbm_post->change_status('private');
+			
+			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
+			delete_post_meta($related_id, 'dbm/objectRelations/outgoing');
 			
 			$logger->add_return_data('relationId', $relation_id);
 		}
