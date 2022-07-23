@@ -32,10 +32,11 @@
 		}
 		
 		public function change_status($status) {
-			wp_update_post(array(
-				'ID' => $this->get_id(),
-				'post_status' => $status
-			));
+			wprr_performance_tracker()->start_meassure('DbmPost change_status');
+			global $wpdb;
+			$wpdb->update( $wpdb->posts, array('post_status' => $status), array('ID' => $this->get_id()));
+				
+			wprr_performance_tracker()->stop_meassure('DbmPost change_status');
 			
 			return $this;
 		}
