@@ -152,6 +152,7 @@
 	
 	function dbm_create_data($name, $type_path, $grouping_path = null) {
 		
+		wprr_performance_tracker()->start_meassure('dbm_create_data');
 		
 		$parent_id = 0;
 		
@@ -167,7 +168,9 @@
 			'post_status' => 'draft'
 		);
 		
+		wprr_performance_tracker()->start_meassure('dbm_create_data wp_insert_post');
 		$new_id = wp_insert_post($args);
+		wprr_performance_tracker()->stop_meassure('dbm_create_data wp_insert_post');
 		
 		if(is_wp_error($new_id)) {
 			throw(new \Exception('No post created '.$new_id->get_error_message()));
@@ -175,6 +178,8 @@
 		
 		$type_term = dbm_get_type(explode('/', $type_path));
 		wp_set_post_terms($new_id, array($type_term->term_id), 'dbm_type', false);
+		
+		wprr_performance_tracker()->stop_meassure('dbm_create_data');
 		
 		return $new_id;
 	}
@@ -217,10 +222,8 @@
 		
 		$new_id = dbm_create_draft_object_relation($from_object_id, $to_object_id, $type_path);
 		
-		$new_id = wp_update_post(array(
-			'ID' => $new_id,
-			'post_status' => 'private'
-		));
+		global $wpdb;
+		$wpdb->update( $wpdb->posts, array('post_status' => 'private'), array('ID' => $new_id));
 		
 		delete_post_meta($from_object_id, 'dbm/objectRelations/outgoing');
 		delete_post_meta($to_object_id, 'dbm/objectRelations/incoming');
@@ -263,10 +266,8 @@
 		
 		$new_id = dbm_create_draft_object_user_relation($from_object_id, $to_user_id, $type_path);
 		
-		$new_id = wp_update_post(array(
-			'ID' => $new_id,
-			'post_status' => 'private'
-		));
+		global $wpdb;
+		$wpdb->update( $wpdb->posts, array('post_status' => 'private'), array('ID' => $new_id));
 		
 		return $new_id;
 	}

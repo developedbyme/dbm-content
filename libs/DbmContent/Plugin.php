@@ -350,6 +350,8 @@
 				return;
 			}
 			
+			wprr_performance_tracker()->start_meassure('DbmContent\Plugin hook_save_post');
+			
 			parent::hook_save_post($post_id, $post, $update);
 			
 			if(isset($_POST['dbm_content'])) {
@@ -378,6 +380,8 @@
 			else {
 				dbm_add_post_type($post_id, 'post-type/'.$post->post_type);
 			}
+			
+			wprr_performance_tracker()->stop_meassure('DbmContent\Plugin hook_save_post');
 		}
 		
 		public function hook_dbmtc_internal_message_group_field_set($group, $field, $value, $user_id, $message) {
@@ -392,10 +396,8 @@
 					$group->has_type_by_name('type') ||
 					$group->has_type_by_name('named-item')
 				) {
-					wp_update_post(array(
-						'ID' => $group->get_id(),
-						'post_title' => $value
-					));
+					global $wpdb;
+					$wpdb->update( $wpdb->posts, array('post_title' => $value), array('ID' => $group->get_id()));
 				}
 			}
 			
