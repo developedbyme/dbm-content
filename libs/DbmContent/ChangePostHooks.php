@@ -145,7 +145,7 @@
 		}
 		
 		public function hook_addIncomingRelation($data, $post_id, $logger) {
-			$related_id = $data['value'];
+			$related_id = (int)$data['value'];
 			$type = $data['relationType'];
 			
 			$relation_id = dbm_create_draft_object_relation($related_id, $post_id, $type);
@@ -161,7 +161,7 @@
 		}
 		
 		public function hook_addOutgoingRelation($data, $post_id, $logger) {
-			$related_id = $data['value'];
+			$related_id = (int)$data['value'];
 			$type = $data['relationType'];
 			
 			$relation_id = dbm_create_draft_object_relation($post_id, $related_id, $type);
@@ -240,7 +240,7 @@
 		}
 		
 		public function change_replaceIncomingRelation($data, $post_id, $logger) {
-			$related_id = $data['value'];
+			$related_id = (int)$data['value'];
 			$type = $data['relationType'];
 			$object_type = $data['objectType'];
 			
@@ -283,7 +283,7 @@
 		}
 		
 		public function change_replaceOutgoingRelation($data, $post_id, $logger) {
-			$related_id = $data['value'];
+			$related_id = (int)$data['value'];
 			$type = $data['relationType'];
 			$object_type = $data['objectType'];
 			
@@ -326,7 +326,7 @@
 		}
 		
 		public function hook_addObjectUserRelation($data, $post_id, $logger) {
-			$related_id = $data['value'];
+			$related_id = (int)$data['value'];
 			$type = $data['relationType'];
 			
 			$dbm_post = dbm_get_post($post_id);
