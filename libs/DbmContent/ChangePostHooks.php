@@ -145,7 +145,7 @@
 		}
 		
 		public function hook_addIncomingRelation($data, $post_id, $logger) {
-			$related_id = (int)$data['value'];
+			$related_id = $data['value'];
 			$type = $data['relationType'];
 			
 			$relation_id = dbm_create_draft_object_relation($related_id, $post_id, $type);
@@ -161,7 +161,7 @@
 		}
 		
 		public function hook_addOutgoingRelation($data, $post_id, $logger) {
-			$related_id = (int)$data['value'];
+			$related_id = $data['value'];
 			$type = $data['relationType'];
 			
 			$relation_id = dbm_create_draft_object_relation($post_id, $related_id, $type);
@@ -205,17 +205,22 @@
 			$post = dbm_get_post($post_id);
 			$current_time = time();
 			
-			$has_relation = false;
-			$existing_relations = $post->get_encoded_incoming_relations_by_type($type, $object_type);
-			foreach($existing_relations as $existing_relation) {
-				$existing_relation_id = $existing_relation["id"];
-				$existing_relation_group = dbmtc_get_group($existing_relation_id);
+			if($object_type) {
+				$has_relation = false;
+				$existing_relations = $post->get_encoded_incoming_relations_by_type($type, $object_type);
+				foreach($existing_relations as $existing_relation) {
+					$existing_relation_id = $existing_relation["id"];
+					$existing_relation_group = dbmtc_get_group($existing_relation_id);
 				
-				$existing_relation_group->set_field('endAt', $current_time, 'Ending incoming relations');
-			}
+					$existing_relation_group->set_field('endAt', $current_time, 'Ending incoming relations');
+				}
 			
-			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
-			delete_post_meta($related_id, 'dbm/objectRelations/outgoing');
+				delete_post_meta($post_id, 'dbm/objectRelations/incoming');
+				delete_post_meta($related_id, 'dbm/objectRelations/outgoing');
+			}
+			else {
+				$logger->add_log('No objectType');
+			}
 			
 		}
 		
@@ -226,21 +231,26 @@
 			$post = dbm_get_post($post_id);
 			$current_time = time();
 			
-			$has_relation = false;
-			$existing_relations = $post->get_encoded_outgoing_relations_by_type($type, $object_type);
-			foreach($existing_relations as $existing_relation) {
-				$existing_relation_id = $existing_relation["id"];
-				$existing_relation_group = dbmtc_get_group($existing_relation_id);
+			if($object_type) {
+				$has_relation = false;
+				$existing_relations = $post->get_encoded_outgoing_relations_by_type($type, $object_type);
+				foreach($existing_relations as $existing_relation) {
+					$existing_relation_id = $existing_relation["id"];
+					$existing_relation_group = dbmtc_get_group($existing_relation_id);
 				
-				$existing_relation_group->set_field('endAt', $current_time, 'Replacement of outgoing relation');
-			}
+					$existing_relation_group->set_field('endAt', $current_time, 'Replacement of outgoing relation');
+				}
 			
-			delete_post_meta($related_id, 'dbm/objectRelations/incoming');
-			delete_post_meta($post_id, 'dbm/objectRelations/outgoing');
+				delete_post_meta($related_id, 'dbm/objectRelations/incoming');
+				delete_post_meta($post_id, 'dbm/objectRelations/outgoing');
+			}
+			else {
+				$logger->add_log('No objectType');
+			}
 		}
 		
 		public function change_replaceIncomingRelation($data, $post_id, $logger) {
-			$related_id = (int)$data['value'];
+			$related_id = $data['value'];
 			$type = $data['relationType'];
 			$object_type = $data['objectType'];
 			
@@ -283,7 +293,7 @@
 		}
 		
 		public function change_replaceOutgoingRelation($data, $post_id, $logger) {
-			$related_id = (int)$data['value'];
+			$related_id = $data['value'];
 			$type = $data['relationType'];
 			$object_type = $data['objectType'];
 			
@@ -326,7 +336,7 @@
 		}
 		
 		public function hook_addObjectUserRelation($data, $post_id, $logger) {
-			$related_id = (int)$data['value'];
+			$related_id = $data['value'];
 			$type = $data['relationType'];
 			
 			$dbm_post = dbm_get_post($post_id);
