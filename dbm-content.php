@@ -3,7 +3,7 @@
 	Plugin Name: DBM content
 	Plugin URI: http://developedbyme.com
 	Description: Content functionality
-	Version: 1.2.0
+	Version: 1.3.0
 	Author: Mattias Ekenedahl
 	Author URI: http://developedbyme.com
 	License: MIT
@@ -14,7 +14,7 @@
 	define("DBM_CONTENT_MAIN_FILE", __FILE__);
 	define("DBM_CONTENT_DIR", untrailingslashit(dirname(__FILE__)));
 	define("DBM_CONTENT_URL", untrailingslashit(plugins_url('',__FILE__)));
-	define("DBM_CONTENT_VERSION", '1.2.0');
+	define("DBM_CONTENT_VERSION", '1.3.0');
 	
 	require_once(DBM_CONTENT_DIR."/libs/DbmContent/bootstrap.php");
 	

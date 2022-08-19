@@ -783,8 +783,13 @@
 		
 		public function object_relation_query($path) {
 			
-			$current_ids = array($this->get_id());
-			$current_ids = self::object_relation_query_from_ids($current_ids, $path);
+			$data_api = wprr_get_data_api();
+			$posts = $data_api->wordpress()->get_post($this->get_id())->object_relation_query($path);
+			
+			$current_ids = array_map(function($post) {return $post->get_id();}, $posts);
+			
+			//$current_ids = array($this->get_id());
+			//$current_ids = self::object_relation_query_from_ids($current_ids, $path);
 			
 			return $current_ids;
 		}
