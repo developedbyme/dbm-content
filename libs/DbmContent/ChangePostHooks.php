@@ -157,7 +157,12 @@
 			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
 			delete_post_meta($related_id, 'dbm/objectRelations/outgoing');
 			
-			$logger->add_return_data('relationId', $relation_id);
+			$prefix = '';
+			if(isset($data['returnPrefix']) && $data['returnPrefix']) {
+				$prefix = $data['returnPrefix'].'/';
+			}
+			
+			$logger->add_return_data($prefix.'relationId', $relation_id);
 		}
 		
 		public function hook_addOutgoingRelation($data, $post_id, $logger) {
