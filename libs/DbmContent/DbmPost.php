@@ -61,6 +61,19 @@
 			return get_the_permalink($this->get_id());
 		}
 		
+		protected function update_post_data($field, $value) {
+			return wp_update_post(array(
+				'ID' => $this->get_id(),
+				$field => $value
+			));
+		}
+		
+		public function set_title($title) {
+			$this->update_post_data('post_title', $title);
+			
+			return $this;
+		}
+		
 		public function add_meta($field, $value) {
 			add_post_meta($this->get_id(), $field, $value);
 			
