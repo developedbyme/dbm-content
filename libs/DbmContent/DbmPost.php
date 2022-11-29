@@ -341,6 +341,65 @@
 			return $return_order_id;
 		}
 		
+		public function replace_object_property_value($property_name, $value) {
+			$property_id = $this->get_single_object_property($property_name);
+			
+			if(!$property_id) {
+				$property_id = dbm_create_data('Object property '.$property_name.' for '.$this->get_id(), 'object-property');
+				$post = dbm_get_post($property_id);
+				$post->add_type_by_name('identifiable-item');
+				$post->add_type_by_name('value-item');
+				
+				$post->update_meta('identifier', $property_name);
+				
+				$post->add_outgoing_relation_by_name($this->get_id(), 'for', time());
+				
+				$post->make_private();
+			}
+			else {
+				$post = dbm_get_post($property_id);
+			}
+			
+			$post->update_meta('value', $value);
+			
+			return $property_id;
+		}
+		
+		public function replace_linked_object_property($property_name, $pointing_to_id) {
+			$property_id = $this->get_single_object_property($property_name);
+			
+			if(!$property_id) {
+				$property_id = dbm_create_data('Object property '.$property_name.' for '.$this->get_id(), 'object-property');
+				$post = dbm_get_post($property_id);
+				$post->add_type_by_name('identifiable-item');
+				$post->add_type_by_name('object-property/linked-object-property');
+				
+				$post->update_meta('identifier', $property_name);
+				$post->add_outgoing_relation_by_name($this->get_id(), 'for', time());
+				
+				$post->make_private();
+			}
+			else {
+				$post = dbm_get_post($property_id);
+				$post->end_outgoing_relations_to_type('pointing-to', null);
+			}
+			
+			$post->add_outgoing_relation_by_name($pointing_to_id, 'pointing-to', time());
+			
+			return $property_id;
+		}
+		
+		public function get_single_object_property($identifier) {
+			
+			$post = wprr_get_data_api()->wordpress()->get_post($this->get_id())->single_object_relation_query_with_meta_filter('in:for:object-property', 'identifier', $identifier);
+			
+			if($post) {
+				return $post->get_id();
+			}
+			
+			return 0;
+		}
+		
 		public function get_object_relation_query_without_settings() {
 			return dbm_new_query('dbm_object_relation')->set_field('post_status', array('publish', 'private'));
 		}
