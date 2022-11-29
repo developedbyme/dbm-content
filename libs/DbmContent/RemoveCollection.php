@@ -30,6 +30,8 @@
 		
 		public function perform_remove_all() {
 			
+			wprr_performance_tracker()->start_meassure('RemoveCollection::perform_remove_all');
+			
 			global $dbm_skip_trash_cleanup;
 			$previous_setting = $dbm_skip_trash_cleanup;
 			$dbm_skip_trash_cleanup = true;
@@ -47,17 +49,25 @@
 			$trash_log_post->update_meta('removedItems', $this->items);
 			$trash_log_post->update_meta('clearCache', $cached_items);
 			
+			wprr_performance_tracker()->start_meassure('RemoveCollection::perform_remove_all remove');
 			foreach($this->items as $remove_id) {
+				wprr_performance_tracker()->start_meassure('RemoveCollection::perform_remove_all wp_trash_post');
 				wp_trash_post($remove_id);
+				wprr_performance_tracker()->stop_meassure('RemoveCollection::perform_remove_all wp_trash_post');
 			}
+			wprr_performance_tracker()->stop_meassure('RemoveCollection::perform_remove_all remove');
 			
+			wprr_performance_tracker()->start_meassure('RemoveCollection::perform_remove_all clear cache');
 			foreach($cached_items as $cached_item_id) {
 				dbm_clear_post_cache($cached_item_id);
 			}
+			wprr_performance_tracker()->stop_meassure('RemoveCollection::perform_remove_all clear cache');
 			
 			$trash_log_post->make_private();
 			
 			$dbm_skip_trash_cleanup = $previous_setting;
+			
+			wprr_performance_tracker()->stop_meassure('RemoveCollection::perform_remove_all');
 		}
 		
 		public static function test_import() {
