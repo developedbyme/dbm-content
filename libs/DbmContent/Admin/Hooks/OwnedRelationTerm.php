@@ -52,7 +52,7 @@
 				}
 			}
 			
-			$parent_term = get_term_by('slug', $this->_relation_group, 'dbm_relation');
+			$parent_term = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slugs(explode('/', $this->_relation_group), 'dbm_relation');
 			return $parent_term->term_id;
 		}
 		
