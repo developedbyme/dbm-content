@@ -157,8 +157,10 @@
 		$parent_id = 0;
 		
 		if($grouping_path) {
+			wprr_performance_tracker()->start_meassure('dbm_create_data get_parent');
 			$parent_grouping_term = dbm_get_type(explode('/', $grouping_path));
 			$parent_id = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_single_post_id_by_term($parent_grouping_term);
+			wprr_performance_tracker()->stop_meassure('dbm_create_data get_parent');
 		}
 		
 		$args = array(
@@ -176,8 +178,12 @@
 			throw(new \Exception('No post created '.$new_id->get_error_message()));
 		}
 		
+		wprr_performance_tracker()->start_meassure('dbm_create_data add_terms');
+		
 		$type_term = dbm_get_type(explode('/', $type_path));
 		wp_set_post_terms($new_id, array($type_term->term_id), 'dbm_type', false);
+		
+		wprr_performance_tracker()->stop_meassure('dbm_create_data add_terms');
 		
 		wprr_performance_tracker()->stop_meassure('dbm_create_data');
 		
