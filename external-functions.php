@@ -189,8 +189,10 @@
 		
 		wprr_performance_tracker()->start_meassure('dbm_create_data add_terms');
 		
-		$type_term = dbm_get_type(explode('/', $type_path));
-		wp_set_post_terms($new_id, array($type_term->term_id), 'dbm_type', false);
+		//$type_term = dbm_get_type(explode('/', $type_path));
+		
+		$type_term = wprr_get_data_api()->wordpress()->get_taxonomy('dbm_type')->get_term($type_path);
+		wp_set_post_terms($new_id, array($type_term->get_id()), 'dbm_type', false);
 		
 		wprr_performance_tracker()->stop_meassure('dbm_create_data add_terms');
 		

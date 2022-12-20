@@ -10,6 +10,7 @@
 			wprr_performance_tracker()->start_meassure('get_term_by_slugs find id');
 			$current_id = 0;
 			
+			/*
 			foreach($slugs as $slug) {
 				$args = array(
 					'taxonomy' => $taxonomy,
@@ -29,6 +30,11 @@
 					return null;
 				}
 				$current_id = $terms[0];
+			}
+			*/
+			$data_term = wprr_get_data_api()->wordpress()->get_taxonomy($taxonomy)->get_term(implode('/', $slugs));
+			if($data_term) {
+				$current_id = $data_term->get_id();
 			}
 			
 			wprr_performance_tracker()->stop_meassure('get_term_by_slugs find id');
