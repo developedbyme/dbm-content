@@ -258,6 +258,8 @@
 					
 					$current_type = $setup_manager->create_data_type('type/representation-type')->set_name('Representation type');
 					
+					$current_type = $setup_manager->create_data_type('type/group-type')->set_name('Group type');
+					
 					$current_type = $setup_manager->create_data_type('type/enum-type')->set_name('Enum type');
 					
 					$current_type = $setup_manager->create_data_type('type/timezone')->set_name('Timezone');
