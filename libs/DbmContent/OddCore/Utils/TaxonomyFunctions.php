@@ -6,6 +6,8 @@
 		
 		public static function get_term_by_slugs($slugs, $taxonomy) {
 			
+			wprr_performance_tracker()->start_meassure('get_term_by_slugs');
+			wprr_performance_tracker()->start_meassure('get_term_by_slugs find id');
 			$current_id = 0;
 			
 			foreach($slugs as $slug) {
@@ -29,7 +31,13 @@
 				$current_id = $terms[0];
 			}
 			
-			return get_term_by('id', $current_id, $taxonomy);
+			wprr_performance_tracker()->stop_meassure('get_term_by_slugs find id');
+			
+			$return_term = get_term_by('id', $current_id, $taxonomy);
+			
+			wprr_performance_tracker()->stop_meassure('get_term_by_slugs');
+			
+			return $return_term;
 		}
 		
 		public static function get_term_by_slug_path($slug_path, $taxonomy) {
