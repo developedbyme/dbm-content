@@ -240,7 +240,6 @@
 			$new_relation_id = dbm_create_object_relation($this->get_id(), $to_object_id, $type_path);
 			$dbm_post = dbm_get_post($new_relation_id);
 			$dbm_post->update_meta('startAt', $start_time);
-			$dbm_post->clear_cache();
 			
 			return $new_relation_id;
 		}
@@ -249,7 +248,6 @@
 			$new_relation_id = dbm_create_object_relation($from_object_id, $this->get_id(), $type_path);
 			$dbm_post = dbm_get_post($new_relation_id);
 			$dbm_post->update_meta('startAt', $start_time);
-			$dbm_post->clear_cache();
 			
 			return $new_relation_id;
 		}
