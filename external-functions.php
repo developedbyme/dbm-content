@@ -208,37 +208,35 @@
 	
 	function dbm_create_draft_object_relation($from_object_id, $to_object_id, $type_path) {
 		
+		wprr_performance_tracker()->start_meassure('dbm_create_draft_object_relation');
 		$type_term = dbm_get_type_by_path('object-relation/'.$type_path);
 		
 		if(!$type_term) {
 			throw(new \Exception('No type '.$type_path));
 		}
 		
-		$args = array(
-			'post_type' => 'dbm_object_relation',
-			'post_title' => $from_object_id.' '.($type_path).' '.$to_object_id,
-			'post_status' => 'draft'
-		);
-		
-		//$new_id = wp_insert_post($args);
+		wprr_performance_tracker()->start_meassure('dbm_create_draft_object_relation create');
 		$new_id = wprr_get_data_api()->wordpress()->editor()->create_post('dbm_object_relation', $from_object_id.' '.($type_path).' '.$to_object_id)->get_id();
+		wprr_performance_tracker()->stop_meassure('dbm_create_draft_object_relation create');
 		
-		/*
-		if(is_wp_error($new_id)) {
-			throw(new \Exception('No post created '.$new_id->get_error_message()));
-		}
-		*/
-		
+		wprr_performance_tracker()->start_meassure('dbm_create_draft_object_relation meta');
 		update_post_meta($new_id, 'fromId', $from_object_id);
 		update_post_meta($new_id, 'toId', $to_object_id);
 		update_post_meta($new_id, 'startAt', -1);
 		update_post_meta($new_id, 'endAt', -1);
+		wprr_performance_tracker()->stop_meassure('dbm_create_draft_object_relation meta');
 		
+		wprr_performance_tracker()->start_meassure('dbm_create_draft_object_relation relations');
 		$object_relation_term = dbm_get_type_by_path('object-relation');
 		wp_set_post_terms($new_id, array($object_relation_term->term_id, $type_term->term_id), 'dbm_type', false);
+		wprr_performance_tracker()->stop_meassure('dbm_create_draft_object_relation relations');
 		
+		wprr_performance_tracker()->start_meassure('dbm_create_draft_object_relation cache');
 		delete_post_meta($from_object_id, 'dbm/objectRelations/outgoing');
 		delete_post_meta($to_object_id, 'dbm/objectRelations/incoming');
+		wprr_performance_tracker()->stop_meassure('dbm_create_draft_object_relation cache');
+		
+		wprr_performance_tracker()->stop_meassure('dbm_create_draft_object_relation');
 		
 		return $new_id;
 	}
@@ -249,9 +247,6 @@
 		
 		global $wpdb;
 		$wpdb->update( $wpdb->posts, array('post_status' => 'private'), array('ID' => $new_id));
-		
-		delete_post_meta($from_object_id, 'dbm/objectRelations/outgoing');
-		delete_post_meta($to_object_id, 'dbm/objectRelations/incoming');
 		
 		return $new_id;
 	}
