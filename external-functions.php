@@ -172,20 +172,25 @@
 			*/
 		}
 		
+		/*
 		$args = array(
 			'post_type' => 'dbm_data',
 			'post_title' => $name,
 			'post_parent' => $parent_id,
 			'post_status' => 'draft'
 		);
+		*/
 		
 		wprr_performance_tracker()->start_meassure('dbm_create_data wp_insert_post');
-		$new_id = wp_insert_post($args);
+		//$new_id = wp_insert_post($args);
+		$new_id = wprr_get_data_api()->wordpress()->editor()->create_post('dbm_data', $name, $parent_id)->get_id();
 		wprr_performance_tracker()->stop_meassure('dbm_create_data wp_insert_post');
 		
+		/*
 		if(is_wp_error($new_id)) {
 			throw(new \Exception('No post created '.$new_id->get_error_message()));
 		}
+		*/
 		
 		wprr_performance_tracker()->start_meassure('dbm_create_data add_terms');
 		
@@ -215,11 +220,14 @@
 			'post_status' => 'draft'
 		);
 		
-		$new_id = wp_insert_post($args);
+		//$new_id = wp_insert_post($args);
+		$new_id = wprr_get_data_api()->wordpress()->editor()->create_post('dbm_object_relation', $from_object_id.' '.($type_path).' '.$to_object_id)->get_id();
 		
+		/*
 		if(is_wp_error($new_id)) {
 			throw(new \Exception('No post created '.$new_id->get_error_message()));
 		}
+		*/
 		
 		update_post_meta($new_id, 'fromId', $from_object_id);
 		update_post_meta($new_id, 'toId', $to_object_id);
