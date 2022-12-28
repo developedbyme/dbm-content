@@ -492,24 +492,70 @@
 			
 			$object_property = $from_post->single_object_relation_query_with_meta_filter('in:for:object-property', 'identifier', $identifier);
 			if(!$object_property) {
-				$object_property = wprr_get_data_api()->wordpress()->editor()->create_post('dbm_data', 'Object property '.$identifier.' for '.$linked_id);
+				$object_property = wprr_get_data_api()->wordpress()->editor()->create_post('dbm_data', 'Object property '.$identifier.' for '.$from_id);
 				
-				$object_property->editor()->add_term(wprr_get_data_api()->wordpress()->get_taxonomy('dbm_type')->get_term('object-relation'));
-				$object_property->editor()->add_term(wprr_get_data_api()->wordpress()->get_taxonomy('dbm_type')->get_term('object-relation/linked-object-propery'));
+				$object_property->editor()->add_term(wprr_get_data_api()->wordpress()->get_taxonomy('dbm_type')->get_term('object-property'));
+				$object_property->editor()->add_term(wprr_get_data_api()->wordpress()->get_taxonomy('dbm_type')->get_term('object-property/linked-object-property'));
+				$object_property->editor()->add_term(wprr_get_data_api()->wordpress()->get_taxonomy('dbm_type')->get_term('identifiable-item'));
 				
+				$object_property->editor()->add_meta('identifier', $identifier);
 				$object_property->editor()->change_status('private');
 				
-				$from_post->add_incoming_relation_by_name($object_property, 'for');
+				$from_post->editor()->add_incoming_relation_by_name($object_property, 'for');
 				
 			}
 			else {
-				//METODO: end exisitng pointing to
+				$object_property->editor()->end_all_outgoing_relations_by_name('pointing-to');
 			}
 			
-			$relation = $from_post->add_outgoing_relation_by_name($linked_post, 'pointing-to');
+			$relation = $object_property->editor()->add_outgoing_relation_by_name($linked_post, 'pointing-to', time());
 			
-			$logger->add_return_data('objectPropertyId', $object_property->get_id());
-			$logger->add_return_data('relationId', $relation->get_id());
+			$prefix = '';
+			if(isset($data['returnPrefix']) && $data['returnPrefix']) {
+				$prefix = $data['returnPrefix'].'/';
+			}
+			
+			$logger->add_return_data($prefix.'objectPropertyId', $object_property->get_id());
+			$logger->add_return_data($prefix.'relationId', $relation->get_id());
+		}
+		
+		public function change_setAsObjectProperty($data, $post_id, $logger) {
+			//echo("change_setAsObjectProperty");
+			
+			$from_id = $data['value'];
+			$linked_id = $post_id;
+			$identifier = $data['identifier'];
+			
+			$from_post = wprr_get_data_api()->wordpress()->get_post($from_id);
+			$linked_post = wprr_get_data_api()->wordpress()->get_post($linked_id);
+			
+			$object_property = $from_post->single_object_relation_query_with_meta_filter('in:for:object-property', 'identifier', $identifier);
+			if(!$object_property) {
+				$object_property = wprr_get_data_api()->wordpress()->editor()->create_post('dbm_data', 'Object property '.$identifier.' for '.$from_id);
+				
+				$object_property->editor()->add_term(wprr_get_data_api()->wordpress()->get_taxonomy('dbm_type')->get_term('object-property'));
+				$object_property->editor()->add_term(wprr_get_data_api()->wordpress()->get_taxonomy('dbm_type')->get_term('object-property/linked-object-property'));
+				$object_property->editor()->add_term(wprr_get_data_api()->wordpress()->get_taxonomy('dbm_type')->get_term('identifiable-item'));
+				
+				$object_property->editor()->add_meta('identifier', $identifier);
+				$object_property->editor()->change_status('private');
+				
+				$from_post->editor()->add_incoming_relation_by_name($object_property, 'for');
+				
+			}
+			else {
+				$object_property->editor()->end_all_outgoing_relations_by_name('pointing-to');
+			}
+			
+			$relation = $object_property->editor()->add_outgoing_relation_by_name($linked_post, 'pointing-to', time());
+			
+			$prefix = '';
+			if(isset($data['returnPrefix']) && $data['returnPrefix']) {
+				$prefix = $data['returnPrefix'].'/';
+			}
+			
+			$logger->add_return_data($prefix.'objectPropertyId', $object_property->get_id());
+			$logger->add_return_data($prefix.'relationId', $relation->get_id());
 		}
 		
 		public static function test_import() {
