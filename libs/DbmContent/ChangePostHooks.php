@@ -54,6 +54,9 @@
 			$this->register_hook_for_type('clearCache');
 			$this->register_hook_for_type('createUserFromItem');
 			
+			$this->register_hook_for_type('setObjectProperty');
+			$this->register_hook_for_type('setAsObjectProperty');
+			
 		}
 		
 		protected function get_relation_terms($data, $parent_path = null) {
@@ -477,6 +480,37 @@
 			}
 		}
 		
+		public function change_setObjectProperty($data, $post_id, $logger) {
+			//echo("change_setObjectProperty");
+			
+			$from_id = $post_id;
+			$linked_id = $data['value'];
+			$identifier = $data['identifier'];
+			
+			$from_post = wprr_get_data_api()->wordpress()->get_post($from_id);
+			$linked_post = wprr_get_data_api()->wordpress()->get_post($linked_id);
+			
+			$object_property = $from_post->single_object_relation_query_with_meta_filter('in:for:object-property', 'identifier', $identifier);
+			if(!$object_property) {
+				$object_property = wprr_get_data_api()->wordpress()->editor()->create_post('dbm_data', 'Object property '.$identifier.' for '.$linked_id);
+				
+				$object_property->editor()->add_term(wprr_get_data_api()->wordpress()->get_taxonomy('dbm_type')->get_term('object-relation'));
+				$object_property->editor()->add_term(wprr_get_data_api()->wordpress()->get_taxonomy('dbm_type')->get_term('object-relation/linked-object-propery'));
+				
+				$object_property->editor()->change_status('private');
+				
+				$from_post->add_incoming_relation_by_name($object_property, 'for');
+				
+			}
+			else {
+				//METODO: end exisitng pointing to
+			}
+			
+			$relation = $from_post->add_outgoing_relation_by_name($linked_post, 'pointing-to');
+			
+			$logger->add_return_data('objectPropertyId', $object_property->get_id());
+			$logger->add_return_data('relationId', $relation->get_id());
+		}
 		
 		public static function test_import() {
 			echo("Imported \DbmContent\ChangePostHooks<br />");
