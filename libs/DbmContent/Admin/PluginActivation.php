@@ -265,6 +265,7 @@
 					$current_type = $setup_manager->create_data_type('type/timezone')->set_name('Timezone');
 					$current_type = $setup_manager->create_data_type('type/language')->set_name('Language');
 					$current_type = $setup_manager->create_data_type('type/currency')->set_name('Currency');
+					$current_type = $setup_manager->create_data_type('type/data-format')->set_name('Data format');
 					
 					$current_type = $setup_manager->create_data_type('product')->set_name('Product');
 					
