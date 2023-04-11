@@ -152,9 +152,14 @@
 			$type = $data['relationType'];
 			
 			$relation_id = dbm_create_draft_object_relation($related_id, $post_id, $type);
+			$dbm_post = dbm_get_post($relation_id);
+			
 			if(isset($data['makePrivate']) && $data['makePrivate']) {
-				$dbm_post = dbm_get_post($relation_id);
 				$dbm_post->change_status('private');
+			}
+			
+			if(!isset($data['skipStart']) || !$data['skipStart']) {
+				$dbm_post->update_meta('startAt', time());
 			}
 			
 			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
@@ -173,9 +178,13 @@
 			$type = $data['relationType'];
 			
 			$relation_id = dbm_create_draft_object_relation($post_id, $related_id, $type);
+			$dbm_post = dbm_get_post($relation_id);
 			if(isset($data['makePrivate']) && $data['makePrivate']) {
-				$dbm_post = dbm_get_post($relation_id);
 				$dbm_post->change_status('private');
+			}
+			
+			if(!isset($data['skipStart']) || !$data['skipStart']) {
+				$dbm_post->update_meta('startAt', time());
 			}
 			
 			delete_post_meta($post_id, 'dbm/objectRelations/outgoing');
@@ -199,6 +208,10 @@
 			$relation_id = dbm_create_draft_object_relation($related_id, $post_id, 'for');
 			$dbm_post = dbm_get_post($relation_id);
 			$dbm_post->change_status('private');
+			
+			if(!isset($data['skipStart']) || !$data['skipStart']) {
+				$dbm_post->update_meta('startAt', time());
+			}
 			
 			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
 			delete_post_meta($related_id, 'dbm/objectRelations/outgoing');
@@ -349,10 +362,14 @@
 			
 			$dbm_post = dbm_get_post($post_id);
 			$relation_id = dbm_create_draft_object_user_relation($post_id, $related_id, $type);
+			$dbm_post = dbm_get_post($relation_id);
 			
 			if(isset($data['makePrivate']) && $data['makePrivate']) {
-				$dbm_post = dbm_get_post($relation_id);
 				$dbm_post->change_status('private');
+			}
+			
+			if(!isset($data['skipStart']) || !$data['skipStart']) {
+				$dbm_post->update_meta('startAt', time());
 			}
 			
 			delete_post_meta($post_id, 'dbm/userRelations');
