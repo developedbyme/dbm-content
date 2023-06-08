@@ -158,8 +158,10 @@
 				$dbm_post->change_status('private');
 			}
 			
+			$time = -1;
 			if(!isset($data['skipStart']) || !$data['skipStart']) {
-				$dbm_post->update_meta('startAt', time());
+				$time = time();
+				$dbm_post->update_meta('startAt', $time);
 			}
 			
 			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
@@ -171,6 +173,7 @@
 			}
 			
 			$logger->add_return_data($prefix.'relationId', $relation_id);
+			$logger->add_return_data($prefix.'relationTime', $time);
 		}
 		
 		public function hook_addOutgoingRelation($data, $post_id, $logger) {
@@ -183,8 +186,10 @@
 				$dbm_post->change_status('private');
 			}
 			
+			$time = -1;
 			if(!isset($data['skipStart']) || !$data['skipStart']) {
-				$dbm_post->update_meta('startAt', time());
+				$time = time();
+				$dbm_post->update_meta('startAt', $time);
 			}
 			
 			delete_post_meta($post_id, 'dbm/objectRelations/outgoing');
@@ -196,6 +201,7 @@
 			}
 			
 			$logger->add_return_data($prefix.'relationId', $relation_id);
+			$logger->add_return_data($prefix.'relationTime', $time);
 		}
 		
 		public function change_addTypeRelation($data, $post_id, $logger) {
@@ -209,14 +215,22 @@
 			$dbm_post = dbm_get_post($relation_id);
 			$dbm_post->change_status('private');
 			
+			$time = -1;
 			if(!isset($data['skipStart']) || !$data['skipStart']) {
-				$dbm_post->update_meta('startAt', time());
+				$time = time();
+				$dbm_post->update_meta('startAt', $time);
 			}
 			
 			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
 			delete_post_meta($related_id, 'dbm/objectRelations/outgoing');
 			
-			$logger->add_return_data('relationId', $relation_id);
+			$prefix = '';
+			if(isset($data['returnPrefix']) && $data['returnPrefix']) {
+				$prefix = $data['returnPrefix'].'/';
+			}
+			
+			$logger->add_return_data($prefix.'relationId', $relation_id);
+			$logger->add_return_data($prefix.'relationTime', $time);
 		}
 		
 		public function change_endIncomingRelations($data, $post_id, $logger) {
@@ -311,6 +325,7 @@
 			}
 			
 			$logger->add_return_data($prefix.'relationId', $relation_id);
+			$logger->add_return_data($prefix.'relationTime', $current_time);
 		}
 		
 		public function change_replaceOutgoingRelation($data, $post_id, $logger) {
@@ -354,6 +369,7 @@
 			}
 			
 			$logger->add_return_data($prefix.'relationId', $relation_id);
+			$logger->add_return_data($prefix.'relationTime', $current_time);
 		}
 		
 		public function hook_addObjectUserRelation($data, $post_id, $logger) {
@@ -368,13 +384,21 @@
 				$dbm_post->change_status('private');
 			}
 			
+			$time = -1;
 			if(!isset($data['skipStart']) || !$data['skipStart']) {
-				$dbm_post->update_meta('startAt', time());
+				$time = time();
+				$dbm_post->update_meta('startAt', $time);
 			}
 			
 			delete_post_meta($post_id, 'dbm/userRelations');
 			
-			$logger->add_return_data('relationId', $relation_id);
+			$prefix = '';
+			if(isset($data['returnPrefix']) && $data['returnPrefix']) {
+				$prefix = $data['returnPrefix'].'/';
+			}
+			
+			$logger->add_return_data($prefix.'relationId', $relation_id);
+			$logger->add_return_data($prefix.'relationTime', $relation_id);
 		}
 		
 		public function hook_order($data, $post_id, $logger) {
