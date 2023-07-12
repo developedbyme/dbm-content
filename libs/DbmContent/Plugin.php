@@ -322,7 +322,7 @@
 			
 			$postData = null;
 			if($screen && $screen->base === 'post' && function_exists('mrouter_encode_post')) {
-				$postData = mrouter_encode_post(get_post());
+				//$postData = mrouter_encode_post(get_post());
 			}
 			
 			$localized_data['postData'] = $postData;
