@@ -472,21 +472,27 @@
 					$add_ons["pageSettings"] = array();
 				}
 				
-				$page_setting_ids = $dbm_post->object_relation_query('in:for:settings/page-settings');
+				$type_term = wprr_get_data_api()->wordpress()->get_taxonomy('dbm_type')->get_term('settings/page-settings');
 				
-				foreach($page_setting_ids as $page_setting_id) {
-					$add_ons["pageSettings"][] = $this->encode_pageSettings(array('id' => $page_setting_id), $page_setting_id, null);
+				if($type_term) {
+					$page_setting_ids = $dbm_post->object_relation_query('in:for:settings/page-settings');
+				
+					foreach($page_setting_ids as $page_setting_id) {
+						$add_ons["pageSettings"][] = $this->encode_pageSettings(array('id' => $page_setting_id), $page_setting_id, null);
+					}
 				}
-				
 				
 				if(!isset($add_ons["dataSources"])) {
 					$add_ons["dataSources"] = array();
 				}
 				
-				$data_source_ids = $dbm_post->object_relation_query('in:for:settings/data-source');
+				$type_term = wprr_get_data_api()->wordpress()->get_taxonomy('dbm_type')->get_term('settings/data-source');
+				if($type_term) {
+					$data_source_ids = $dbm_post->object_relation_query('in:for:settings/data-source');
 				
-				foreach($data_source_ids as $data_source_id) {
-					$add_ons["dataSources"][] = $this->encode_dataSource(array('id' => $data_source_id), $data_source_id, null);
+					foreach($data_source_ids as $data_source_id) {
+						$add_ons["dataSources"][] = $this->encode_dataSource(array('id' => $data_source_id), $data_source_id, null);
+					}
 				}
 			}
 			
