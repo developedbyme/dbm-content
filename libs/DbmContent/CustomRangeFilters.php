@@ -373,7 +373,10 @@
 			$ids = explode(',', $data['ids']);
 			$path = $data['objectRelation'];
 			
-			$post_ids = \DbmContent\DbmPost::object_relation_query_from_ids($ids, $path);
+			$data_api = wprr_get_data_api();
+			$posts = $data_api->wordpress()->object_relation_query_from_ids($ids, $path);
+			
+			$post_ids = array_map(function($post) {return $post->get_id();}, $posts);
 			if(count($post_ids)) {
 				$query_args['post__in'] = $post_ids;
 			}

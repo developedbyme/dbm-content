@@ -237,21 +237,11 @@
 			$type = $data['relationType'];
 			$object_type = $data['objectType'];
 			
-			$post = dbm_get_post($post_id);
-			$current_time = time();
-			
 			if($object_type) {
-				$has_relation = false;
-				$existing_relations = $post->get_encoded_incoming_relations_by_type($type, $object_type);
-				foreach($existing_relations as $existing_relation) {
-					$existing_relation_id = $existing_relation["id"];
-					$existing_relation_group = dbmtc_get_group($existing_relation_id);
+				$post = dbm_get_post($post_id);
+				$current_time = time();
 				
-					$existing_relation_group->set_field('endAt', $current_time, 'Ending incoming relations');
-				}
-			
-				delete_post_meta($post_id, 'dbm/objectRelations/incoming');
-				delete_post_meta($related_id, 'dbm/objectRelations/outgoing');
+				$post->end_incoming_relations_from_type($type, $object_type, $current_time);
 			}
 			else {
 				$logger->add_log('No objectType');
@@ -267,17 +257,10 @@
 			$current_time = time();
 			
 			if($object_type) {
-				$has_relation = false;
-				$existing_relations = $post->get_encoded_outgoing_relations_by_type($type, $object_type);
-				foreach($existing_relations as $existing_relation) {
-					$existing_relation_id = $existing_relation["id"];
-					$existing_relation_group = dbmtc_get_group($existing_relation_id);
+				$post = dbm_get_post($post_id);
+				$current_time = time();
 				
-					$existing_relation_group->set_field('endAt', $current_time, 'Replacement of outgoing relation');
-				}
-			
-				delete_post_meta($related_id, 'dbm/objectRelations/incoming');
-				delete_post_meta($post_id, 'dbm/objectRelations/outgoing');
+				$post->end_outgoing_relations_to_type($type, $object_type, $current_time);
 			}
 			else {
 				$logger->add_log('No objectType');
@@ -289,42 +272,16 @@
 			$type = $data['relationType'];
 			$object_type = $data['objectType'];
 			
-			$post = dbm_get_post($post_id);
 			$current_time = time();
 			
-			$has_relation = false;
-			$existing_relations = $post->get_encoded_incoming_relations_by_type($type, $object_type);
-			foreach($existing_relations as $existing_relation) {
-				$existing_relation_id = $existing_relation["id"];
-				$existing_relation_group = dbmtc_get_group($existing_relation_id);
-				if($existing_relation["fromId"] == $related_id) {
-					if((int)$existing_relation_group->get_field_value('endAt') !== -1) {
-						$existing_relation_group->set_field('endAt', -1, 'Replacement of incoming relation');
-					}
-					$relation_id = $existing_relation_id;
-					$has_relation = true;
-				}
-				else {
-					$existing_relation_group->set_field('endAt', $current_time, 'Replacement of incoming relation');
-				}
-			}
-			
-			if(!$has_relation) {
-				$relation_id = dbm_create_draft_object_relation($related_id, $post_id, $type);
-				$dbm_post = dbmtc_get_group($relation_id);
-				$dbm_post->change_status('private');
-				$dbm_post->set_field('startAt', $current_time, 'Replacement of incoming relation');
-			}
-			
-			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
-			delete_post_meta($related_id, 'dbm/objectRelations/outgoing');
+			$relation = wprr_get_data_api()->wordpress()->get_post($post_id)->editor()->replace_incoming_relation_by_name(wprr_get_data_api()->wordpress()->get_post($related_id), $type, $object_type, $current_time);
 			
 			$prefix = '';
 			if(isset($data['returnPrefix']) && $data['returnPrefix']) {
 				$prefix = $data['returnPrefix'].'/';
 			}
 			
-			$logger->add_return_data($prefix.'relationId', $relation_id);
+			$logger->add_return_data($prefix.'relationId', $relation->get_id());
 			$logger->add_return_data($prefix.'relationTime', $current_time);
 		}
 		
@@ -333,42 +290,16 @@
 			$type = $data['relationType'];
 			$object_type = $data['objectType'];
 			
-			$post = dbm_get_post($post_id);
 			$current_time = time();
 			
-			$has_relation = false;
-			$existing_relations = $post->get_encoded_outgoing_relations_by_type($type, $object_type);
-			foreach($existing_relations as $existing_relation) {
-				$existing_relation_id = $existing_relation["id"];
-				$existing_relation_group = dbmtc_get_group($existing_relation_id);
-				if($existing_relation["toId"] == $related_id) {
-					if((int)$existing_relation_group->get_field_value('endAt') !== -1) {
-						$existing_relation_group->set_field('endAt', -1, 'Replacement of outgoing relation');
-					}
-					$relation_id = $existing_relation_id;
-					$has_relation = true;
-				}
-				else {
-					$existing_relation_group->set_field('endAt', $current_time, 'Replacement of outgoing relation');
-				}
-			}
-			
-			if(!$has_relation) {
-				$relation_id = dbm_create_draft_object_relation($post_id, $related_id, $type);
-				$dbm_post = dbmtc_get_group($relation_id);
-				$dbm_post->change_status('private');
-				$dbm_post->set_field('startAt', $current_time, 'Replacement of outgoing relation');
-			}
-			
-			delete_post_meta($related_id, 'dbm/objectRelations/incoming');
-			delete_post_meta($post_id, 'dbm/objectRelations/outgoing');
+			$relation = wprr_get_data_api()->wordpress()->get_post($post_id)->editor()->replace_outgoing_relation_by_name(wprr_get_data_api()->wordpress()->get_post($related_id), $type, $object_type, $current_time);
 			
 			$prefix = '';
 			if(isset($data['returnPrefix']) && $data['returnPrefix']) {
 				$prefix = $data['returnPrefix'].'/';
 			}
 			
-			$logger->add_return_data($prefix.'relationId', $relation_id);
+			$logger->add_return_data($prefix.'relationId', $relation->get_id());
 			$logger->add_return_data($prefix.'relationTime', $current_time);
 		}
 		
