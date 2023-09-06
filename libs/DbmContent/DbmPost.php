@@ -248,7 +248,7 @@
 		}
 		
 		public function add_incoming_relation_by_name($from_object_id, $type_path, $start_time = -1) {
-			$related_post = wprr_get_data_api()->wordpress()->get_post($to_object_id);
+			$related_post = wprr_get_data_api()->wordpress()->get_post($from_object_id);
 			$relation = $this->data_api_post()->editor()->add_incoming_relation_by_name($related_post, $type_path, $start_time, true);
 			
 			return $relation->get_id();
