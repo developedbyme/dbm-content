@@ -244,14 +244,14 @@
 			$related_post = wprr_get_data_api()->wordpress()->get_post($to_object_id);
 			$relation = $this->data_api_post()->editor()->add_outgoing_relation_by_name($related_post, $type_path, $start_time, true);
 			
-			return $new_relation_id;
+			return $relation->get_id();
 		}
 		
 		public function add_incoming_relation_by_name($from_object_id, $type_path, $start_time = -1) {
 			$related_post = wprr_get_data_api()->wordpress()->get_post($to_object_id);
-			$this->data_api_post()->editor()->add_outgoing_relation_by_name($related_post, $type_path, $start_time, true);
+			$relation = $this->data_api_post()->editor()->add_incoming_relation_by_name($related_post, $type_path, $start_time, true);
 			
-			return $new_relation_id;
+			return $relation->get_id();
 		}
 		
 		public function add_user_relation($user_id, $type_path) {

@@ -650,7 +650,7 @@
 		if($global_item_id) {
 			$dbm_post = dbm_get_post($global_item_id);
 			
-			$outgoing_relation_id = $dbm_post->get_single_outgoing_relation('pointing-to', null);
+			$outgoing_relation_id = $dbm_post->get_single_outgoing_relation('pointing-to', '*');
 			$to_id = (int)get_post_meta($outgoing_relation_id, 'toId', true);
 			
 			if($to_id) {
