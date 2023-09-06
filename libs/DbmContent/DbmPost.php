@@ -262,7 +262,7 @@
 			return $new_relation_id;
 		}
 		
-		public function end_outgoing_relations_to_type($type_path, $object_type, $at_time = -1) {
+		public function end_outgoing_relations_to_type($type_path, $object_type, $at_time = false) {
 			//var_dump('end_outgoing_relations_to_type');
 			
 			$this->data_api_post()->editor()->end_all_outgoing_relations_by_name($type_path, $object_type, $at_time);
@@ -270,7 +270,7 @@
 			return $this;
 		}
 		
-		public function end_incoming_relations_from_type($type_path, $object_type, $at_time = -1) {
+		public function end_incoming_relations_from_type($type_path, $object_type, $at_time = false) {
 			//var_dump('end_incoming_relations_from_type');
 			
 			$this->data_api_post()->editor()->end_all_incoming_relations_by_name($type_path, $object_type, $at_time);
