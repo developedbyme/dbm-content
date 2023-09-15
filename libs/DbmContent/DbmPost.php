@@ -325,7 +325,7 @@
 			}
 			else {
 				$post = dbm_get_post($property_id);
-				$post->end_outgoing_relations_to_type('pointing-to', null);
+				$post->end_outgoing_relations_to_type('pointing-to', '*');
 			}
 			
 			$post->add_outgoing_relation_by_name($pointing_to_id, 'pointing-to', time());
