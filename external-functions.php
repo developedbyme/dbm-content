@@ -208,33 +208,16 @@
 		return $new_id;
 	}
 	
-	function dbm_create_draft_object_relation($from_object_id, $to_object_id, $type_path) {
+	function dbm_create_draft_object_relation($from_object_id, $to_object_id, $type_path, $start_time = -1) {
 		
 		wprr_performance_tracker()->start_meassure('dbm_create_draft_object_relation');
-		$type_term = dbm_get_type_by_path('object-relation/'.$type_path);
 		
-		if(!$type_term) {
-			throw(new \Exception('No type '.$type_path));
-		}
+		$from_post = wprr_get_data_api()->wordpress()->get_post($from_object_id);
+		$to_post = wprr_get_data_api()->wordpress()->get_post($to_object_id);
 		
 		wprr_performance_tracker()->start_meassure('dbm_create_draft_object_relation create');
-		$new_id = wprr_get_data_api()->wordpress()->editor()->create_post('dbm_object_relation', $from_object_id.' '.($type_path).' '.$to_object_id)->get_id();
-		$post_editor = wprr_get_data_api()->wordpress()->editor()->get_post_editor($new_id);
+		$post = wprr_get_data_api()->wordpress()->editor()->create_relation($from_post, $to_post, $type_path, $start_time);
 		wprr_performance_tracker()->stop_meassure('dbm_create_draft_object_relation create');
-		
-		wprr_performance_tracker()->start_meassure('dbm_create_draft_object_relation meta');
-		$post_editor->add_meta('fromId', $from_object_id);
-		$post_editor->add_meta('toId', $to_object_id);
-		$post_editor->add_meta('startAt', -1);
-		$post_editor->add_meta('endAt', -1);
-		wprr_performance_tracker()->stop_meassure('dbm_create_draft_object_relation meta');
-		
-		wprr_performance_tracker()->start_meassure('dbm_create_draft_object_relation relations');
-		$object_relation_term = dbm_get_type_by_path('object-relation');
-		
-		$post_editor->add_term_by_id($object_relation_term->term_id);
-		$post_editor->add_term_by_id($type_term->term_id);
-		wprr_performance_tracker()->stop_meassure('dbm_create_draft_object_relation relations');
 		
 		wprr_performance_tracker()->start_meassure('dbm_create_draft_object_relation cache');
 		delete_post_meta($from_object_id, 'dbm/objectRelations/outgoing');
@@ -243,15 +226,15 @@
 		
 		wprr_performance_tracker()->stop_meassure('dbm_create_draft_object_relation');
 		
-		return $new_id;
+		return $post->get_id();
 	}
 	
-	function dbm_create_object_relation($from_object_id, $to_object_id, $type_path) {
+	function dbm_create_object_relation($from_object_id, $to_object_id, $type_path, $start_time = -1) {
 		
-		$new_id = dbm_create_draft_object_relation($from_object_id, $to_object_id, $type_path);
+		$new_id = dbm_create_draft_object_relation($from_object_id, $to_object_id, $type_path, $start_time);
 		
-		global $wpdb;
-		$wpdb->update( $wpdb->posts, array('post_status' => 'private'), array('ID' => $new_id));
+		$post = wprr_get_data_api()->wordpress()->get_post($new_id);
+		$post->editor()->make_private();
 		
 		return $new_id;
 	}

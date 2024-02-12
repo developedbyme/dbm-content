@@ -177,6 +177,7 @@
 		}
 		
 		public function hook_addOutgoingRelation($data, $post_id, $logger) {
+			//var_dump("hook_addOutgoingRelation");
 			$related_id = $data['value'];
 			$type = $data['relationType'];
 			
