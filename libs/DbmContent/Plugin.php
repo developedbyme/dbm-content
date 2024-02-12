@@ -24,23 +24,6 @@
 		protected function create_pages() {
 			//echo("\DbmContent\Plugin::create_pages<br />");
 			
-			$wprr_configuration_data = array(
-				'sitePath' => get_site_url(),
-				'themePath' => get_stylesheet_directory_uri(),
-				'restPath' => esc_url_raw( rest_url() ),
-				'initialMRouterData' => array(),
-				'imageSizes' => array(),
-				'nonce' => wp_create_nonce( 'wp_rest' )
-			);
-			
-			$current_page = new \DbmContent\OddCore\Admin\Pages\WprrPage();
-			$current_page->set_names('DBM Relations Manager', 'Relations Manager','dbm_relations_manager');
-			$current_page->set_component('relationsManagerPage', array());
-			$current_page->add_javascript('lba-mag-admin', get_template_directory_uri().'/assets/js/admin.js');
-			$current_page->add_css('lba-mag-admin', get_template_directory_uri().'/assets/css/admin-style.css');
-			$current_page->add_javascript_data('lba-mag-admin', 'wprrWpConfiguration', $wprr_configuration_data);
-			
-			$this->add_page($current_page);
 			
 		}
 		
@@ -112,12 +95,6 @@
 			add_action('dbmtc/internal_message/group_field_set', array($this, 'hook_dbmtc_internal_message_group_field_set'), 10, 5);
 			
 			add_action('dbm_content/clear_post_cache', array($this, 'hook_clear_post_cache'), 10, 1);
-		}
-		
-		public function mce_external_plugins( $plugin_array ){
-			$plugin_array['oa_generic'] = DBM_CONTENT_URL . '/libs/tinymce-plugins/oa_generic/editor_plugin_src.js';
-
-			return $plugin_array;
 		}
 		
 		public function get_full_term_slug($term, $taxonomy) {
@@ -204,48 +181,7 @@
 		protected function create_filters() {
 			//echo("\DbmContent\Plugin::create_filters<br />");
 			
-			$custom_range_filters = new \DbmContent\CustomRangeFilters();
-			
-			add_filter('m_router_data/custom_range_query_dbm-relations', array($custom_range_filters, 'query_relations_legacy'), 10, 2);
-			add_filter('wprr/range_query/relation', array($custom_range_filters, 'query_relations'), 10, 2);
-			add_filter('wprr/range_query/byOwnedRelation', array($custom_range_filters, 'query_by_owned_relation'), 10, 2);
-			add_filter('wprr/range_query/byPostRelation', array($custom_range_filters, 'query_byPostRelation'), 10, 2);
-			add_filter('wprr/range_query/relationOwner', array($custom_range_filters, 'query_by_relation_owner'), 10, 2);
-			add_filter('wprr/range_query/objectRelation', array($custom_range_filters, 'query_objectRelation'), 10, 2);
-			add_filter('wprr/range_query/globalItem', array($custom_range_filters, 'query_globalItem'), 10, 2);
-			
-			add_filter('wprr/range_query/languageTerm', array($custom_range_filters, 'query_languageTerm'), 10, 2);
-			
-			add_filter('wprr/range_encoding/editFields', array($custom_range_filters, 'encode_edit_fields'), 10, 3);
-			add_filter('wprr/range_encoding/incomingRelations', array($custom_range_filters, 'encode_incomingRelations'), 10, 3);
-			add_filter('wprr/range_encoding/outgoingRelations', array($custom_range_filters, 'encode_outgoingRelations'), 10, 3);
-			add_filter('wprr/range_encoding/relation', array($custom_range_filters, 'encode_relationLink'), 10, 3);
-			add_filter('wprr/range_encoding/relation', array($custom_range_filters, 'encode_relationType'), 10, 3);
-			add_filter('wprr/range_encoding/relationLink', array($custom_range_filters, 'encode_relationLink'), 10, 3);
-			add_filter('wprr/range_encoding/relationType', array($custom_range_filters, 'encode_relationType'), 10, 3);
-			add_filter('wprr/range_encoding/editObjectRelations', array($custom_range_filters, 'encode_editObjectRelations'), 10, 3);
-			add_filter('wprr/range_encoding/dbmTypes', array($custom_range_filters, 'encode_dbmTypes'), 10, 3);
-			add_filter('wprr/range_encoding/processForItem', array($custom_range_filters, 'encode_processForItem'), 10, 3);
-			add_filter('wprr/range_encoding/currentSequenceNumber', array($custom_range_filters, 'encode_currentSequenceNumber'), 10, 3);
-			add_filter('wprr/range_encoding/image', array($custom_range_filters, 'encode_image'), 10, 3);
-			
-			add_filter('m_router_data/custom_range_query_dbm-relation-manager-items', array($custom_range_filters, 'query_relation_manager_items'), 10, 2);
-			add_filter('m_router_data/custom_range_encode_dbm-relation-manager-items', array($custom_range_filters, 'encode_relation_manager_items'), 10, 3);
-			
-			add_filter('m_router_data/custom_item_get_global-relation', array($custom_range_filters, 'custom_item_get_global_relation'), 10, 3);
-			add_filter('m_router_data/custom_item_encode_global-relation', array($custom_range_filters, 'custom_item_encode_global_relation'), 10, 3);
-			
-			add_filter('dbm_content/get_taxonomies', array($this, 'filter_get_taxonomies'), 10, 1);
-			add_filter('m_router_data/encode_post_add_ons', array($custom_range_filters, 'encode_post_add_ons'), 10, 2);
-			
-			add_filter('m_router_data/encode_term', array($custom_range_filters, 'encode_term'), 10, 3);
-			add_filter('m_router_data/encode_term_link', array($custom_range_filters, 'encode_term'), 10, 3);
-			
-			add_filter( 'theme_page_templates', array($this, 'filter_global_page_templates'), 10, 1 );
-			
 			add_filter('dbm_content/get_menu_positions', array($this, 'filter_add_menu_position'), 10, 1);
-			
-			add_filter( 'mce_external_plugins', array($this, 'mce_external_plugins'), 10, 1);
 			
 			add_filter('wprr/admin/create_post/apply_data_type', array($this, 'filter_create_post_apply_data_type'), 10, 3);
 		}
@@ -272,31 +208,6 @@
 			return $menu_positions;
 		}
 		
-		public function filter_global_page_templates($post_templates) {
-			
-			$global_pages_parent_term = dbm_get_relation(array('global-pages'));
-			
-			if($global_pages_parent_term) {
-				$global_pages_terms = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_all_children_of_term($global_pages_parent_term->term_id, 'dbm_relation');
-				
-				foreach($global_pages_terms as $term) {
-					$post_templates['template-global-'.($term->slug).'.php'] = ($term->name).' (global)';
-				}
-			}
-			
-			$global_pages_parent_term = dbm_get_relation(array('page-templates'));
-			
-			if($global_pages_parent_term) {
-				$global_pages_terms = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_all_children_of_term($global_pages_parent_term->term_id, 'dbm_relation');
-				
-				foreach($global_pages_terms as $term) {
-					$post_templates['template-'.($term->slug).'.php'] = ($term->name);
-				}
-			}
-			
-			return $post_templates;
-		}
-		
 		public function hook_init() {
 
 			parent::hook_init();
@@ -306,37 +217,6 @@
 			$menu_positions = apply_filters('dbm_content/get_menu_positions', $menu_positions);
 			
 			register_nav_menus($menu_positions);
-		}
-
-		public function hook_admin_enqueue_scripts() {
-			//echo("\DbmContent\Plugin::hook_admin_enqueue_scripts<br />");
-			
-			parent::hook_admin_enqueue_scripts();
-		
-			$screen = get_current_screen();
-			
-			$localized_data = array(
-				'screen' => $screen,
-				'restApiBaseUrl' => get_home_url().'/wp-json/'
-			);
-			
-			$postData = null;
-			if($screen && $screen->base === 'post' && function_exists('mrouter_encode_post')) {
-				//$postData = mrouter_encode_post(get_post());
-			}
-			
-			$localized_data['postData'] = $postData;
-			
-			if(function_exists('mrouter_encode_all_taxonomies')) {
-				$localized_data['taxonomies'] = mrouter_encode_all_taxonomies();
-			}
-		
-			wp_enqueue_script( 'dbm-content-admin-main', DBM_CONTENT_URL . '/assets/js/admin.js');
-			wp_localize_script(
-				'dbm-content-admin-main',
-				'oaWpAdminData',
-				$localized_data
-			);
 		}
 		
 		public function hook_save_post($post_id, $post, $update) {

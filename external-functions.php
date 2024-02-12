@@ -467,12 +467,6 @@
 		return $dbm_query->get_post_ids();
 	}
 	
-	function dbm_filter_custom_range_relation_query($query_args, $data) {
-		$custom_range_filters = new \DbmContent\CustomRangeFilters();
-		
-		return $custom_range_filters->query_relations($query_args, $data);
-	}
-	
 	function dbm_get_owned_relation_id($owner_id, $group) {
 		$meta_name = 'dbm_relation_term_'.$group;
 		$term_id = (int)get_post_meta($owner_id, $meta_name, true);
