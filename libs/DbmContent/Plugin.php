@@ -241,14 +241,6 @@
 				do_action('dbm_content/parse_dbm_content', $dbm_content_object, $post_id, $post);
 			}
 			
-			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
-			delete_post_meta($post_id, 'dbm/objectRelations/outgoing');
-			
-			if($post->post_type === 'dbm_object_relation') {
-				delete_post_meta(get_post_meta($post_id, 'toId', true), 'dbm/objectRelations/incoming');
-				delete_post_meta(get_post_meta($post_id, 'fromId', true), 'dbm/objectRelations/outgoing');
-			}
-			
 			if($post->post_status === 'trash') {
 				if(!dbm_has_post_type($post_id, 'trash-log')) {
 					global $dbm_skip_trash_cleanup;
@@ -279,14 +271,6 @@
 					global $wpdb;
 					$wpdb->update( $wpdb->posts, array('post_title' => $value), array('ID' => $group->get_id()));
 				}
-			}
-			
-			if($group->has_type_by_name('object-relation')) {
-				delete_post_meta($group->get_meta('toId'), 'dbm/objectRelations/incoming');
-				delete_post_meta($group->get_meta('fromId'), 'dbm/objectRelations/outgoing');
-			}
-			else if($group->has_type_by_name('object-user-relation')) {
-				delete_post_meta($group->get_meta('fromId'), 'dbm/userRelations');
 			}
 		}
 		

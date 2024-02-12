@@ -162,24 +162,7 @@
 			$parent_grouping_term = wprr_get_data_api()->wordpress()->get_taxonomy('dbm_type')->get_term($grouping_path);
 			$parent_id = wprr_get_data_api()->database()->new_select_query()->set_post_type('dbm_data')->include_private()->include_term($parent_grouping_term)->get_id();
 			wprr_performance_tracker()->stop_meassure('dbm_create_data get_parent (dataapi)');
-			
-			/*
-			wprr_performance_tracker()->start_meassure('dbm_create_data get_parent');
-			
-			$parent_grouping_term = dbm_get_type(explode('/', $grouping_path));
-			$parent_id = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_single_post_id_by_term($parent_grouping_term);
-			wprr_performance_tracker()->stop_meassure('dbm_create_data get_parent');
-			*/
 		}
-		
-		/*
-		$args = array(
-			'post_type' => 'dbm_data',
-			'post_title' => $name,
-			'post_parent' => $parent_id,
-			'post_status' => 'draft'
-		);
-		*/
 		
 		wprr_performance_tracker()->start_meassure('dbm_create_data wp_insert_post');
 		//$new_id = wp_insert_post($args);
@@ -187,18 +170,9 @@
 		$post_editor = wprr_get_data_api()->wordpress()->editor()->get_post_editor($new_id);
 		wprr_performance_tracker()->stop_meassure('dbm_create_data wp_insert_post');
 		
-		/*
-		if(is_wp_error($new_id)) {
-			throw(new \Exception('No post created '.$new_id->get_error_message()));
-		}
-		*/
-		
 		wprr_performance_tracker()->start_meassure('dbm_create_data add_terms');
 		
-		//$type_term = dbm_get_type(explode('/', $type_path));
-		
 		$type_term = wprr_get_data_api()->wordpress()->get_taxonomy('dbm_type')->get_term($type_path);
-		//wp_set_post_terms($new_id, array($type_term->get_id()), 'dbm_type', false);
 		$post_editor->add_term_by_id($type_term->get_id());
 		
 		wprr_performance_tracker()->stop_meassure('dbm_create_data add_terms');
@@ -210,21 +184,10 @@
 	
 	function dbm_create_draft_object_relation($from_object_id, $to_object_id, $type_path, $start_time = -1) {
 		
-		wprr_performance_tracker()->start_meassure('dbm_create_draft_object_relation');
-		
 		$from_post = wprr_get_data_api()->wordpress()->get_post($from_object_id);
 		$to_post = wprr_get_data_api()->wordpress()->get_post($to_object_id);
 		
-		wprr_performance_tracker()->start_meassure('dbm_create_draft_object_relation create');
 		$post = wprr_get_data_api()->wordpress()->editor()->create_relation($from_post, $to_post, $type_path, $start_time);
-		wprr_performance_tracker()->stop_meassure('dbm_create_draft_object_relation create');
-		
-		wprr_performance_tracker()->start_meassure('dbm_create_draft_object_relation cache');
-		delete_post_meta($from_object_id, 'dbm/objectRelations/outgoing');
-		delete_post_meta($to_object_id, 'dbm/objectRelations/incoming');
-		wprr_performance_tracker()->stop_meassure('dbm_create_draft_object_relation cache');
-		
-		wprr_performance_tracker()->stop_meassure('dbm_create_draft_object_relation');
 		
 		return $post->get_id();
 	}
@@ -239,43 +202,22 @@
 		return $new_id;
 	}
 	
-	function dbm_create_draft_object_user_relation($from_object_id, $to_user_id, $type_path) {
+	function dbm_create_draft_object_user_relation($from_object_id, $to_user_id, $type_path, $start_time = -1) {
 		
-		$type_term = dbm_get_type_by_path('object-user-relation/'.$type_path);
+		$from_post = wprr_get_data_api()->wordpress()->get_post($from_object_id);
+		$to_user = wprr_get_data_api()->wordpress()->get_user($to_user_id);
 		
-		if(!$type_term) {
-			throw(new \Exception('No type '.$type_path));
-		}
+		$post = wprr_get_data_api()->wordpress()->editor()->create_relation($from_post, $to_user, $type_path, $start_time);
 		
-		$args = array(
-			'post_type' => 'dbm_object_relation',
-			'post_title' => $from_object_id.' '.($type_path).' '.$to_user_id,
-			'post_status' => 'draft'
-		);
-		
-		$new_id = wp_insert_post($args);
-		
-		if(is_wp_error($new_id)) {
-			throw(new \Exception('No post created '.$new_id->get_error_message()));
-		}
-		
-		update_post_meta($new_id, 'fromId', $from_object_id);
-		update_post_meta($new_id, 'toId', $to_user_id);
-		update_post_meta($new_id, 'startAt', -1);
-		update_post_meta($new_id, 'endAt', -1);
-		
-		$object_relation_term = dbm_get_type_by_path('object-user-relation');
-		wp_set_post_terms($new_id, array($object_relation_term->term_id, $type_term->term_id), 'dbm_type', false);
-		
-		return $new_id;
+		return $post->get_id();
 	}
 	
 	function dbm_create_object_user_relation($from_object_id, $to_user_id, $type_path) {
 		
 		$new_id = dbm_create_draft_object_user_relation($from_object_id, $to_user_id, $type_path);
 		
-		global $wpdb;
-		$wpdb->update( $wpdb->posts, array('post_status' => 'private'), array('ID' => $new_id));
+		$post = wprr_get_data_api()->wordpress()->get_post($new_id);
+		$post->editor()->make_private();
 		
 		return $new_id;
 	}
@@ -513,20 +455,6 @@
 		return $new_post;
 	}
 	
-	global $dbm_object_relations;
-	$dbm_object_relations = array();
-	
-	function dbm_get_object_relation($id) {
-		global $dbm_object_relations;
-		if(isset($dbm_object_relations[$id])) {
-			return $dbm_object_relations[$id];
-		}
-		$new_post = new \DbmContent\DbmObjectRelation($id);
-		$dbm_object_relations[$id] = $new_post;
-		
-		return $new_post;
-	}
-	
 	function dbm_get_number_sequence($id) {
 		
 		if(!get_post_meta($id, 'currentSequenceNumber', true)) {
@@ -538,27 +466,6 @@
 		return $new_post;
 	}
 	
-	function dbm_get_process($id) {
-		
-		$new_process = new \DbmContent\Process\DbmProcess($id);
-		
-		return $new_process;
-	}
-	
-	function dbm_get_process_part($id) {
-		
-		$new_process_part = new \DbmContent\Process\DbmProcessPart($id);
-		
-		return $new_process_part;
-	}
-	
-	function dbm_get_process_for_item($id) {
-		
-		$new_process_for_item = new \DbmContent\Process\DbmProcessForItem($id);
-		
-		return $new_process_for_item;
-	}
-	
 	function dbm_get_global_page_id($slug) {
 		$id = dbm_new_query('page')->add_relation_by_path('global-pages/'.$slug)->get_post_id();
 		
@@ -566,43 +473,12 @@
 	}
 	
 	function dbm_get_objects_by_user_relation($user_id, $relation_type, $object_type, $time = -1) {
-		$dbm_query = dbm_new_query('dbm_object_relation')->set_field('post_status', array('publish', 'private'));
-		$dbm_query->add_type_by_path('object-user-relation')->add_type_by_path('object-user-relation/'.$relation_type);
-		$dbm_query->add_meta_query('toId', $user_id);
 		
-		$return_array = array();
-		$relation_ids = $dbm_query->get_post_ids();
+		$relations = wprr_get_data_api()->wordpress()->wordpress()->get_user($user_id)->get_post_relations()->get_type($relation_type)->get_relations($object_type, $time);
 		
-		if($time !== false) {
-			if($time === -1) {
-				$time = time();
-			}
-			
-			$filtered_ids = array();
-			
-			foreach($relation_ids as $relation_id) {
-				$start_at = (int)get_post_meta($relation_id, 'startAt', true);
-				$end_at = (int)get_post_meta($relation_id, 'endAt', true);
-				if(($start_at === -1 || $start_at <= $time) && ($end_at === -1 || $end_at > $time)) {
-					$filtered_ids[] = $relation_id;
-				}
-			}
-			
-			$relation_ids = $filtered_ids;
-		}
+		$ids = array_map(function($relation) {return $relation->get_object_id();}, $relations);
 		
-		$term = dbm_get_type_by_path($object_type);
-		if($term) {
-			foreach($relation_ids as $relation_id) {
-			
-				$post_id = get_post_meta($relation_id, 'fromId', true);
-				if(has_term($term->term_id, 'dbm_type', $post_id)) {
-					$return_array[] = $post_id;
-				}
-			}
-		}
-		
-		return $return_array;
+		return $ids;
 	}
 	
 	function dbm_get_single_object_by_user_relation($user_id, $relation_type, $object_type, $time = -1) {
@@ -617,43 +493,6 @@
 		}
 		//METODO: error message
 		return 0;
-	}
-	
-	function dbm_get_global_item($identifier) {
-		$global_item_id = dbm_new_query('dbm_data')->set_field('post_status', array('publish', 'private'))->add_meta_query('identifier', $identifier)->get_post_id();
-		
-		$return_id = 0;
-		
-		if($global_item_id) {
-			$dbm_post = dbm_get_post($global_item_id);
-			
-			$outgoing_relation_id = $dbm_post->get_single_outgoing_relation('pointing-to', '*');
-			$to_id = (int)get_post_meta($outgoing_relation_id, 'toId', true);
-			
-			if($to_id) {
-				$return_id = $to_id;
-			}
-		}
-		
-		return $return_id;
-	}
-	
-	function dbm_relation_ids($relation_ids, $key) {
-		$return_array = array();
-		
-		foreach($relation_ids as $relation_id) {
-			$return_array[] = (int)get_post_meta($relation_id, $key, true);
-		}
-		
-		return $return_array;
-	}
-	
-	function dbm_outgoing_relation_ids($relation_ids) {
-		return dbm_relation_ids($relation_ids, 'toId');
-	}
-	
-	function dbm_incoming_relation_ids($relation_ids) {
-		return dbm_relation_ids($relation_ids, 'fromId');
 	}
 	
 	function dbm_setup_get_manager() {

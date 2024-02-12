@@ -48,11 +48,6 @@
 			
 			$this->register_hook_for_type('addObjectUserRelation', 'hook_addObjectUserRelation');
 			
-			$this->register_hook_for_type('process/skipPart');
-			$this->register_hook_for_type('process/skipPart/byIdentifier');
-			$this->register_hook_for_type('process/completePart');
-			$this->register_hook_for_type('process/completePart/byIdentifier');
-			
 			$this->register_hook_for_type('clearCache');
 			$this->register_hook_for_type('createUserFromItem');
 			
@@ -153,21 +148,17 @@
 			$related_id = $data['value'];
 			$type = $data['relationType'];
 			
-			$relation_id = dbm_create_draft_object_relation($related_id, $post_id, $type);
+			$time = -1;
+			if(!isset($data['skipStart']) || !$data['skipStart']) {
+				$time = time();
+			}
+			
+			$relation_id = dbm_create_draft_object_relation($related_id, $post_id, $type, $time);
 			$dbm_post = dbm_get_post($relation_id);
 			
 			if(isset($data['makePrivate']) && $data['makePrivate']) {
 				$dbm_post->change_status('private');
 			}
-			
-			$time = -1;
-			if(!isset($data['skipStart']) || !$data['skipStart']) {
-				$time = time();
-				$dbm_post->update_meta('startAt', $time);
-			}
-			
-			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
-			delete_post_meta($related_id, 'dbm/objectRelations/outgoing');
 			
 			$prefix = '';
 			if(isset($data['returnPrefix']) && $data['returnPrefix']) {
@@ -183,20 +174,16 @@
 			$related_id = $data['value'];
 			$type = $data['relationType'];
 			
-			$relation_id = dbm_create_draft_object_relation($post_id, $related_id, $type);
+			$time = -1;
+			if(!isset($data['skipStart']) || !$data['skipStart']) {
+				$time = time();
+			}
+			
+			$relation_id = dbm_create_draft_object_relation($post_id, $related_id, $type, $time);
 			$dbm_post = dbm_get_post($relation_id);
 			if(isset($data['makePrivate']) && $data['makePrivate']) {
 				$dbm_post->change_status('private');
 			}
-			
-			$time = -1;
-			if(!isset($data['skipStart']) || !$data['skipStart']) {
-				$time = time();
-				$dbm_post->update_meta('startAt', $time);
-			}
-			
-			delete_post_meta($post_id, 'dbm/objectRelations/outgoing');
-			delete_post_meta($related_id, 'dbm/objectRelations/incoming');
 			
 			$prefix = '';
 			if(isset($data['returnPrefix']) && $data['returnPrefix']) {
@@ -214,18 +201,14 @@
 			
 			$related_id = dbmtc_get_or_create_type($type, $type_name);
 			
-			$relation_id = dbm_create_draft_object_relation($related_id, $post_id, 'for');
-			$dbm_post = dbm_get_post($relation_id);
-			$dbm_post->change_status('private');
-			
 			$time = -1;
 			if(!isset($data['skipStart']) || !$data['skipStart']) {
 				$time = time();
-				$dbm_post->update_meta('startAt', $time);
 			}
 			
-			delete_post_meta($post_id, 'dbm/objectRelations/incoming');
-			delete_post_meta($related_id, 'dbm/objectRelations/outgoing');
+			$relation_id = dbm_create_draft_object_relation($related_id, $post_id, 'for', $time);
+			$dbm_post = dbm_get_post($relation_id);
+			$dbm_post->change_status('private');
 			
 			$prefix = '';
 			if(isset($data['returnPrefix']) && $data['returnPrefix']) {
@@ -324,21 +307,17 @@
 			$related_id = $data['value'];
 			$type = $data['relationType'];
 			
-			$dbm_post = dbm_get_post($post_id);
-			$relation_id = dbm_create_draft_object_user_relation($post_id, $related_id, $type);
-			$dbm_post = dbm_get_post($relation_id);
-			
-			if(isset($data['makePrivate']) && $data['makePrivate']) {
-				$dbm_post->change_status('private');
-			}
-			
 			$time = -1;
 			if(!isset($data['skipStart']) || !$data['skipStart']) {
 				$time = time();
-				$dbm_post->update_meta('startAt', $time);
 			}
 			
-			delete_post_meta($post_id, 'dbm/userRelations');
+			$dbm_post = dbm_get_post($post_id);
+			$relation_id = dbm_create_draft_object_user_relation($post_id, $related_id, $type, $time);
+			
+			if(isset($data['makePrivate']) && $data['makePrivate']) {
+				wprr_get_data_api()->wordpress()->get_post($relation_id)->editor()->make_private();
+			}
 			
 			$prefix = '';
 			if(isset($data['returnPrefix']) && $data['returnPrefix']) {
@@ -356,17 +335,12 @@
 			$dbm_post = dbm_get_post($post_id);
 			
 			$has_updated = false;
-			$order_ids = $dbm_post->get_outgoing_relations('relation-order-by', 'relation-order');
-			foreach($order_ids as $order_id) {
-				$order_post_id = get_post_meta($order_id, 'toId', true);
-				$current_type = get_post_meta($order_post_id, 'forType', true);
-				
-				if($for_type === $current_type) {
-					update_post_meta($order_post_id, 'order', $new_order);
-					$has_updated = true;
-					$logger->add_return_data('orderId', $order_post_id);
-					break;
-				}
+			$order_post = wprr_get_data_api()->wordpress()->get_post($post_id)->single_object_relation_query_with_meta_filter('out:relation-order-by:relation-order', 'forType', $for_type);
+			
+			if($order_post) {
+				$order_post->update_meta('order', $new_order);
+				$has_updated = true;
+				$logger->add_return_data('orderId', $order_post->get_id());
 			}
 			
 			if(!$has_updated) {
@@ -380,38 +354,6 @@
 				
 				$logger->add_return_data('orderId', $order_id);
 			}
-		}
-		
-		public function change_process_skipPart($data, $post_id, $logger) {
-			//echo("change_process_skipPart");
-			
-			$part_id = $data['value'];
-			
-			dbm_get_process_for_item($post_id)->skip_part($part_id);
-		}
-		
-		public function change_process_skipPart_byIdentifier($data, $post_id, $logger) {
-			//echo("change_process_skipPart_byIdentifier");
-			
-			$part_identifier = $data['value'];
-			
-			dbm_get_process_for_item($post_id)->skip_part_by_identifier($part_identifier);
-		}
-		
-		public function change_process_completePart($data, $post_id, $logger) {
-			//echo("change_process_completePart");
-			
-			$part_id = $data['value'];
-			
-			dbm_get_process_for_item($post_id)->complete_part($part_id);
-		}
-		
-		public function change_process_completePart_byIdentifier($data, $post_id, $logger) {
-			//echo("change_process_completePart_byIdentifier");
-			
-			$part_identifier = $data['value'];
-			
-			dbm_get_process_for_item($post_id)->complete_part_by_identifier($part_identifier);
 		}
 		
 		public function change_clearCache($data, $post_id, $logger) {
