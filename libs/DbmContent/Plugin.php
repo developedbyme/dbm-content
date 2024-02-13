@@ -111,7 +111,6 @@
 			//var_dump($post_id);
 			
 			$post = dbm_get_post($post_id);
-			$post->clear_cache();
 		}
 		
 		public function hook_parse_dbm_content($dbm_content, $post_id, $post) {

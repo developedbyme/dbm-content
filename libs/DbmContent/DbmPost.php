@@ -494,12 +494,6 @@
 			return $return_array;
 		}
 		
-		public function clear_cache() {
-			
-			return $this;
-			
-		}
-		
 		public function get_remove_items(&$remove_collection) {
 			
 			if($remove_collection->has_processed($this->get_id())) {

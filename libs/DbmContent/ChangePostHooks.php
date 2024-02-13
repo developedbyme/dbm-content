@@ -360,7 +360,6 @@
 			//echo("change_clearCache");
 			
 			$post = dbm_get_post($post_id);
-			$post->clear_cache();
 		}
 		
 		public function change_createUserFromItem($data, $post_id, $logger) {
