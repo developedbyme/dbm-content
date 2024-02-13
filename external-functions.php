@@ -207,7 +207,7 @@
 		$from_post = wprr_get_data_api()->wordpress()->get_post($from_object_id);
 		$to_user = wprr_get_data_api()->wordpress()->get_user($to_user_id);
 		
-		$post = wprr_get_data_api()->wordpress()->editor()->create_relation($from_post, $to_user, $type_path, $start_time);
+		$post = wprr_get_data_api()->wordpress()->editor()->create_user_relation($from_post, $to_user, $type_path, $start_time);
 		
 		return $post->get_id();
 	}
