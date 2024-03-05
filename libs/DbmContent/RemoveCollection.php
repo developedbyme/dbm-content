@@ -49,10 +49,12 @@
 			$trash_log_post->update_meta('removedItems', $this->items);
 			$trash_log_post->update_meta('clearCache', $cached_items);
 			
+			$wordpress_data_api = wprr_get_data_api()->wordpress();
+			
 			wprr_performance_tracker()->start_meassure('RemoveCollection::perform_remove_all remove');
 			foreach($this->items as $remove_id) {
 				wprr_performance_tracker()->start_meassure('RemoveCollection::perform_remove_all wp_trash_post');
-				wp_trash_post($remove_id);
+				$wordpress_data_api->get_post($remove_id)->editor()->trash();
 				wprr_performance_tracker()->stop_meassure('RemoveCollection::perform_remove_all wp_trash_post');
 			}
 			wprr_performance_tracker()->stop_meassure('RemoveCollection::perform_remove_all remove');
