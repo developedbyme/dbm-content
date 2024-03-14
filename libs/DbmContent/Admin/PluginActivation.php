@@ -267,6 +267,8 @@
 					$current_type = $setup_manager->create_data_type('type/currency')->set_name('Currency');
 					$current_type = $setup_manager->create_data_type('type/data-format')->set_name('Data format');
 					
+					$current_type = $setup_manager->create_data_type('group/translations-group')->set_name('Translations group');
+					
 					$current_type = $setup_manager->create_data_type('product')->set_name('Product');
 					
 					$current_type = $setup_manager->create_data_type('post-type')->set_name('Post type');
