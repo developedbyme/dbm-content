@@ -338,7 +338,7 @@
 			$order_post = wprr_get_data_api()->wordpress()->get_post($post_id)->single_object_relation_query_with_meta_filter('out:relation-order-by:relation-order', 'forType', $for_type);
 			
 			if($order_post) {
-				$order_post->update_meta('order', $new_order);
+				$order_post->editor()->update_meta('order', $new_order);
 				$has_updated = true;
 				$logger->add_return_data('orderId', $order_post->get_id());
 			}
