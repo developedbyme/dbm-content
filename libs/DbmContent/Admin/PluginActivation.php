@@ -54,6 +54,9 @@
 				
 				self::add_term('dbm_type:trash-log', 'Trash log');
 				
+				self::add_term('dbm_type:object-relation', 'Object relation');
+				self::add_term('dbm_type:object-user-relation', 'Object user relation');
+				
 				$current_term_id = self::add_term('dbm_relation:global-pages', 'Global pages');
 			
 				$current_term_id = self::add_term('dbm_relation:page-templates', 'Page templates');
