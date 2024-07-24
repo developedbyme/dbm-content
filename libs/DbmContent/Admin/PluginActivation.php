@@ -4,50 +4,6 @@
 	// \DbmContent\Admin\PluginActivation
 	class PluginActivation {
 		
-		static function create_page_at_path($path, $title, $post_type = 'page') {
-			
-			$page = get_page_by_path($path, OBJECT, $post_type);
-			if($page) {
-				/*
-				$args = array(
-					'ID' => $page->ID,
-					'post_title' => $title,
-				);
-				
-				wp_update_post($args);
-				*/
-				return $page->ID;
-			}
-			
-			$term_array = explode('/', $path);
-			
-			$slug = array_pop($term_array);
-			$parent_id = 0;
-			if(count($term_array) > 0 ) {
-				$parent_path = implode('/', $term_array);
-				
-				$parent = get_page_by_path($parent_path, OBJECT, $post_type);
-				if($parent) {
-					$parent_id = $parent->ID;
-				}
-				else {
-					trigger_error("No parent at ".$parent_path, E_USER_ERROR);
-				}
-			}
-			
-			$args = array(
-				'post_type' => $post_type,
-				'post_parent' => $parent_id,
-				'post_name' => $slug,
-				'post_title' => $title,
-				'post_status' => 'publish'
-			);
-			
-			$post_id = wp_insert_post($args);
-			
-			return $post_id;
-		}
-		
 		static function add_term($path, $name) {
 			$temp_array = explode(':', $path);
 			
@@ -57,95 +13,46 @@
 			\DbmContent\OddCore\Utils\TaxonomyFunctions::add_term($name, $path, $taxonomy);
 		}
 		
-		static function get_term_by_path($path) {
-			$temp_array = explode(':', $path);
-			
-			$taxonomy = $temp_array[0];
-			$path = explode('/', $temp_array[1]);
-			
-			return \DbmContent\OddCore\Utils\TaxonomyFunctions::get_term_by_slugs($path, $taxonomy);
-		}
-		
-		static function add_terms_to_post($term_paths, $post_id) {
-			foreach($term_paths as $term_path) {
-				$current_term = self::get_term_by_path($term_path);
-				if($current_term) {
-					wp_set_post_terms($post_id, $current_term->term_id, $current_term->taxonomy, true);
-				}
-				else {
-					//METODO: error message
-				}
-			}
-			
-			return $post_id;
-		}
-		
-		public static function create_global_term_and_page($slug, $title, $post_type = 'page', $parent_id = 0) {
-			$relation_path = 'dbm_relation:global-pages/'.$slug;
-			self::add_term($relation_path, $title);
-			$current_page_id = self::create_page($slug, $title, $post_type, $parent_id);
-			update_post_meta($current_page_id, '_wp_page_template', 'template-global-'.$slug.'.php');
-			self::add_terms_to_post(array($relation_path), $current_page_id);
-			
-			return $current_page_id;
-		}
-		
-		public static function create_user($login, $first_name = '', $last_name = '') {
-			$existing_user = get_user_by('login', $login);
-			
-			if($existing_user) {
-				return $existing_user->ID;
-			}
-			
-			$args = array(
-				'user_login' => $login,
-				'user_pass' => wp_generate_password(),
-				'first_name' => $first_name,
-				'last_name' => $last_name,
-				'display_name' => $first_name
-			);
-			
-			$new_user_id = wp_insert_user($args);
-			
-			return $new_user_id;
-		}
-		
 		public static function run_setup() {
 			
 			remove_all_actions('pre_get_posts');
 			
+			$editor = wprr_get_data_api()->wordpress()->editor();
+			
+			$editor->create_object_relation_types(
+				'for',
+				'in',
+				'from',
+				'has',
+				'part-of',
+				'version-of',
+				'latest-version-of',
+				'translation-of',
+				'by',
+				'during',
+				'of',
+				'at',
+				'to',
+				'following',
+				'completed',
+				'skipped',
+				'started',
+				'owned-by',
+				'relation-order-by',
+				'number-sequence-for',
+				'pointing-to',
+				'available-at',
+				'based-on'
+			);
+			
+			$editor->create_object_user_relation_types(
+				'user-for',
+				'by'
+			);
+			
 			if(taxonomy_exists('dbm_relation')) {
 				
 				self::add_term('dbm_type:trash-log', 'Trash log');
-				
-				self::add_term('dbm_type:object-relation', 'Object relation');
-				self::add_term('dbm_type:object-relation/for', 'For');
-				self::add_term('dbm_type:object-relation/in', 'In');
-				self::add_term('dbm_type:object-relation/from', 'From');
-				self::add_term('dbm_type:object-relation/has', 'Has');
-				self::add_term('dbm_type:object-relation/part-of', 'Part of');
-				self::add_term('dbm_type:object-relation/version-of', 'Version of');
-				self::add_term('dbm_type:object-relation/latest-version-of', 'Latest version of');
-				self::add_term('dbm_type:object-relation/translation-of', 'Translation of');
-				self::add_term('dbm_type:object-relation/by', 'By');
-				self::add_term('dbm_type:object-relation/during', 'During');
-				self::add_term('dbm_type:object-relation/of', 'Of');
-				self::add_term('dbm_type:object-relation/at', 'At');
-				self::add_term('dbm_type:object-relation/to', 'To');
-				self::add_term('dbm_type:object-relation/following', 'Following');
-				self::add_term('dbm_type:object-relation/completed', 'Completed');
-				self::add_term('dbm_type:object-relation/skipped', 'Skipped');
-				self::add_term('dbm_type:object-relation/started', 'Started');
-				self::add_term('dbm_type:object-relation/owned-by', 'Owned by');
-				self::add_term('dbm_type:object-relation/relation-order-by', 'Relation order by');
-				self::add_term('dbm_type:object-relation/number-sequence-for', 'Number sequence for');
-				self::add_term('dbm_type:object-relation/pointing-to', 'Pointing to');
-				self::add_term('dbm_type:object-relation/available-at', 'Available at');
-				self::add_term('dbm_type:object-relation/based-on', 'Based on');
-				
-				self::add_term('dbm_type:object-user-relation', 'Object user relation');
-				self::add_term('dbm_type:object-user-relation/user-for', 'User for');
-				self::add_term('dbm_type:object-user-relation/by', 'By');
 				
 				$current_term_id = self::add_term('dbm_relation:global-pages', 'Global pages');
 			
