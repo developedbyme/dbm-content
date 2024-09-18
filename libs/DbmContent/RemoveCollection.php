@@ -33,6 +33,8 @@
 			wprr_performance_tracker()->start_meassure('RemoveCollection::perform_remove_all');
 			
 			global $dbm_skip_trash_cleanup;
+			global $dbm_skip_trash_log;
+			
 			$previous_setting = $dbm_skip_trash_cleanup;
 			$dbm_skip_trash_cleanup = true;
 			
@@ -40,14 +42,17 @@
 			
 			$remove_id  = $this->origin_id;
 			
-			$title = 'Removal of '.$remove_id.':'.get_the_title($remove_id);
+			if(!$dbm_skip_trash_log) {
+				$title = 'Removal of '.$remove_id.':'.get_the_title($remove_id);
 			
-			$trash_log_id = dbm_create_data($title, 'trash-log');
-			$trash_log_post = dbm_get_post($trash_log_id);
+				$trash_log_id = dbm_create_data($title, 'trash-log');
+				$trash_log_post = dbm_get_post($trash_log_id);
 			
-			$trash_log_post->update_meta('origin', $this->origin_id);
-			$trash_log_post->update_meta('removedItems', $this->items);
-			$trash_log_post->update_meta('clearCache', $cached_items);
+				$trash_log_post->update_meta('origin', $this->origin_id);
+				$trash_log_post->update_meta('removedItems', $this->items);
+				$trash_log_post->update_meta('clearCache', $cached_items);
+			}
+			
 			
 			$wordpress_data_api = wprr_get_data_api()->wordpress();
 			
@@ -65,7 +70,9 @@
 			}
 			wprr_performance_tracker()->stop_meassure('RemoveCollection::perform_remove_all clear cache');
 			
-			$trash_log_post->make_private();
+			if(!$dbm_skip_trash_log) {
+				$trash_log_post->make_private();
+			}
 			
 			$dbm_skip_trash_cleanup = $previous_setting;
 			
