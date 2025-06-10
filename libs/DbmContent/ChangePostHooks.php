@@ -42,6 +42,8 @@
 			$this->register_hook_for_type('replaceIncomingRelation');
 			$this->register_hook_for_type('replaceOutgoingRelation');
 			
+			$this->register_hook_for_type('updateObjectRelationField');
+			
 			$this->register_hook_for_type('order', 'hook_order');
 			
 			$this->register_hook_for_type('addObjectUserRelation', 'hook_addObjectUserRelation');
@@ -301,6 +303,20 @@
 			
 			$logger->add_return_data($prefix.'relationId', $relation->get_id());
 			$logger->add_return_data($prefix.'relationTime', $current_time);
+		}
+		
+		public function change_updateObjectRelationField($data, $post_id, $logger) {
+			//var_dump('change_updateObjectRelationField');
+			$field = $data['field'];
+			
+			if($field !== 'startAt' && $field !== 'endAt') {
+				//METODO: throw
+				return;
+			}
+			
+			$value = $data['value'];
+			
+			wprr_get_data_api()->wordpress()->get_post($post_id)->editor()->update_field($field, $value);
 		}
 		
 		public function hook_addObjectUserRelation($data, $post_id, $logger) {
