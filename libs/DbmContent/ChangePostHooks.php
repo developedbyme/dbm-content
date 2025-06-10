@@ -316,7 +316,7 @@
 			
 			$value = $data['value'];
 			
-			wprr_get_data_api()->wordpress()->get_post($post_id)->editor()->update_field($field, $value);
+			wprr_get_data_api()->wordpress()->get_post($post_id)->editor()->update_meta($field, $value);
 		}
 		
 		public function hook_addObjectUserRelation($data, $post_id, $logger) {
