@@ -156,31 +156,6 @@
 		
 		$parent_id = 0;
 		
-		if($grouping_path) {
-			wprr_performance_tracker()->start_meassure('dbm_create_data get_parent (dataapi)');
-			
-			$parent_grouping_term = wprr_get_data_api()->wordpress()->get_taxonomy('dbm_type')->get_term($grouping_path);
-			$parent_id = wprr_get_data_api()->database()->new_select_query()->set_post_type('dbm_data')->include_private()->include_term($parent_grouping_term)->get_id();
-			wprr_performance_tracker()->stop_meassure('dbm_create_data get_parent (dataapi)');
-			
-			/*
-			wprr_performance_tracker()->start_meassure('dbm_create_data get_parent');
-			
-			$parent_grouping_term = dbm_get_type(explode('/', $grouping_path));
-			$parent_id = \DbmContent\OddCore\Utils\TaxonomyFunctions::get_single_post_id_by_term($parent_grouping_term);
-			wprr_performance_tracker()->stop_meassure('dbm_create_data get_parent');
-			*/
-		}
-		
-		/*
-		$args = array(
-			'post_type' => 'dbm_data',
-			'post_title' => $name,
-			'post_parent' => $parent_id,
-			'post_status' => 'draft'
-		);
-		*/
-		
 		wprr_performance_tracker()->start_meassure('dbm_create_data wp_insert_post');
 		//$new_id = wp_insert_post($args);
 		$new_id = wprr_get_data_api()->wordpress()->editor()->create_post('dbm_data', $name, $parent_id)->get_id();

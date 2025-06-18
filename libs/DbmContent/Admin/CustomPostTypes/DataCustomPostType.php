@@ -17,7 +17,7 @@
 			$this->set_argument('exclude_from_search', true);
 			$this->set_argument('show_in_nav_menus', false);
 			$this->set_argument('has_archive', false);
-			$this->set_argument('hierarchical', true);
+			$this->set_argument('hierarchical', false);
 			
 			$this->set_argument('supports', array( 'title', 'page-attributes' ));
 			
