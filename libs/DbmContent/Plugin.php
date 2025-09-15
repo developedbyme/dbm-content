@@ -355,6 +355,20 @@
 				return;
 			}
 			
+			if($post->post_status === 'trash') {
+				wprr_performance_tracker()->start_meassure('DbmContent\Plugin hook_save_post trash');
+				if(!dbm_has_post_type($post_id, 'trash-log')) {
+					global $dbm_skip_trash_cleanup;
+					if(!$dbm_skip_trash_cleanup) {
+						dbm_trash_item($post_id);
+					}
+				}
+				
+				wprr_performance_tracker()->stop_meassure('DbmContent\Plugin hook_save_post trash');
+				
+				return;
+			}
+			
 			wprr_performance_tracker()->start_meassure('DbmContent\Plugin hook_save_post');
 			
 			parent::hook_save_post($post_id, $post, $update);
@@ -374,15 +388,7 @@
 				delete_post_meta(get_post_meta($post_id, 'fromId', true), 'dbm/objectRelations/outgoing');
 			}
 			
-			if($post->post_status === 'trash') {
-				if(!dbm_has_post_type($post_id, 'trash-log')) {
-					global $dbm_skip_trash_cleanup;
-					if(!$dbm_skip_trash_cleanup) {
-						dbm_trash_item($post_id);
-					}
-				}
-			}
-			else {
+			if($post->post_status !== 'trash') {
 				dbm_add_post_type($post_id, 'post-type/'.$post->post_type);
 			}
 			
