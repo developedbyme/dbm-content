@@ -356,6 +356,8 @@
 			}
 			
 			if($post->post_status === 'trash') {
+				$this->save_hooks_triggered[] = $post_id;
+				
 				wprr_performance_tracker()->start_meassure('DbmContent\Plugin hook_save_post trash');
 				if(!dbm_has_post_type($post_id, 'trash-log')) {
 					global $dbm_skip_trash_cleanup;
