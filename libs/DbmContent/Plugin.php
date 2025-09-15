@@ -341,6 +341,11 @@
 		
 		public function hook_save_post($post_id, $post, $update) {
 			//echo("\DbmContent\Plugin::hook_save_post<br />");
+			
+			global $dbm_skip_save_hook;
+			if($dbm_skip_save_hook) {
+				return;
+			}
 
 			if(wp_is_post_revision($post_id)) {
 				return;

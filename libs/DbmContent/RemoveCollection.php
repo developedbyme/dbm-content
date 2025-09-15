@@ -32,9 +32,13 @@
 			
 			wprr_performance_tracker()->start_meassure('RemoveCollection::perform_remove_all');
 			
+			global $dbm_skip_save_hook;
 			global $dbm_skip_trash_cleanup;
 			global $dbm_skip_trash_log;
 			global $dbm_delete_dependencies_direct_when_trashed;
+			
+			$previous_skip_save_hook = $dbm_skip_save_hook;
+			$dbm_skip_save_hook = true;
 			
 			$previous_setting = $dbm_skip_trash_cleanup;
 			$dbm_skip_trash_cleanup = true;
@@ -85,6 +89,7 @@
 			}
 			
 			$dbm_skip_trash_cleanup = $previous_setting;
+			$dbm_skip_save_hook = $previous_skip_save_hook;
 			
 			wprr_performance_tracker()->stop_meassure('RemoveCollection::perform_remove_all');
 		}
