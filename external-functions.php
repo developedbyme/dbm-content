@@ -671,6 +671,17 @@
 		$remove_collection->perform_remove_all();
 	}
 	
+	function dbm_trash_item_dataApi($id) {
+		$post = dbm_get_post($id);
+		
+		$remove_collection = new \DbmContent\RemoveCollection();
+		
+		$remove_collection->set_origin_id($id);
+		$post->get_remove_items($remove_collection);
+		
+		$remove_collection->perform_remove_all();
+	}
+	
 	function dbm_clear_post_cache($post_id) {
 		$action_name = 'dbm_content/clear_post_cache';
 		do_action($action_name, $post_id);
