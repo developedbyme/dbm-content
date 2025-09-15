@@ -679,7 +679,7 @@
 		$remove_collection->set_origin_id($id);
 		$post->get_remove_items($remove_collection);
 		
-		$remove_collection->perform_remove_all();
+		$remove_collection->perform_remove_all_dataApi();
 	}
 	
 	function dbm_clear_post_cache($post_id) {
